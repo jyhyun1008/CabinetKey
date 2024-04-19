@@ -1,0 +1,179 @@
+@font-face {
+    font-family: 'Orbit-Regular';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2310@1.0/Orbit-Regular.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+}
+
+body {
+    font-family: 'Orbit-Regular';
+    background-color: darkolivegreen;
+    background-image: url('../assets/bground.jpeg');
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: center;
+    background-size: 100% 100dvh;
+    margin: 0;
+    overscroll-behavior: none;
+}
+
+#title-box {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 10;
+    height: 100px;
+    display: flex;
+    flex-direction: column;
+    width: 100vw;
+    text-align: center;
+    background-color: darkolivegreen;
+    color: white;
+}
+
+#title {
+    margin-bottom: 0;
+}
+
+#title a {
+    text-decoration: none;
+    color: inherit;
+}
+
+#page-content {
+    padding: 10px;
+    background-color: #ffffffcc;
+    border-radius: 20px;
+}
+
+#text-box {
+    margin: 120px auto 30px auto;
+    max-width: calc(100dvh - 150px);
+    width: 100%;
+}
+
+.worldname, .charactername {
+    width: 100%;
+    background-color: darkolivegreen;
+    color: white;
+    text-align: center;
+    height: 1.7rem;
+    margin-bottom: 10px;
+    border-radius: 20px;
+}
+
+.worldmap {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap:5px;
+}
+
+.worldrow, .worldhead {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 5px;
+}
+
+.worldcol, .worldoriginhead {
+    display: flex;
+    flex-basis: 0;
+    flex-grow: 1;
+    text-align: center;
+    height: calc((100dvh - 200px)/11);
+    min-height: 50px;
+    border-radius: 20px;
+    background-color: ivory;
+    justify-content: center;
+    align-items: center;
+    opacity: 0.5;
+}
+
+.worldcol:hover {
+    opacity: 1;
+}
+
+.worldrowhead, .worldcolhead {
+    display: flex;
+    flex-basis: 0;
+    flex-grow: 1;
+    text-align: center;
+    height: calc((100dvh - 200px)/11);
+    min-height: 50px;
+    border-radius: 20px;
+    background-color: ivory;
+    justify-content: center;
+    align-items: center;
+}
+
+.characterlist {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+    gap:5px;
+}
+
+.characterlist a {
+    width: calc(32% - 5px);
+    color: inherit;
+    text-decoration: none;
+}
+
+.characteritem {
+    width: calc(100% - 10px);
+    padding: 5px;
+    background-color: ivory;
+    border-radius: 20px;
+}
+
+.cavatar {
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+}
+
+img {
+    width: calc(100%);
+    border-radius: 20px;
+}
+
+.cname {
+    text-align: center;
+}
+
+.ccategory {
+    padding: 3px;
+    background-color: darkolivegreen;
+    color: white;
+}
+
+.cronology {
+    width: 100%;
+}
+
+.cronology th {
+    background-color: ivory;
+}
+
+.cronology th, .cronology td{
+    border-radius: 10px;
+}
+
+.cronology td:nth-child(1){
+    text-align: right;
+    width: 20% !important;
+}
+
+.cronology .subyear, .cronology .mainyear{
+    text-align: right;
+    width: 20% !important;
+}
+
+.cronology td{
+    width: 40%;
+    text-align: left;
+}
+
+.cronology tr.subyear {
+    display: none;
+}
