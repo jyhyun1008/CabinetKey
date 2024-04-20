@@ -283,7 +283,7 @@ function loadBackground(json) {
                 if (j == 0) {
                     document.querySelector('#row'+(i-1)).innerHTML += '<div class="worldrowhead">'+(i-1)+'</div>'
                 } else {
-                    document.querySelector('#row'+(i-1)).innerHTML += '<div onmouseover="hoverWorld(this)" class="worldcol" style="background-image: url('+json.info.map+')" id="col'+(j-1)+(i-1)+'">'+(j-1)+','+(i-1)+'</div>'
+                    document.querySelector('#row'+(i-1)).innerHTML += '<a href="./?page='+(j-1)+','+(i-1)+'" onmouseover="hoverWorld(this)" class="worldcol" style="background-image: url('+json.info.map+')" id="col'+(j-1)+(i-1)+'">'+(j-1)+','+(i-1)+'</a>'
                 }
             }
         }
