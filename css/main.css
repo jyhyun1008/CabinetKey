@@ -349,6 +349,13 @@ li:before {
     text-align: center;
 }
 
+.emoji {
+    height: 24px;
+    object-fit: contain;
+    aspect-ratio: 1 / 1;
+    border-radius: 0;
+}
+
 input {
     transform: translate(0, -2px);
     height: 30px;
@@ -419,4 +426,15 @@ a {
 .createdAt {
     margin: 20px 0;
     font-size: 0.8em;
+}
+
+.replyel {
+    padding: 10px 0;
+}
+
+.replyProfile {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin: 20px 0 0 20px;
 }

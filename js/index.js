@@ -423,7 +423,56 @@ async function parseYourJSON(json) {
                 }
             }
             document.querySelector('.collectionnote').innerHTML = '<div class="createdAt">'+notesRes.createdAt+'</div>'
-            document.querySelector('.collectionnote').innerHTML += parseMd(notesRes.text)
+            document.querySelector('.collectionnote').innerHTML += '<div class="createdAt"><span class="bold"><a href="https://'+MISSKEYHOST+'/notes/'+notesRes.id+'">리모트에서 보기</a></span></div>'
+            document.querySelector('.collectionnote').innerHTML += '<div class="noteContent"'+parseMd(notesRes.text)+'</div><hr>'
+            document.querySelector('.collectionnote').innerHTML += '<div class="reactionList"></div>'
+            for (var i = 0; i<Object.keys(notesRes.reactions).length; i++) {
+                var emojiName = Object.keys(notesRes.reactions)[i]
+                if (emojiName.includes('@')) {
+                    var emojiHost
+                    if (emojiName.split('@')[1] = '.:') {
+                        emojiHost = MISSKEYHOST
+                    } else {
+                        emojiHost = emojiName.split('@')[1].split(':')[0]
+                    }
+                    var emojiFetchUrl = 'https://'+emojiHost+'/api/emoji?name='+emojiName.split('@')[0].split(':')[1]
+                    var emojiFetchParam = {
+                        method: 'GET',
+                        headers: {
+                            'content-type': 'application/json',
+                        },
+                    }
+                    console.log(emojiFetchUrl)
+                    fetch(emojiFetchUrl, emojiFetchParam)
+                    .then((emojiData) => {return emojiData.json()})
+                    .then((emojiRes) => {
+                        document.querySelector('.reactionList').innerHTML += '<span class="bold"><img src="'+emojiRes.url+'" class="emoji"> '+notesRes.reactions[emojiName]+'</span> '
+                    })
+                } else {
+                    document.querySelector('.reactionList').innerHTML += '<span class="bold"><span class="emoji">'+emojiName+'</span> '+notesRes.reactions[emojiName]+'</span>'
+                }
+            }
+            document.querySelector('.collectionnote').innerHTML += '<div class="replyList"></div>'
+            var findReplysUrl = 'https://'+MISSKEYHOST+'/api/notes/replies'
+            var findReplysParam = {
+                method: 'POST',
+                headers: {
+                    'content-type': 'application/json',
+                },
+                body: JSON.stringify({
+                    noteId: note,
+                })
+            }
+            fetch(findReplysUrl, findReplysParam)
+            .then((replyData) => {return replyData.json()})
+            .then((replyRes) => {
+                for (var i = 0; i<Object.keys(notesRes.reactions).length; i++) {
+                    document.querySelector('.replyList').innerHTML += '<hr><div class="replyel" id="replyid'+i+'"></div>'
+                    document.querySelector('#replyid'+i).innerHTML += '<div>'+replyRes[i].text+'</div>'
+                    document.querySelector('#replyid'+i).innerHTML += '<div class="replyProfile"><span> ー by</span><img class="emoji" src="'+replyRes[i].user.avatarUrl+'"><span>'+replyRes[i].user.name.replace(/\:([^\:\s]+)\:/g, '').replace(/\s\s/g, ' ')+'</span><span class="bold" style="font-size: 0.8em;"><a href="https://'+MISSKEYHOST+'/notes/'+replyRes[i].id+'">리모트에서 보기</a></span></div>'
+                }
+            })
+            document.querySelector('.collectionnote').innerHTML += ''
         })
     }
 }
