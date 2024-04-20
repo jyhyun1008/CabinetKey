@@ -1,9 +1,9 @@
 var MISSKEYID
 
-const token = localStorage.getItem("token");
-const signedusername = localStorage.getItem("username");
-const sessionId = localStorage.getItem("sessionId");
-const signedHost = localStorage.getItem("signinHost");
+const token = localStorage.getItem("token")
+const signedusername = localStorage.getItem("username")
+const sessionId = localStorage.getItem("sessionId")
+var jsonPageId = localStorage.getItem("jsonPageId")
 
 var cssRoot = document.querySelector(':root');
 cssRoot.style.setProperty('--accent', THEMECOLOR)
@@ -11,7 +11,7 @@ cssRoot.style.setProperty('--darkaccent', 'color-mix(in srgb, var(--accent) 70%,
 cssRoot.style.setProperty('--lightaccent', 'color-mix(in srgb, var(--accent) 70%, #fbffbb)')
 
 var isLogin = false;
-if (sessionId && signedHost) {
+if (sessionId) {
     isLogin = true;
 }
 
@@ -221,6 +221,8 @@ if (page == 'signin') {
                     fetch(createPageUrl, createPageParam)
                     .then((pageData) => {return pageData.json()})
                     .then((pageRes) => {
+                        jsonPageId = pageRes.id
+                        localStorage.setItem('jsonPageId', jsonPageId)
                         var createNoteUrl = 'https://'+MISSKEYHOST+'/api/notes/create'
                         var createNoteParam = {
                             method: 'POST',
@@ -321,6 +323,47 @@ async function parseYourJSON(json) {
     document.querySelector("#subtitle").innerHTML = json.info.subTitle
     if (!page && !note) {
         loadBackground(json)
+        if (mode == 'edit') {
+            var isSaved = false
+            window.onbeforeunload = function(){
+                if (!isSaved) {
+                    return '페이지를 나가시겠습니까? 편집한 내용은 저장되지 않습니다.'
+                }
+            }
+       //if (mode == 'edit' && isLogin) { 커밋할때 활성화필요
+            document.querySelector('#popup-content').style.display = 'block'
+            document.querySelector('#popup-content').innerHTML = '<div class="editwrapper"></div>'
+            document.querySelector('.editwrapper').innerHTML = '<h1>편집기<h1>'
+            document.querySelector('.editwrapper').innerHTML += '<form><label for="fname">Raw JSON Data:</label><textarea id="editrawjson" name="fname">'+JSON.stringify(json, null, 2)+'</textarea><div class="bold" id="editconfirm">수정</div></form>'
+
+            document.querySelector('#editconfirm').addEventListener("click", (e) => {
+                var updatePageUrl = 'https://'+MISSKEYHOST+'/api/pages/update'
+                var updatePageParam = {
+                    method: 'POST',
+                    headers: {
+                        'content-type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        i: token,
+                        pageId: jsonPageId,
+                        title: 'CabinetKey.json',
+                        name: 'CabinetKey.json',
+                        summary: 'CabinetKey.json',
+                        variables: [],
+                        script: '',
+                        content: [{
+                            text: '```\n'+JSON.stringify(JSON.parse(document.querySelector('#editrawjson').value))+'\n```',
+                            type: 'text'
+                        }]
+                    })
+                }
+                fetch(updatePageUrl, updatePageParam)
+                .then(() => {
+                    isSaved = true
+                    location.href = './'
+                })
+            })
+        }
     } else if (page == 'info') {
         loadBackground(json)
         document.querySelector('#wrapper').addEventListener("click", (e) => {

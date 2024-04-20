@@ -44,7 +44,6 @@ body {
     display: flex;
     justify-content: space-around;
     width: 100vw;
-    text-align: center;
     background: linear-gradient(90deg, var(--accent), var(--darkaccent));
     color: white;
 }
@@ -435,4 +434,11 @@ a {
     align-items: center;
     gap: 5px;
     margin: 20px 0 0 20px;
+}
+
+textarea {
+    width: 100%;
+    height: calc(100vh - 400px);
+    background-color: black;
+    color: white;
 }
