@@ -228,7 +228,7 @@ if (page == 'signin') {
                     .then((pageData) => {return pageData.json()})
                     .then((pageRes) => {
                         jsonPageId = pageRes.id
-                        localStorage.setItem('json', json)
+                        localStorage.setItem('json', jsonInitial)
                         localStorage.setItem('jsonPageId', jsonPageId)
                         var createNoteUrl = 'https://'+MISSKEYHOST+'/api/notes/create'
                         var createNoteParam = {
