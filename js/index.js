@@ -18,6 +18,7 @@ var json = {
         "summary": "고등학교 때 자캐세계관을 갈아엎는 프로젝트에요. 실제 역사적 사건에 편입시키려고 노력하고 있어요.",
         "description": "고등학교 때 자캐세계관을 갈아엎는 프로젝트에요. 실제 역사적 사건에 편입시키려고 노력하고 있어요.",
         "mainYear": "1718",
+        "map": "./assets/map.png",
         "hashtag": ["별돋조선", "AsteJson"]
     }, 
     "character": {
@@ -274,7 +275,7 @@ function loadBackground(json) {
                 if (j == 0) {
                     document.querySelector('#row'+(i-1)).innerHTML += '<div class="worldrowhead">'+(i-1)+'</div>'
                 } else {
-                    document.querySelector('#row'+(i-1)).innerHTML += '<div onmouseover="hoverWorld(this)" class="worldcol"  id="col'+(j-1)+(i-1)+'">'+(j-1)+','+(i-1)+'</div>'
+                    document.querySelector('#row'+(i-1)).innerHTML += '<div onmouseover="hoverWorld(this)" class="worldcol" style="background-image: url('+json.info.map+')" id="col'+(j-1)+(i-1)+'">'+(j-1)+','+(i-1)+'</div>'
                 }
             }
         }

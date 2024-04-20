@@ -124,6 +124,74 @@ body {
     gap: 5px;
 }
 
+.worldrow:nth-child(2) {
+    --rowindex: 0;
+}
+.worldrow:nth-child(3) {
+    --rowindex: 1;
+}
+.worldrow:nth-child(4) {
+    --rowindex: 2;
+}
+.worldrow:nth-child(5) {
+    --rowindex: 3;
+}
+.worldrow:nth-child(6) {
+    --rowindex: 4;
+}
+.worldrow:nth-child(7) {
+    --rowindex: 5;
+}
+.worldrow:nth-child(8) {
+    --rowindex: 6;
+}
+.worldrow:nth-child(9) {
+    --rowindex: 7;
+}
+.worldrow:nth-child(10) {
+    --rowindex: 8;
+}
+.worldrow:nth-child(11) {
+    --rowindex: 9;
+}
+.worldcol:nth-child(2) {
+    --colindex: 0;
+}
+.worldcol:nth-child(3) {
+    --colindex: 1;
+}
+.worldcol:nth-child(4) {
+    --colindex: 2;
+}
+.worldcol:nth-child(5) {
+    --colindex: 3;
+}
+.worldcol:nth-child(6) {
+    --colindex: 4;
+}
+.worldcol:nth-child(7) {
+    --colindex: 5;
+}
+.worldcol:nth-child(8) {
+    --colindex: 6;
+}
+.worldcol:nth-child(9) {
+    --colindex: 7;
+}
+.worldcol:nth-child(10) {
+    --colindex: 8;
+}
+.worldcol:nth-child(11) {
+    --colindex: 9;
+}
+
+.worldcol {
+    /*background-image: url('../assets/map.png');*/
+    background-size: min(61vw, 61dvh) min(61vw, 61dvh);
+    background-position-x: calc(calc(10 - var(--colindex)) * min(6vw, 6dvh));
+    background-position-y: calc(calc(10 - var(--rowindex)) * min(6vw, 6dvh));
+}
+
 .worldcol, .worldoriginhead {
     display: flex;
     flex-basis: 0;
@@ -131,15 +199,20 @@ body {
     text-align: center;
     height: calc((100dvh - 320px) / 11);
     min-height: 40px;
-    border-radius: 20px;
+    border-radius: 10px;
     background-color: var(--lightaccent);
     justify-content: center;
     align-items: center;
-    opacity: 0.5;
+    opacity: 1;
 }
 
 .worldcol:hover {
-    opacity: 1;
+    opacity: 0.5;
+}
+
+.worldcol {
+    text-shadow: 1px 1px white, -1px -1px white, -1px 1px white, 1px -1px white;
+    color: var(--darkaccent);
 }
 
 .worldrowhead, .worldcolhead {
@@ -149,7 +222,7 @@ body {
     text-align: center;
     height: calc((100dvh - 320px) / 11);
     min-height: 40px;
-    border-radius: 20px;
+    border-radius: 10px;
     background-color: var(--lightaccent);
     justify-content: center;
     align-items: center;
