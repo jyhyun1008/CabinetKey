@@ -13,6 +13,11 @@ cssRoot.style.setProperty('--lightaccent', 'color-mix(in srgb, var(--accent) 70%
 var isLogin = false;
 if (sessionId) {
     isLogin = true;
+    if (location.href.includes('?')) {
+        document.querySelector('.nav-box').innerHTML += '<div class="nav-list"><a href="'+location.href+'&mode=edit">편집</a></div>'
+    } else {
+        document.querySelector('.nav-box').innerHTML += '<div class="nav-list"><a href="./?mode=edit">편집</a></div>'
+    }
 }
 
 var json
