@@ -17,7 +17,8 @@ var json = {
         "subTitle": "별돋조선",
         "summary": "고등학교 때 자캐세계관을 갈아엎는 프로젝트에요. 실제 역사적 사건에 편입시키려고 노력하고 있어요.",
         "description": "고등학교 때 자캐세계관을 갈아엎는 프로젝트에요. 실제 역사적 사건에 편입시키려고 노력하고 있어요.",
-        "mainYear": "1718",
+        "startYear": 1718,
+        "mainYear": [1718, 1719],
         "map": "https://peachtart2.s3.ap-northeast-1.amazonaws.com/tart/thumbnail-bd68af8b-7a68-4579-9b2f-7e5b54812e44.webp",
         "hashtag": ["별돋조선", "AsteJson"]
     }, 
@@ -28,17 +29,17 @@ var json = {
                 "avatar": "https://peachtart2.s3.ap-northeast-1.amazonaws.com/tart/webpublic-72e76638-d7cd-461e-843c-ad3a0a3c1bd5.png",
                 "name": "A",
                 "meaning": "A",
-                "courtesyname": "자",
+                "courtesyName": "자",
                 "nickname": "호",
                 "lived": [1701, 1740],
                 "category": "분류",
                 "subCategory": "세부전공",
-                "eventCronology": {
+                "eventChronology": {
                     "1701.0": "한양 어쩌고저쩌고 어디에서 태어남",
                     "1718.3": "작품 시작 시점",
                     "1740.0": "어쩌고저쩌고 일이 잘못되어 뫄뫄솨솨로 몰려 사망"
                 },
-                "positionCronology": {
+                "positionChronology": {
                     "1716": "",
                     "1718.3": ""
                 },
@@ -46,7 +47,7 @@ var json = {
                     "친구": [1]
                 },
                 "goal": ["역시", "배열이", "편하겠지"],
-                "themesong": [0],
+                "themeSong": [0],
                 "summary": "짧은 요약",
                 "description": "마크다운과 개행을 지원하는 긴 설명",
                 "secret": "긴 설명 아래에 접어둘 수 있는 짧은 설명",
@@ -55,15 +56,15 @@ var json = {
                 "avatar": "https://peachtart2.s3.ap-northeast-1.amazonaws.com/tart/webpublic-54fa12e0-32d7-4665-b582-b390f1fa0981.png",
                 "name": "B",
                 "meaning": "B",
-                "courtesyname": "자",
+                "courtesyName": "자",
                 "nickname": "호",
                 "lived": [1699, 1771],
                 "category": "분류",
                 "subcategory": "세부전공",
-                "eventCronology": {
+                "eventChronology": {
                     "1718.3": "작품 시작 시점"
                 },
-                "positionCronology": {
+                "positionChronology": {
                     "1715": "",
                     "1718.3": ""
                 },
@@ -74,7 +75,7 @@ var json = {
                     "친구": [6]
                 },
                 "goal": ["역시", "배열이", "편하겠지"],
-                "themesong": [0],
+                "themeSong": [0],
                 "summary": "짧은 요약",
                 "description": "마크다운과 개행을 지원하는 긴 설명",
                 "secret": "긴 설명 아래에 접어둘 수 있는 짧은 설명",
@@ -88,7 +89,7 @@ var json = {
             "image": "",
             "summary": "짧은 요약",
             "description": "마크다운과 개행을 지원하는 긴 설명",
-            "eventCronology": {
+            "eventChronology": {
                 "1718.3": "작품 시작 시점"
             },
             "relatedTo": {
@@ -100,7 +101,7 @@ var json = {
             "image": "",
             "summary": "짧은 요약",
             "description": "마크다운과 개행을 지원하는 긴 설명",
-            "eventCronology": {
+            "eventChronology": {
                 "1718.3": "작품 시작 시점"
             },
             "relatedTo": {
@@ -108,7 +109,7 @@ var json = {
             }
         }
     },
-    "themesong": [
+    "themeSong": [
         {
             "embed": "<iframe width='100%' height='166' scrolling='no' frameborder='no' allow='autoplay' src='https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/1803465288&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true'></iframe>",
             "title": "보천가",
@@ -248,7 +249,7 @@ var qs = getQueryStringObject()
 var page = qs.page
 var year = qs.year
 if (!year) {
-    year = json.info.mainYear
+    year = json.info.startYear
 }
 var category = qs.category
 var coord = qs.coord
@@ -339,12 +340,12 @@ function parseYourJSON(json) {
 
             document.querySelector('.worldlocation').innerHTML = '<h1 class="wlocationname">'+worldpage.name+'<h1>'
             document.querySelector('.worldlocation').innerHTML += '<div class="wlocationimage"><img src="'+worldpage.image+'"><div>'
-            document.querySelector('.worldlocation').innerHTML += '<div class="cprofiletable"><div><span class="bold">연표</span></div><table class="cronology"><tr><th>연도</th><th>사건</th></tr></table><div>'
+            document.querySelector('.worldlocation').innerHTML += '<div class="cprofiletable"><div><span class="bold">연표</span></div><table class="chronology"><tr><th>연도</th><th>사건</th></tr></table><div>'
 
-            for (var i=0; i<Object.keys(worldpage.eventCronology).length; i++) {
-                var key = Object.keys(worldpage.eventCronology)[i]
-                var event1 = worldpage.eventCronology[key]
-                document.querySelector('.cronology').innerHTML += '<tr><td>'+key+'</td><td>'+event1+'</td></tr>'
+            for (var i=0; i<Object.keys(worldpage.eventChronology).length; i++) {
+                var key = Object.keys(worldpage.eventChronology)[i]
+                var event1 = worldpage.eventChronology[key]
+                document.querySelector('.chronology').innerHTML += '<tr><td>'+key+'</td><td>'+event1+'</td></tr>'
             }
 
             document.querySelector('.worldlocation').innerHTML += '<h1>요약</h1>'
@@ -370,7 +371,7 @@ function parseYourJSON(json) {
             document.querySelector('.characterprofile').innerHTML = '<h1 class="cprofilename">'+cList[page].name+'<h1>'
             document.querySelector('.characterprofile').innerHTML += '<div class="cprofileavatar"><img src="'+cList[page].avatar+'"><div>'
             document.querySelector('.characterprofile').innerHTML += '<div class="cprofilecategory"><span class="bold">이름 유래</span> '+cList[page].meaning+'<div>'
-            document.querySelector('.characterprofile').innerHTML += '<div class="cprofilecategory"><span class="bold">자</span> '+cList[page].courtesyname+'<div>'
+            document.querySelector('.characterprofile').innerHTML += '<div class="cprofilecategory"><span class="bold">자</span> '+cList[page].courtesyName+'<div>'
             document.querySelector('.characterprofile').innerHTML += '<div class="cprofilecategory"><span class="bold">호</span> '+cList[page].nickname+'<div>'
             document.querySelector('.characterprofile').innerHTML += '<div class="cprofilecategory"><span class="bold">분류</span> '+cList[page].category+'<div>'
             document.querySelector('.characterprofile').innerHTML += '<div class="cprofilesubcategory"><span class="bold">세부분류</span> '+cList[page].subCategory+'<div>'
@@ -380,25 +381,25 @@ function parseYourJSON(json) {
                 document.querySelector('.cprofilegoal').innerHTML += '<li>'+cList[page].goal[i]+'</li>'
             }
             var hideandseek = true
-            document.querySelector('.characterprofile').innerHTML += '<div class="cprofiletable"><div><span class="bold">연표</span> <span id="hideCronology">펼치기/접기</span></div><table class="cronology"><tr><th>연도</th><th>관직</th><th>사건</th></tr></table><div>'
+            document.querySelector('.characterprofile').innerHTML += '<div class="cprofiletable"><div><span class="bold">연표</span> <span id="hideChronology">펼치기/접기</span></div><table class="chronology"><tr><th>연도</th><th>관직</th><th>사건</th></tr></table><div>'
 
             for (var i=0; i<(cList[page].lived[1] - cList[page].lived[0]); i++) {
-                if ((cList[page].lived[0]+i) == json.info.mainYear) {
+                if (json.info.mainYear.includes(cList[page].lived[0]+i)) {
                     for (var j=0; j<12; j++){
                         var key = (cList[page].lived[0]+i)+'.'+(j+1)
-                        var position = cList[page].positionCronology[key]
-                        var event1 = cList[page].eventCronology[key]
+                        var position = cList[page].positionChronology[key]
+                        var event1 = cList[page].eventChronology[key]
                         if (!position) { position = '' }
                         if (!event1) { event1 = '' }
-                        document.querySelector('.cronology').innerHTML += '<tr class="mainyear"><td>'+(key)+'</td><td>'+position+'</td><td>'+event1+'</td></tr>'
+                        document.querySelector('.chronology').innerHTML += '<tr class="mainyear"><td>'+(key)+'</td><td>'+position+'</td><td>'+event1+'</td></tr>'
                     }
                 } else {
                     var key = (cList[page].lived[0]+i)
-                    var position = cList[page].positionCronology[key]
-                    var event1 = cList[page].eventCronology[key]
+                    var position = cList[page].positionChronology[key]
+                    var event1 = cList[page].eventChronology[key]
                     if (!position) { position = '' }
                     if (!event1) { event1 = '' }
-                    document.querySelector('.cronology').innerHTML += '<tr class="subyear"><td>'+(cList[page].lived[0]+i)+'</td><td>'+position+'</td><td>'+event1+'</td></tr>'
+                    document.querySelector('.chronology').innerHTML += '<tr class="subyear"><td>'+(cList[page].lived[0]+i)+'</td><td>'+position+'</td><td>'+event1+'</td></tr>'
                 }
             }
             document.querySelector('.characterprofile').innerHTML += '<h1>요약</h1>'
@@ -406,7 +407,7 @@ function parseYourJSON(json) {
             document.querySelector('.characterprofile').innerHTML += '<h1>설명</h1>'
             document.querySelector('.characterprofile').innerHTML += '<div class="cprofiledescription">'+parseMd(cList[page].description)+'<div>'
 
-            document.querySelector('#hideCronology').addEventListener("click", (e) => {
+            document.querySelector('#hideChronology').addEventListener("click", (e) => {
                 var els = document.querySelectorAll('.subyear')
                 if (hideandseek) {
                     for (var el=0; el<els.length; el++) {

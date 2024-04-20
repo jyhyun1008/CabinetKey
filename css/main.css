@@ -306,36 +306,36 @@ li:before {
     padding-right: 5px;
 }
 
-.cronology {
+.chronology {
     width: 100%;
     margin: 5px 0;
     border-bottom: 1px solid white;
 }
 
-.cronology th {
+.chronology th {
     background-color: var(--lightaccent);
 }
 
-.cronology th, .cronology td{
+.chronology th, .chronology td{
     border-radius: 10px;
 }
 
-.cronology td:nth-child(1){
+.chronology td:nth-child(1){
     text-align: center;
     width: 20% !important;
 }
 
-.cronology .subyear, .cronology .mainyear{
+.chronology .subyear, .chronology .mainyear{
     text-align: center;
     width: 20% !important;
 }
 
-.cronology td{
+.chronology td{
     width: 40%;
     text-align: left;
 }
 
-.cronology tr.subyear {
+.chronology tr.subyear {
     display: none;
 }
 
