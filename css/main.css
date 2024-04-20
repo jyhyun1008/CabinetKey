@@ -369,7 +369,7 @@ a {
 
 #popup-content {
     position: fixed;
-    width: 100vw;
+    width: calc(100vw - 45px);
     max-width: 880px;
     height: calc(100vh - 200px);
     top: 100px;
@@ -452,4 +452,48 @@ textarea {
     padding-bottom: 4px;
     padding: 0;
     margin: 0;
+}
+
+@media only screen and (max-width: 600px) {
+    #title-box {    
+        height: 70px;
+    }
+
+    #title {
+        margin-top: 3px;
+        font-size: 1.5em;
+    }
+
+    #popup-content {
+        height: calc(100vh - 150px);
+        top: 100px;
+    }
+
+    #world-box {
+        margin: 90px auto 30px auto;
+        flex-direction: column;
+        height: auto;
+        max-height: none;
+    }
+    
+    #world-content {
+        width: calc(100vw - 35px);
+        min-width: auto;
+        max-width: none;
+        max-height: none;
+    }
+
+    #yearTextInput {
+        max-width: calc(100vw - 282px);
+    }
+
+    .worldmap {
+        font-size: 0.6em;
+        width: calc(100vw - 30px);
+    }
+
+    #about {
+        position: static;
+        width: 100%;
+    }
 }
