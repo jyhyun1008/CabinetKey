@@ -204,6 +204,7 @@ if (page == 'signin') {
             .then((infoData) => {return infoData.json()})
             .then((infoRes) => {
                 if (infoRes.length == 0) {
+                    var jsonInitial = '{"info":{"title":"","subTitle":"","summary":"","description":"","mainYear":"","map":"","hashtag":[""]},"character":{"category":[""],"list":[{"avatar":"","name":"","meaning":"","courtesyName":"","nickname":"","lived":[0,0],"category":"","subCategory":"","eventChronology":{"0.0":""},"positionChronology":{"0.0":""},"relatedTo":{"분류1":[0],"분류2":[0]},"goal":["",""],"themeSong":[0],"summary":"","description":"","secret":"","hashtag":""}]},"world":{"x,y":{"name":"","image":"","summary":"","description":"","eventChronology":{"0.0":""},"relatedTo":{"분류1":[0]}}},"themeSong":[{"embed":"","title":"","artist":"","character":0,"summary":"","description":"","lyrics":""}]}'
                     var createPageUrl = 'https://'+MISSKEYHOST+'/api/pages/create'
                     var createPageParam = {
                         method: 'POST',
@@ -218,7 +219,7 @@ if (page == 'signin') {
                             variables: [],
                             script: '',
                             content: [{
-                                text: '```\n{"info":{"title":"","subTitle":"","summary":"","description":"","mainYear":"","map":"","hashtag":[""]},"character":{"category":[""],"list":[{"avatar":"","name":"","meaning":"","courtesyName":"","nickname":"","lived":[0,0],"category":"","subCategory":"","eventChronology":{"0.0":""},"positionChronology":{"0.0":""},"relatedTo":{"분류1":[0],"분류2":[0]},"goal":["",""],"themeSong":[0],"summary":"","description":"","secret":"","hashtag":""}]},"world":{"x,y":{"name":"","image":"","summary":"","description":"","eventChronology":{"0.0":""},"relatedTo":{"분류1":[0]}}},"themeSong":[{"embed":"","title":"","artist":"","character":0,"summary":"","description":"","lyrics":""}]}\n```',
+                                text: '```\n'+jsonInitial+'\n```',
                                 type: 'text'
                             }]
                         })
@@ -227,6 +228,7 @@ if (page == 'signin') {
                     .then((pageData) => {return pageData.json()})
                     .then((pageRes) => {
                         jsonPageId = pageRes.id
+                        localStorage.setItem('json', json)
                         localStorage.setItem('jsonPageId', jsonPageId)
                         var createNoteUrl = 'https://'+MISSKEYHOST+'/api/notes/create'
                         var createNoteParam = {
@@ -343,6 +345,7 @@ async function parseYourJSON(json) {
 
             document.querySelector('#editconfirm').addEventListener("click", (e) => {
                 json = JSON.parse(document.querySelector('#editrawjson').value)
+                localStorage.setItem('json', JSON.stringify(json))
                 var updatePageUrl = 'https://'+MISSKEYHOST+'/api/pages/update'
                 var updatePageParam = {
                     method: 'POST',
