@@ -11,13 +11,15 @@ var isLogin = false;
 if (sessionId && signedHost) {
     isLogin = true;
 }
+
+var json
+if (localStorage.getItem('json')) json = JSON.parse(localStorage.getItem('json'))
+
 //마크다운 파싱
 function parseMd(md){
 
     md = "\n"+md+"\n\n"
     var md0 = md;
-
-    console.log(md)
   
     //ul
     md = md.replace(/^\s*\n\*\s/gm, '<ul>\n* ');
@@ -477,6 +479,7 @@ async function findJSON() {
                 json = {}
             } else {
                 json = JSON.parse(pageRes.content[0].text.split('```')[1])
+                localStorage.setItem('json', JSON.stringify(json))
             }
         } else if (infoRes.length > 1) {
             alert('셋업 노트가 2개 이상 감지되었습니다. 확인 후 유효하지 않은 노트를 삭제해 주세요.')
@@ -491,8 +494,12 @@ async function findJSON() {
 }
 
 async function updateJSON() { 
-    const JSON = await findJSON()
-    await parseYourJSON(JSON)
+    const json = await findJSON()
+    await parseYourJSON(json)
 }
 
-updateJSON()
+if (json) {
+    parseYourJSON(json)
+} else {
+    updateJSON()
+}
