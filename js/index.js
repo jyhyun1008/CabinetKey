@@ -289,14 +289,14 @@ function loadBackground(json) {
             document.querySelector('#character-content').innerHTML += '<div class="characterlist" id="list'+j+'"></div>'
             for (var i = 0; i < cList.length; i++) {
                 if (cList[i].category == cCategory[j]) {
-                    document.querySelector('#list'+j).innerHTML += '<a href="./?c='+i+'"><div class="characteritem" onmouseover="hoverCharacter('+i+')"><div><img src="'+cList[i].avatar+'" class="cavatar"></div><div class="cname">'+cList[i].name+'</div><div class="csummary">'+cList[i].summary+'</div></div></a>'
+                    document.querySelector('#list'+j).innerHTML += '<a href="./?page='+i+'"><div class="characteritem" onmouseover="hoverCharacter('+i+')"><div><img src="'+cList[i].avatar+'" class="cavatar"></div><div class="cname">'+cList[i].name+'</div><div class="csummary">'+cList[i].summary+'</div></div></a>'
                 }
             }
         }
     } else {
         for (var i = 0; i < cList.length; i++) {
             if (cList[i].category == category) {
-                document.querySelector('.characterlist').innerHTML += '<a href="./?c='+i+'"><div class="characteritem" onmouseover="hoverCharacter('+i+')"><div><img src="'+cList[i].avatar+'" class="cavatar"></div><div class="cname">'+cList[i].name+'</div><div class="ccategory">'+cList[i].category+'</div><div class="csummary">'+cList[i].summary+'</div></div></a>'
+                document.querySelector('.characterlist').innerHTML += '<a href="./?page='+i+'"><div class="characteritem" onmouseover="hoverCharacter('+i+')"><div><img src="'+cList[i].avatar+'" class="cavatar"></div><div class="cname">'+cList[i].name+'</div><div class="ccategory">'+cList[i].category+'</div><div class="csummary">'+cList[i].summary+'</div></div></a>'
             }
         }
     }
@@ -383,7 +383,7 @@ function parseYourJSON(json) {
                 document.querySelector('.relatedcharacterlist').innerHTML += '<div class="relatedcharactercategorylist" id="relatedlist'+i+'"></div>'
                 var relatedCategorylist = json.character.list[page].relatedTo[relatedCategory[i]]
                 for (var j = 0; j < relatedCategorylist.length; j++) {
-                    document.querySelector('#relatedlist'+i).innerHTML += '<a href="./?c='+relatedCategorylist[j]+'"><div class="characteritem" onmouseover="hoverCharacter('+relatedCategorylist[j]+')"><div><img src="'+cList[relatedCategorylist[j]].avatar+'" class="cavatar"></div><div class="cname">'+cList[relatedCategorylist[j]].name+'</div><div class="csummary">'+cList[relatedCategorylist[j]].summary+'</div></div></a>'
+                    document.querySelector('#relatedlist'+i).innerHTML += '<a href="./?page='+relatedCategorylist[j]+'"><div class="characteritem" onmouseover="hoverCharacter('+relatedCategorylist[j]+')"><div><img src="'+cList[relatedCategorylist[j]].avatar+'" class="cavatar"></div><div class="cname">'+cList[relatedCategorylist[j]].name+'</div><div class="csummary">'+cList[relatedCategorylist[j]].summary+'</div></div></a>'
                 }
             }
             //document.querySelector('.characterprofile').innerHTML +=
