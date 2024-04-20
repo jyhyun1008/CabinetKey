@@ -339,7 +339,7 @@ async function parseYourJSON(json) {
             document.querySelector('#popup-content').style.display = 'block'
             document.querySelector('#popup-content').innerHTML = '<div class="editwrapper"></div>'
             document.querySelector('.editwrapper').innerHTML = '<h1>편집기<h1>'
-            document.querySelector('.editwrapper').innerHTML += '<form><label for="fname">Raw JSON Data:</label><textarea id="editrawjson" name="fname">'+JSON.stringify(json, null, 2)+'</textarea><div class="bold" id="editconfirm">수정</div></form>'
+            document.querySelector('.editwrapper').innerHTML += '<form><label for="editrawjson">Raw JSON Data:</label><textarea id="editrawjson" name="editrawjson">'+JSON.stringify(json, null, 2)+'</textarea><div class="bold" id="editconfirm">수정</div></form>'
 
             document.querySelector('#editconfirm').addEventListener("click", (e) => {
                 json = JSON.parse(document.querySelector('#editrawjson').value)
