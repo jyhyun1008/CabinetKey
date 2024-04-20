@@ -243,11 +243,12 @@ if (page == 'signin') {
                         fetch(createNoteUrl, createNoteParam)
                         .then((noteData) => {return noteData.json()})
                         .then((noteRes) => {
-                            location.href = location.href.split('?')[0]
+                            location.href = './'
                         })
                     })
                 } else if (infoRes.length > 0) {
                     isLogin = true
+                    location.href = './'
                 }
             })
         })
@@ -366,9 +367,7 @@ async function parseYourJSON(json) {
                 fetch(updatePageUrl, updatePageParam)
                 .then(() => {
                     isSaved = true
-                    console.log(json)
-                    console.log('fetch까지된듯')
-                    //location.href = './'
+                    location.href = './'
                 })
             })
         }
