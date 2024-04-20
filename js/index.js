@@ -414,7 +414,7 @@ async function parseYourJSON(json) {
                 }
             }
         })
-    } else if (page) {
+    } else if (page != 'callback') {
         loadBackground(json)
         document.querySelector('#wrapper').addEventListener("click", (e) => {
             location.href = './'
@@ -657,6 +657,8 @@ async function findJSON() {
             if (!pageRes.content) {
                 json = {}
             } else {
+                jsonPageId = pageRes.id
+                localStorage.setItem('jsonPageId', jsonPageId)
                 json = JSON.parse(pageRes.content[0].text.split('```')[1])
                 localStorage.setItem('json', JSON.stringify(json))
             }
