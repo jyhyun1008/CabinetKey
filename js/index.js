@@ -1,3 +1,4 @@
+var MISSKEYID
 
 const token = localStorage.getItem("token");
 const signedusername = localStorage.getItem("username");
@@ -10,118 +11,6 @@ var isLogin = false;
 if (sessionId && signedHost) {
     isLogin = true;
 }
-
-var json = {
-    "info": {
-        "title": "*.json",
-        "subTitle": "별돋조선",
-        "summary": "고등학교 때 자캐세계관을 갈아엎는 프로젝트에요. 실제 역사적 사건에 편입시키려고 노력하고 있어요.",
-        "description": "고등학교 때 자캐세계관을 갈아엎는 프로젝트에요. 실제 역사적 사건에 편입시키려고 노력하고 있어요.",
-        "startYear": 1718,
-        "mainYear": [1718, 1719],
-        "map": "https://peachtart2.s3.ap-northeast-1.amazonaws.com/tart/thumbnail-bd68af8b-7a68-4579-9b2f-7e5b54812e44.webp",
-        "hashtag": ["별돋조선", "AsteJson"]
-    }, 
-    "character": {
-        "category": ["분류"],
-        "list": [
-            {
-                "avatar": "https://peachtart2.s3.ap-northeast-1.amazonaws.com/tart/webpublic-72e76638-d7cd-461e-843c-ad3a0a3c1bd5.png",
-                "name": "A",
-                "meaning": "A",
-                "courtesyName": "자",
-                "nickname": "호",
-                "lived": [1701, 1740],
-                "category": "분류",
-                "subCategory": "세부전공",
-                "eventChronology": {
-                    "1701.0": "한양 어쩌고저쩌고 어디에서 태어남",
-                    "1718.3": "작품 시작 시점",
-                    "1740.0": "어쩌고저쩌고 일이 잘못되어 뫄뫄솨솨로 몰려 사망"
-                },
-                "positionChronology": {
-                    "1716": "",
-                    "1718.3": ""
-                },
-                "relatedTo": {
-                    "친구": [1]
-                },
-                "goal": ["역시", "배열이", "편하겠지"],
-                "themeSong": [0],
-                "summary": "짧은 요약",
-                "description": "마크다운과 개행을 지원하는 긴 설명",
-                "secret": "긴 설명 아래에 접어둘 수 있는 짧은 설명",
-                "hashtag": "샵제외"
-            }, {
-                "avatar": "https://peachtart2.s3.ap-northeast-1.amazonaws.com/tart/webpublic-54fa12e0-32d7-4665-b582-b390f1fa0981.png",
-                "name": "B",
-                "meaning": "B",
-                "courtesyName": "자",
-                "nickname": "호",
-                "lived": [1699, 1771],
-                "category": "분류",
-                "subcategory": "세부전공",
-                "eventChronology": {
-                    "1718.3": "작품 시작 시점"
-                },
-                "positionChronology": {
-                    "1715": "",
-                    "1718.3": ""
-                },
-                "relatedTo": {
-                    "가족": [2, 3],
-                    "선배": [7],
-                    "동료": [4, 5],
-                    "친구": [6]
-                },
-                "goal": ["역시", "배열이", "편하겠지"],
-                "themeSong": [0],
-                "summary": "짧은 요약",
-                "description": "마크다운과 개행을 지원하는 긴 설명",
-                "secret": "긴 설명 아래에 접어둘 수 있는 짧은 설명",
-                "hashtag": "샵제외"
-            }
-        ]
-    },
-    "world": {
-        "5,2": {
-            "name": "관상감",
-            "image": "",
-            "summary": "짧은 요약",
-            "description": "마크다운과 개행을 지원하는 긴 설명",
-            "eventChronology": {
-                "1718.3": "작품 시작 시점"
-            },
-            "relatedTo": {
-                "캐릭터": [0, 1]
-            }
-        },
-        "6,2": {
-            "name": "창덕궁",
-            "image": "",
-            "summary": "짧은 요약",
-            "description": "마크다운과 개행을 지원하는 긴 설명",
-            "eventChronology": {
-                "1718.3": "작품 시작 시점"
-            },
-            "relatedTo": {
-                "캐릭터": [0, 1]
-            }
-        }
-    },
-    "themeSong": [
-        {
-            "embed": "<iframe width='100%' height='166' scrolling='no' frameborder='no' allow='autoplay' src='https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/1803465288&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true'></iframe>",
-            "title": "보천가",
-            "artist": "재연",
-            "character": 2,
-            "summary": "짧은 설명",
-            "description": "마크다운과 개행을 지원하는 긴 설명",
-            "lyrics": "마크다운과 개행을 지원하는 가사란"
-        }
-    ]
-}
-
 //마크다운 파싱
 function parseMd(md){
 
@@ -151,15 +40,15 @@ function parseMd(md){
     md = md.replace(/\-\-\-/gm, 'ーーー')
     
     //h
-    md = md.replace(/\n[\#]{6}(.+)/g, '<h6>$1</h6>');
-    md = md.replace(/\n[\#]{5}(.+)/g, '<h5>$1</h5>');
-    md = md.replace(/\n[\#]{4}(.+)/g, '<h4>$1</h4>');
-    md = md.replace(/\n[\#]{3}(.+)/g, '<h3>$1</h3>');
+    md = md.replace(/\n[\#]{6}\s(.+)/g, '<h6>$1</h6>');
+    md = md.replace(/\n[\#]{5}\s(.+)/g, '<h5>$1</h5>');
+    md = md.replace(/\n[\#]{4}\s(.+)/g, '<h4>$1</h4>');
+    md = md.replace(/\n[\#]{3}\s(.+)/g, '<h3>$1</h3>');
     md = md.replace(/\n[\#]{2}\s([\s\S]+)[ー]{3}/g, '<div class="pflex">\n\#\# $1ーーー</div>');
     md = md.replace(/\n[\#]{2}(.+)[\:]{2}(.+)\n([^ー]+)[ー]{3}/g, '<div class="pgroup $2"><h2 class="pgroup-title">$1</h2><div class="pgroup-content">$3</div></div>');
     md = md.replace(/\n[\#]{2}(.+)\n([^ー]+)[ー]{3}/g, '<div class="pgroup"><h2 class="pgroup-title">$1</h2><div class="pgroup-content">$2</div></div>');
-    md = md.replace(/\n[\#]{2}(.+)/g, '<h2>$1</h2>');
-    md = md.replace(/\n[\#]{1}(.+)/g, '</div></div><div class="item_wrap"><div class="item"><h1 class="h1">$1</h1>');
+    md = md.replace(/\n[\#]{2}\s(.+)/g, '<h2>$1</h2>');
+    md = md.replace(/\n[\#]{1}\s(.+)/g, '</div></div><div class="item_wrap"><div class="item"><h1 class="h1">$1</h1>');
 
     //hr
     md = md.replace(/[ー]{3}/g, '</div></div><div class="item_wrap"><div class="line">✿--✿--✿</div><div class="item">');
@@ -248,11 +137,8 @@ function getQueryStringObject() {
 var qs = getQueryStringObject()
 var page = qs.page
 var year = qs.year
-if (!year) {
-    year = json.info.startYear
-}
 var category = qs.category
-var coord = qs.coord
+var note = qs.note
 
 function hoverWorld(e) {
     if (json.world[e.innerText]) document.querySelector('.worldname').innerHTML = '[' + e.innerText + ']' + json.world[e.innerText].name
@@ -295,7 +181,7 @@ function loadBackground(json) {
     if (!category) {
         var cCategory = json.character.category
         for (var j = 0; j < cCategory.length; j++) {
-            document.querySelector('#character-content').innerHTML += '<div class="charactercategory" id="category'+j+'">'+cCategory[j]+'</div>'
+            document.querySelector('#character-content').innerHTML += '<div class="charactercategory" id="category'+j+'"><a href="./?category='+cCategory+'">'+cCategory[j]+'</a></div>'
             document.querySelector('#character-content').innerHTML += '<div class="characterlist" id="list'+j+'"></div>'
             for (var i = 0; i < cList.length; i++) {
                 if (cList[i].category == cCategory[j]) {
@@ -309,7 +195,7 @@ function loadBackground(json) {
         for (var i = 0; i < cList.length; i++) {
             if (cList[i].category == category) {
                 if (year >= cList[i].lived[0] && year <= cList[i].lived[1]) {
-                    document.querySelector('#list'+j).innerHTML += '<a href="./?page='+i+'"><div class="characteritem" onmouseover="hoverCharacter('+i+')"><div><img src="'+cList[i].avatar+'" class="cavatar"></div><div class="cname">'+cList[i].name+'</div><div class="csummary">'+cList[i].summary+'</div></div></a>'
+                    document.querySelector('.characterlist').innerHTML += '<a href="./?page='+i+'"><div class="characteritem" onmouseover="hoverCharacter('+i+')"><div><img src="'+cList[i].avatar+'" class="cavatar"></div><div class="cname">'+cList[i].name+'</div><div class="csummary">'+cList[i].summary+'</div></div></a>'
                 }
             }
         }
@@ -320,17 +206,70 @@ function loadBackground(json) {
     })
 }
 
-function parseYourJSON(json) {
+async function parseYourJSON(json) {
+    if (!year) {
+        year = json.info.startYear
+    }
     document.querySelector("#title").innerHTML = '<a href="./">'+json.info.title+'</a>'
     document.querySelector("#subtitle").innerHTML = json.info.subTitle
-    if (!page && !coord) {
+    if (!page && !note) {
         loadBackground(json)
+    } else if (page == 'info') {
+        loadBackground(json)
+        document.querySelector('#wrapper').addEventListener("click", (e) => {
+            location.href = './'
+        })
+        document.querySelector('#popup-content').style.display = 'block'
+        document.querySelector('#popup-content').innerHTML = '<div class="worldinfo"></div>'
+
+        document.querySelector('.worldinfo').innerHTML = '<h1 class="winfotitle">'+json.info.title+'<h1>'
+        document.querySelector('.worldinfo').innerHTML += '<div class="winfosubtitle">'+json.info.subTitle+'<div>'
+        document.querySelector('.worldinfo').innerHTML += '<h1>요약</h1>'
+        document.querySelector('.worldinfo').innerHTML += '<div class="winfosummary">'+json.info.summary+'<div>'
+        document.querySelector('.worldinfo').innerHTML += '<h1>설명</h1>'
+        document.querySelector('.worldinfo').innerHTML += '<div class="winfodescription">'+json.info.description+'<div>'
+    } else if (page == 'collection') {
+        loadBackground(json)
+        document.querySelector('#wrapper').addEventListener("click", (e) => {
+            location.href = './'
+        })
+        document.querySelector('#popup-content').style.display = 'block'
+        document.querySelector('#popup-content').innerHTML = '<div class="collection"></div>'
+        
+        document.querySelector('.collection').innerHTML += '<h1 class="collectiontitle">작품모음<h1>'
+        document.querySelector('.collection').innerHTML += '<div class="collectionlist"><div>'
+
+        var findNotesUrl = 'https://'+MISSKEYHOST+'/api/notes/search'
+        var findNotesParam = {
+            method: 'POST',
+            headers: {
+                'content-type': 'application/json',
+            },
+            body: JSON.stringify({
+                query: '#'+json.info.hashtag.join(' #')+' #창작',
+                userId: MISSKEYID,
+                limit: 100
+            })
+        }
+        fetch(findNotesUrl, findNotesParam)
+        .then((notesData) => {return notesData.json()})
+        .then((notesRes) => {
+            for (var i = 0; i<notesRes.length; i++){
+                if (notesRes[i].files.length == 0) {
+                    document.querySelector('.collectionlist').innerHTML += '<div class="collectionel"><a href="./?note='+notesRes[i].id+'"><div class="overflowhidden" id="collection'+i+'"></div></a></div>'
+                    if (notesRes[i].cw) document.querySelector('#collection'+i).innerHTML = '<h1>'+notesRes[i].cw+'</h1>'
+                    document.querySelector('#collection'+i).innerHTML += parseMd(notesRes[i].text)
+                } else {
+                    document.querySelector('.collectionlist').innerHTML += '<div class="collectionel"><a href="./?note='+notesRes[i].id+'"><img src="'+notesRes[i].files[0].url+'"></a></div>'
+                }
+            }
+        })
     } else if (page) {
         loadBackground(json)
         document.querySelector('#wrapper').addEventListener("click", (e) => {
             location.href = './'
         })
-        document.querySelector('#popup-content').style.display = 'block';
+        document.querySelector('#popup-content').style.display = 'block'
         var cList = json.character.list
 
         if (page.includes(',')) {
@@ -373,7 +312,7 @@ function parseYourJSON(json) {
             document.querySelector('.characterprofile').innerHTML += '<div class="cprofilecategory"><span class="bold">이름 유래</span> '+cList[page].meaning+'<div>'
             document.querySelector('.characterprofile').innerHTML += '<div class="cprofilecategory"><span class="bold">자</span> '+cList[page].courtesyName+'<div>'
             document.querySelector('.characterprofile').innerHTML += '<div class="cprofilecategory"><span class="bold">호</span> '+cList[page].nickname+'<div>'
-            document.querySelector('.characterprofile').innerHTML += '<div class="cprofilecategory"><span class="bold">분류</span> '+cList[page].category+'<div>'
+            document.querySelector('.characterprofile').innerHTML += '<div class="cprofilecategory"><span class="bold">분류</span> <a href="./?category='+cList[page].category+'">'+cList[page].category+'</a><div>'
             document.querySelector('.characterprofile').innerHTML += '<div class="cprofilesubcategory"><span class="bold">세부분류</span> '+cList[page].subCategory+'<div>'
             document.querySelector('.characterprofile').innerHTML += '<div class="cprofilelived"><span class="bold">생몰년</span> '+cList[page].lived[0]+'~'+cList[page].lived[1]+'<div>'
             document.querySelector('.characterprofile').innerHTML += '<div class="cprofilegoal"><div><span class="bold">사명</span> </div></div>'
@@ -407,6 +346,18 @@ function parseYourJSON(json) {
             document.querySelector('.characterprofile').innerHTML += '<h1>설명</h1>'
             document.querySelector('.characterprofile').innerHTML += '<div class="cprofiledescription">'+parseMd(cList[page].description)+'<div>'
 
+            document.querySelector('.characterprofile').innerHTML += '<h1>인간관계</h1>'
+
+            var relatedCategory = Object.keys(json.character.list[page].relatedTo)
+            for (var i = 0; i < relatedCategory.length; i++) {
+                document.querySelector('.relatedcharacterlist').innerHTML += '<div class="relatedcharactercategory" id="relatedcategory'+i+'">'+relatedCategory[i]+'</div>'
+                document.querySelector('.relatedcharacterlist').innerHTML += '<div class="relatedcharactercategorylist" id="relatedlist'+i+'"></div>'
+                var relatedCategorylist = json.character.list[page].relatedTo[relatedCategory[i]]
+                for (var j = 0; j < relatedCategorylist.length; j++) {
+                    document.querySelector('#relatedlist'+i).innerHTML += '<a href="./?page='+relatedCategorylist[j]+'"><div class="characteritem" onmouseover="hoverCharacter('+relatedCategorylist[j]+')"><div><img src="'+cList[relatedCategorylist[j]].avatar+'" class="cavatar"></div><div class="cname">'+cList[relatedCategorylist[j]].name+'</div><div class="csummary">'+cList[relatedCategorylist[j]].summary+'</div></div></a>'
+                }
+            }
+
             document.querySelector('#hideChronology').addEventListener("click", (e) => {
                 var els = document.querySelectorAll('.subyear')
                 if (hideandseek) {
@@ -421,25 +372,109 @@ function parseYourJSON(json) {
                     hideandseek = true
                 }
             })
+        }
+    } else if (note) {
+        loadBackground(json)
+        document.querySelector('#wrapper').addEventListener("click", (e) => {
+            location.href = './'
+        })
+        document.querySelector('#popup-content').style.display = 'block'
+        document.querySelector('#popup-content').innerHTML = '<div class="collection"></div>'
+        
+        document.querySelector('.collection').innerHTML += '<h1 class="collectiontitle">제목 없음<h1>'
+        document.querySelector('.collection').innerHTML += '<div class="collectionnote"><div>'
 
-            document.querySelector('.characterprofile').innerHTML += '<h1>인간관계</h1>'
-
-            var relatedCategory = Object.keys(json.character.list[page].relatedTo)
-            for (var i = 0; i < relatedCategory.length; i++) {
-                document.querySelector('.relatedcharacterlist').innerHTML += '<div class="relatedcharactercategory" id="relatedcategory'+i+'">'+relatedCategory[i]+'</div>'
-                document.querySelector('.relatedcharacterlist').innerHTML += '<div class="relatedcharactercategorylist" id="relatedlist'+i+'"></div>'
-                var relatedCategorylist = json.character.list[page].relatedTo[relatedCategory[i]]
-                for (var j = 0; j < relatedCategorylist.length; j++) {
-                    document.querySelector('#relatedlist'+i).innerHTML += '<a href="./?page='+relatedCategorylist[j]+'"><div class="characteritem" onmouseover="hoverCharacter('+relatedCategorylist[j]+')"><div><img src="'+cList[relatedCategorylist[j]].avatar+'" class="cavatar"></div><div class="cname">'+cList[relatedCategorylist[j]].name+'</div><div class="csummary">'+cList[relatedCategorylist[j]].summary+'</div></div></a>'
+        var findNotesUrl = 'https://'+MISSKEYHOST+'/api/notes/show'
+        var findNotesParam = {
+            method: 'POST',
+            headers: {
+                'content-type': 'application/json',
+            },
+            body: JSON.stringify({
+                noteId: note,
+            })
+        }
+        fetch(findNotesUrl, findNotesParam)
+        .then((notesData) => {return notesData.json()})
+        .then((notesRes) => {
+            if (notesRes.cw) document.querySelector('.collectiontitle').innerText = notesRes.cw
+            if (notesRes.files.length > 0) {
+                for (var i = 0; i<notesRes.files.length; i++) {
+                    document.querySelector('.collectionnote').innerHTML += '<img src="'+notesRes.files[i].url+'">'
                 }
             }
-        }
-
-    } else if (coord) {
-
+            document.querySelector('.collectionnote').innerHTML += parseMd(notesRes.text)
+        })
     }
 }
 
-window.addEventListener("DOMContentLoaded", (e) => {
-    parseYourJSON(json)
-})
+async function findJSON() {
+    var findUserIdUrl = 'https://'+MISSKEYHOST+'/api/users/search-by-username-and-host'
+    var findUserIdParam = {
+        method: 'POST',
+        headers: {
+            'content-type': 'application/json',
+        },
+        body:  JSON.stringify({
+            username: MISSKEYUSER,
+            host: MISSKEYHOST,
+        })
+    }
+    const userData = await fetch(findUserIdUrl, findUserIdParam)
+    const userRes = await userData.json()
+    if (userRes.length > 0) {
+        MISSKEYID = userRes[0].id
+
+        var findInfoUrl = 'https://'+MISSKEYHOST+'/api/notes/search'
+        var findInfoParam = {
+            method: 'POST',
+            headers: {
+                'content-type': 'application/json',
+            },
+            body: JSON.stringify({
+                query: 'CabinetKey_Setup',
+                userId: MISSKEYID,
+            })
+        }
+        const infoData = await fetch(findInfoUrl, findInfoParam)
+        const infoRes = await infoData.json()
+
+        if (infoRes.length == 1) {
+            const MISSKEYSETUPID = infoRes[0].id
+            const MISSKEYJSONID = infoRes[0].text.split('`')[1]
+            var blogInfoUrl = 'https://'+MISSKEYHOST+'/api/pages/show'
+            var blogInfoParam = {
+                method: 'POST',
+                headers: {
+                    'content-type': 'application/json',
+                },
+                body: JSON.stringify({
+                    pageId: MISSKEYJSONID
+                })
+            }
+            
+            const pageData = await fetch(blogInfoUrl, blogInfoParam)
+            const pageRes = await pageData.json()
+            if (!pageRes.content) {
+                json = {}
+            } else {
+                json = JSON.parse(pageRes.content[0].text.split('```')[1])
+            }
+        } else if (infoRes.length > 1) {
+            alert('셋업 노트가 2개 이상 감지되었습니다. 확인 후 유효하지 않은 노트를 삭제해 주세요.')
+            json = {}
+        } else {
+            json = {}
+        }
+    } else {
+        json = {}
+    }
+    return json
+}
+
+async function updateJSON() { 
+    const JSON = await findJSON()
+    await parseYourJSON(JSON)
+}
+
+updateJSON()

@@ -1,66 +1,70 @@
 {
     "info": {
-        "title": "*.json",
-        "subTitle": "별돋조선",
-        "description": "고등학교 때 자캐세계관을 갈아엎는 프로젝트에요. 실제 역사적 사건에 편입시키려고 노력하고 있어요."
-    }, 
-    "character": [
-        {
-            "avatar": "https://peachtart2.s3.ap-northeast-1.amazonaws.com/tart/webpublic-72e76638-d7cd-461e-843c-ad3a0a3c1bd5.png",
-            "name": "A",
-            "lived": [1701, 1740],
-            "eventCronology": {
-                "1701.0": "한양 어쩌고저쩌고 어디에서 태어남",
-                "1718.3": "작품 시작 시점",
-                "1740.0": "어쩌고저쩌고 일이 잘못되어 뫄뫄솨솨로 몰려 사망"
-            },
-            "positionCronology": {
-                "1716": "",
-                "1718": ""
-            },
-            "relatedTo": {
-                "가족": ["B", "C"],
-                "선배": ["G"],
-                "동료": ["D", "E"],
-                "친구": ["F"]
-            },
-            "goal": ["역시", "배열이", "편하겠지"],
-            "summary": "짧은 요약",
-            "description": "마크다운과 개행을 지원하는 긴 설명"
-        }, {
-            "avatar": "https://peachtart2.s3.ap-northeast-1.amazonaws.com/tart/webpublic-54fa12e0-32d7-4665-b582-b390f1fa0981.png",
-            "name": "B",
-            "lived": [1699, 1771],
-            "eventCronology": {
-                "1718.3": "작품 시작 시점"
-            },
-            "positionCronology": {
-                "1715": "",
-                "1718": ""
-            },
-            "relatedTo": {
-                "가족": ["B", "C"],
-                "선배": ["G"],
-                "동료": ["D", "E"],
-                "친구": ["F"]
-            },
-            "goal": ["역시", "배열이", "편하겠지"],
-            "summary": "짧은 요약",
-            "description": "마크다운과 개행을 지원하는 긴 설명"
-        }
-    ],
-    "world": [
-        {
-            "coord": [0, 0],
-            "name": "",
-            "summary": "짧은 요약",
-            "description": "마크다운과 개행을 지원하는 긴 설명",
-            "eventCronology": {
-                "1718.3": "작품 시작 시점"
-            },
-            "relatedTo": {
-                "캐릭터": ["A", "B", "C"]
+        "title": "",
+        "subTitle": "",
+        "summary": "",
+        "description": "",
+        "mainYear": "",
+        "map": "",
+        "hashtag": [""]
+    },
+    "character": {
+        "category": [""],
+        "list": [
+            {
+                "avatar": "",
+                "name": "",
+                "meaning": "",
+                "courtesyName": "",
+                "nickname": "",
+                "lived": [0, 0],
+                "category": "",
+                "subCategory": "",
+                "eventChronology": {
+                    "0.0": "",
+                    "0.0": "",
+                    "0.0": ""
+                },
+                "positionChronology": {
+                    "0.0": "",
+                    "0.0": ""
+                },
+                "relatedTo": {
+                    "분류1": [0],
+                    "분류2": [0]
+                },
+                "goal": ["", ""],
+                "themeSong": [0],
+                "summary": "",
+                "description": "",
+                "secret": "",
+                "hashtag": ""
             }
+        ]
+    },
+    "world": {
+        "x,y": {
+            "name": "",
+            "image": "",
+            "summary": "",
+            "description": "",
+            "eventChronology": {
+                "0.0": ""
+            },
+            "relatedTo": {
+                "분류1": [0]
+            }
+        }
+    },
+    "themeSong": [
+        {
+            "embed": "",
+            "title": "",
+            "artist": "",
+            "character": 0,
+            "summary": "",
+            "description": "",
+            "lyrics": ""
         }
     ]
 }

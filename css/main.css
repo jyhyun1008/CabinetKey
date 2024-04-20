@@ -244,7 +244,7 @@ body {
 .characterlist a, .relatedcharacterlist a {
     width: calc(32% - 5px);
     color: inherit;
-    text-decoration: none;
+    text-decoration: none !important;
     display: inline-block;
 }
 
@@ -377,4 +377,41 @@ a {
     display: none;
     overflow-y: scroll;
     padding: 20px;
+}
+
+#popup-content a {
+    text-decoration: underline;
+}
+
+.collectionlist {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.collectionel {
+    width: calc(32% - 5px);
+}
+
+.collectionel:hover {
+    opacity: 0.5;
+}
+
+.collectionel a {
+    text-decoration: none !important;
+}
+
+.collectionel img {
+    object-fit: cover;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    border-radius: 20px;
+}
+
+.collectionel .overflowhidden {
+    overflow: hidden;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    background-color: var(--lightaccent);
+    border-radius: 20px;
 }
