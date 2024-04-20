@@ -329,14 +329,13 @@ async function parseYourJSON(json) {
     document.querySelector("#subtitle").innerHTML = json.info.subTitle
     if (!page && !note) {
         loadBackground(json)
-        if (mode == 'edit') {
+        if (mode == 'edit' && isLogin) {
             var isSaved = false
             window.onbeforeunload = function(){
                 if (!isSaved) {
                     return '페이지를 나가시겠습니까? 편집한 내용은 저장되지 않습니다.'
                 }
             }
-       //if (mode == 'edit' && isLogin) { 커밋할때 활성화필요
             document.querySelector('#popup-content').style.display = 'block'
             document.querySelector('#popup-content').innerHTML = '<div class="editwrapper"></div>'
             document.querySelector('.editwrapper').innerHTML = '<h1>편집기<h1>'
