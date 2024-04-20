@@ -14,18 +14,35 @@ if (sessionId && signedHost) {
 //마크다운 파싱
 function parseMd(md){
 
-    md = "\n"+md
+    md = "\n"+md+"\n\n"
     var md0 = md;
+
+    console.log(md)
   
     //ul
     md = md.replace(/^\s*\n\*\s/gm, '<ul>\n* ');
-    md = md.replace(/^(\*\s.+)\s*\n([^\*])/gm, '$1\n</ul>\n$2');
-    md = md.replace(/^\*\s(.+)/gm, '<li class="before">$1</li>');
-    
+    md = md.replace(/\*\s([^\*]+)\n\n/gm, '* $1\n</ul>\n\n');
+    md = md.replace(/^\*\s(.+)/gm, '<li>$1</li>');
+    while (md.includes('  * ')) {
+        md = md.replace(/\<\/li\>\n\s\s\*\s/gm, '</li>\n<ul>\n  * ')
+        md = md.replace(/\s\s\*\s(.+)\n\<\/ul\>/gm, '  \* $1\n</ul>\n</ul>')
+        md = md.replace(/\s\s\*\s(.+)\n\<li\>/gm, '  \* $1\n</ul>\n<li>')
+        md = md.replace(/\n\s\s\*\s(.+)/gm, '<li>$1</li>');
+        md = md.replace(/\s\s\*\s/gm, '* ')
+    }
+
     //ul
     md = md.replace(/^\s*\n\-\s/gm, '<ul>\n- ');
-    md = md.replace(/^(\-\s.+)\s*\n([^\-])/gm, '$1\n</ul>\n$2');
-    md = md.replace(/^\-\s(.+)/gm, '<li class="before">$1</li>');
+    md = md.replace(/\-\s([^\-]+)\n\n/gm, '* $1\n</ul>\n\n');
+    md = md.replace(/^\-\s(.+)/gm, '<li>$1</li>');
+    while (md.includes('  - ')) {
+        md = md.replace(/\<\/li\>\n\s\s\-\s/gm, '</li>\n<ul>\n  - ')
+        md = md.replace(/\s\s\-\s(.+)\n\<\/ul\>/gm, '  \- $1\n</ul>\n</ul>')
+        md = md.replace(/\s\s\-\s(.+)\n\<li\>/gm, '  \- $1\n</ul>\n<li>')
+        md = md.replace(/\n\s\s\-\s(.+)/gm, '<li>$1</li>');
+        md = md.replace(/\s\s\-\s/gm, '- ')
+    }
+    md = md.replace(/([^\>]+)\n\<li\>/gm, '$1\n<ul>\n<li>')
     
     //ol
     md = md.replace(/^\s*\n\d\.\s/gm, '<ol>\n1. ');
