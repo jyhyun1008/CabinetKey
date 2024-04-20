@@ -403,6 +403,7 @@ async function parseYourJSON(json) {
                     document.querySelector('.collectionnote').innerHTML += '<img src="'+notesRes.files[i].url+'">'
                 }
             }
+            document.querySelector('.collectionnote').innerHTML = '<div class="createdAt">'+notesRes.createdAt+'</div>'
             document.querySelector('.collectionnote').innerHTML += parseMd(notesRes.text)
         })
     }

@@ -415,3 +415,8 @@ a {
     background-color: var(--lightaccent);
     border-radius: 20px;
 }
+
+.createdAt {
+    margin: 20px 0;
+    font-size: 0.8em;
+}
