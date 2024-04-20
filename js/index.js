@@ -255,7 +255,7 @@ function hoverCharacter(i) {
 function loadBackground(json) {
 
     document.querySelector('#world-content').innerHTML = '<div class="yearInput"><span class="bold">기준 연도</span> <input id="yearTextInput" placeholder="'+year+'" value="'+year+'"></input></div>'
-    document.querySelector('.yearInput').innerHTML += ' <a href="./?year='+document.getElementById("yearTextInput").value+'"><span class="bold">이동!</span></a>'
+    document.querySelector('.yearInput').innerHTML += ' <span class="bold" id="yearChange">이동!</span>'
     document.querySelector('#world-content').innerHTML += '<div class="worldname"></div>'
     document.querySelector('#world-content').innerHTML += '<div class="worldmap"></div>'
     for (var i = 0; i < 11; i++){
@@ -289,17 +289,25 @@ function loadBackground(json) {
             document.querySelector('#character-content').innerHTML += '<div class="characterlist" id="list'+j+'"></div>'
             for (var i = 0; i < cList.length; i++) {
                 if (cList[i].category == cCategory[j]) {
-                    document.querySelector('#list'+j).innerHTML += '<a href="./?page='+i+'"><div class="characteritem" onmouseover="hoverCharacter('+i+')"><div><img src="'+cList[i].avatar+'" class="cavatar"></div><div class="cname">'+cList[i].name+'</div><div class="csummary">'+cList[i].summary+'</div></div></a>'
+                    if (year >= cList[i].lived[0] && year <= cList[i].lived[1]) {
+                        document.querySelector('#list'+j).innerHTML += '<a href="./?page='+i+'"><div class="characteritem" onmouseover="hoverCharacter('+i+')"><div><img src="'+cList[i].avatar+'" class="cavatar"></div><div class="cname">'+cList[i].name+'</div><div class="csummary">'+cList[i].summary+'</div></div></a>'
+                    }
                 }
             }
         }
     } else {
         for (var i = 0; i < cList.length; i++) {
             if (cList[i].category == category) {
-                document.querySelector('.characterlist').innerHTML += '<a href="./?page='+i+'"><div class="characteritem" onmouseover="hoverCharacter('+i+')"><div><img src="'+cList[i].avatar+'" class="cavatar"></div><div class="cname">'+cList[i].name+'</div><div class="ccategory">'+cList[i].category+'</div><div class="csummary">'+cList[i].summary+'</div></div></a>'
+                if (year >= cList[i].lived[0] && year <= cList[i].lived[1]) {
+                    document.querySelector('#list'+j).innerHTML += '<a href="./?page='+i+'"><div class="characteritem" onmouseover="hoverCharacter('+i+')"><div><img src="'+cList[i].avatar+'" class="cavatar"></div><div class="cname">'+cList[i].name+'</div><div class="csummary">'+cList[i].summary+'</div></div></a>'
+                }
             }
         }
     }
+
+    document.querySelector("#yearChange").addEventListener("click", (e) => {
+        location.href = './?year='+document.querySelector("#yearTextInput").value
+    })
 }
 
 function parseYourJSON(json) {
