@@ -227,7 +227,7 @@ body {
     align-items: center;
 }
 
-.characterlist {
+.characterlist, .relatedcharactercategorylist {
     display: flex;
     flex-wrap: wrap;
     width: 100%;
@@ -321,12 +321,12 @@ li:before {
 }
 
 .cronology td:nth-child(1){
-    text-align: right;
+    text-align: center;
     width: 20% !important;
 }
 
 .cronology .subyear, .cronology .mainyear{
-    text-align: right;
+    text-align: center;
     width: 20% !important;
 }
 
