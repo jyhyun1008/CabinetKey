@@ -389,7 +389,7 @@ async function parseYourJSON(json) {
         .then((out) => {
             document.querySelector('#readme').innerHTML = parseMd(out)
         })
-        
+
     } else if (page == 'info') {
         loadBackground(json)
         document.querySelector('#wrapper').addEventListener("click", (e) => {
@@ -440,7 +440,7 @@ async function parseYourJSON(json) {
                 }
             }
         })
-    } else if (page != 'callback') {
+    } else if (page && page != 'callback') {
         loadBackground(json)
         document.querySelector('#wrapper').addEventListener("click", (e) => {
             location.href = './'
