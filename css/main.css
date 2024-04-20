@@ -6,9 +6,7 @@
 }
 
 :root {
-    --accent: rgb(54, 64, 157);
-    --darkaccent: color-mix(in srgb, var(--accent) 70%, #470046);
-    --lightaccent: color-mix(in srgb, var(--accent) 70%, #fbffbb);
+    --accent: #000000;
 }
 
 body {

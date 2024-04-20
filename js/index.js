@@ -6,6 +6,9 @@ const sessionId = localStorage.getItem("sessionId");
 const signedHost = localStorage.getItem("signinHost");
 
 var cssRoot = document.querySelector(':root');
+cssRoot.style.setProperty('--accent', THEMECOLOR)
+cssRoot.style.setProperty('--darkaccent', 'color-mix(in srgb, var(--accent) 70%, #470046)')
+cssRoot.style.setProperty('--lightaccent', 'color-mix(in srgb, var(--accent) 70%, #fbffbb)')
 
 var isLogin = false;
 if (sessionId && signedHost) {
@@ -158,6 +161,91 @@ var page = qs.page
 var year = qs.year
 var category = qs.category
 var note = qs.note
+var mode = qs.mode
+
+if (page == 'signin') {
+    if (!isLogin) {
+        let uuid = self.crypto.randomUUID();
+        localStorage.setItem("sessionId", uuid);
+        var signinUrl = 'https://'+MISSKEYHOST+'/miauth/'+uuid+'?name=CabinetKey&callback='+encodeURIComponent(location.href.split('?')[0])+'%3Fpage%3Dcallback&permission=write:account,read:account,write:drive,write:notes,write:pages'
+        location.href = signinUrl;
+    }
+} else if (page == 'callback') {
+    if (sessionId) {
+        var postUrl = 'https://'+MISSKEYHOST+'/api/miauth/'+sessionId+'/check'
+        var postParam = {
+            method: 'POST',
+            headers: {
+                'content-type': 'application/json',
+            },
+            body: JSON.stringify({})
+        }
+        fetch(postUrl, postParam)
+        .then((tokenData) => {return tokenData.json()})
+        .then((tokenRes) => {
+            localStorage.setItem("token", tokenRes.token)
+            var findInfoUrl = 'https://'+MISSKEYHOST+'/api/notes/search'
+            var findInfoParam = {
+                method: 'POST',
+                headers: {
+                    'content-type': 'application/json',
+                },
+                body: JSON.stringify({
+                    query: 'CabinetKey_Setup',
+                    userId: tokenRes.user.id,
+                })
+            }
+            fetch(findInfoUrl, findInfoParam)
+            .then((infoData) => {return infoData.json()})
+            .then((infoRes) => {
+                if (infoRes.length == 0) {
+                    var createPageUrl = 'https://'+MISSKEYHOST+'/api/pages/create'
+                    var createPageParam = {
+                        method: 'POST',
+                        headers: {
+                            'content-type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            i: tokenRes.token,
+                            title: 'CabinetKey.json',
+                            name: 'CabinetKey.json',
+                            summary: 'CabinetKey.json',
+                            variables: [],
+                            script: '',
+                            content: [{
+                                text: '```\n{"info":{"title":"","subTitle":"","summary":"","description":"","mainYear":"","map":"","hashtag":[""]},"character":{"category":[""],"list":[{"avatar":"","name":"","meaning":"","courtesyName":"","nickname":"","lived":[0,0],"category":"","subCategory":"","eventChronology":{"0.0":""},"positionChronology":{"0.0":""},"relatedTo":{"분류1":[0],"분류2":[0]},"goal":["",""],"themeSong":[0],"summary":"","description":"","secret":"","hashtag":""}]},"world":{"x,y":{"name":"","image":"","summary":"","description":"","eventChronology":{"0.0":""},"relatedTo":{"분류1":[0]}}},"themeSong":[{"embed":"","title":"","artist":"","character":0,"summary":"","description":"","lyrics":""}]}\n```',
+                                type: 'text'
+                            }]
+                        })
+                    }
+                    fetch(createPageUrl, createPageParam)
+                    .then((pageData) => {return pageData.json()})
+                    .then((pageRes) => {
+                        var createNoteUrl = 'https://'+MISSKEYHOST+'/api/notes/create'
+                        var createNoteParam = {
+                            method: 'POST',
+                            headers: {
+                                'content-type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                i: tokenRes.token,
+                                visibility: 'home',
+                                text: '`' + pageRes.id + '` #CabinetKey_Setup'
+                            })
+                        }
+                        fetch(createNoteUrl, createNoteParam)
+                        .then((noteData) => {return noteData.json()})
+                        .then((noteRes) => {
+                            location.href = location.href.split('?')[0]
+                        })
+                    })
+                } else if (infoRes.length > 0) {
+                    isLogin = true
+                }
+            })
+        })
+    }
+} 
 
 function hoverWorld(e) {
     if (json.world[e.innerText]) document.querySelector('.worldname').innerHTML = '[' + e.innerText + ']' + json.world[e.innerText].name
@@ -442,7 +530,6 @@ async function parseYourJSON(json) {
                             'content-type': 'application/json',
                         },
                     }
-                    console.log(emojiFetchUrl)
                     fetch(emojiFetchUrl, emojiFetchParam)
                     .then((emojiData) => {return emojiData.json()})
                     .then((emojiRes) => {
