@@ -7,25 +7,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>포트폴리오</title>
     <link rel="shortcut icon" href="./assets/icon.ico?v=1">
-    <link rel="stylesheet" media="screen" href="./css/main.css?v=0.0.32">
+    <link rel="stylesheet" media="screen" href="./css/main.css?v=0.0.0">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 </head>
 <body>
+    <div id="background"></div>
     <div id="app">
         <div id="wrapper">
             <div id="content-box">
                 <div id="title-box">
-                    <h1 id="title"><a href="./">*.json</a></h1>
-                    <div id="subtitle">별돋조선</div>
+                    <div>
+                        <h1 id="title"></h1>
+                        <div id="subtitle"></div>
+                    </div>
+                    <div class="nav-box">
+                        <div class="nav-list">세계관소개</div>
+                        <div class="nav-list">작품모음</div>
+                    </div>
                 </div>
-                <div id="text-box">
-                    <div id="page-content"></div>
+                <div id="world-box">
+                    <div id="world-content"></div>
+                    <div id="character-content"></div>
                 </div>
             </div>
         </div>
+        <div id="popup-content"></div>
     </div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script src="./settings.js?v=0.0.0"></script>
-    <script src="./js/index.js?v=0.0.23"></script>
-    <script src="https://cdn.jsdelivr.net/npm/graphql-min@1.0.1/src/index.min.js"></script>
+    <script src="./js/index.js?v=0.0.0"></script>
 </body>
