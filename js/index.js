@@ -342,6 +342,7 @@ async function parseYourJSON(json) {
             document.querySelector('.editwrapper').innerHTML += '<form><label for="fname">Raw JSON Data:</label><textarea id="editrawjson" name="fname">'+JSON.stringify(json, null, 2)+'</textarea><div class="bold" id="editconfirm">수정</div></form>'
 
             document.querySelector('#editconfirm').addEventListener("click", (e) => {
+                json = JSON.parse(document.querySelector('#editrawjson').value)
                 var updatePageUrl = 'https://'+MISSKEYHOST+'/api/pages/update'
                 var updatePageParam = {
                     method: 'POST',
@@ -357,7 +358,7 @@ async function parseYourJSON(json) {
                         variables: [],
                         script: '',
                         content: [{
-                            text: '```\n'+JSON.stringify(JSON.parse(document.querySelector('#editrawjson').value))+'\n```',
+                            text: '```\n'+JSON.stringify(json)+'\n```',
                             type: 'text'
                         }]
                     })
@@ -365,7 +366,9 @@ async function parseYourJSON(json) {
                 fetch(updatePageUrl, updatePageParam)
                 .then(() => {
                     isSaved = true
-                    location.href = './'
+                    console.log(json)
+                    console.log('fetch까지된듯')
+                    //location.href = './'
                 })
             })
         }
@@ -646,8 +649,10 @@ async function findJSON() {
         if (infoRes.length == 1) {
             const MISSKEYSETUPID = infoRes[0].id
             const MISSKEYJSONID = infoRes[0].text.split('`')[1]
-            var blogInfoUrl = 'https://'+MISSKEYHOST+'/api/pages/show'
-            var blogInfoParam = {
+            localStorage.setItem('jsonPageId', MISSKEYJSONID)
+
+            var jsonInfoUrl = 'https://'+MISSKEYHOST+'/api/pages/show'
+            var jsonInfoParam = {
                 method: 'POST',
                 headers: {
                     'content-type': 'application/json',
@@ -657,13 +662,11 @@ async function findJSON() {
                 })
             }
             
-            const pageData = await fetch(blogInfoUrl, blogInfoParam)
+            const pageData = await fetch(jsonInfoUrl, jsonInfoParam)
             const pageRes = await pageData.json()
             if (!pageRes.content) {
                 json = {}
             } else {
-                jsonPageId = pageRes.id
-                localStorage.setItem('jsonPageId', jsonPageId)
                 json = JSON.parse(pageRes.content[0].text.split('```')[1])
                 localStorage.setItem('json', JSON.stringify(json))
             }
