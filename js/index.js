@@ -581,13 +581,13 @@ async function parseYourJSON(json) {
             }
             document.querySelector('.collectionnote').innerHTML = '<div class="createdAt">'+notesRes.createdAt+'</div>'
             document.querySelector('.collectionnote').innerHTML += '<div class="createdAt"><span class="bold"><a href="https://'+MISSKEYHOST+'/notes/'+notesRes.id+'">리모트에서 보기</a></span></div>'
-            document.querySelector('.collectionnote').innerHTML += '<div class="noteContent"'+parseMd(notesRes.text)+'</div><hr>'
+            document.querySelector('.collectionnote').innerHTML += '<div class="noteContent">'+parseMd(notesRes.text)+'</div><hr>'
             document.querySelector('.collectionnote').innerHTML += '<div class="reactionList"></div>'
             for (var i = 0; i<Object.keys(notesRes.reactions).length; i++) {
                 var emojiName = Object.keys(notesRes.reactions)[i]
                 if (emojiName.includes('@')) {
                     var emojiHost
-                    if (emojiName.split('@')[1] = '.:') {
+                    if (emojiName.split('@')[1] == '.:') {
                         emojiHost = MISSKEYHOST
                     } else {
                         emojiHost = emojiName.split('@')[1].split(':')[0]
@@ -628,7 +628,6 @@ async function parseYourJSON(json) {
                     document.querySelector('#replyid'+i).innerHTML += '<div class="replyProfile"><span> ー by</span><img class="emoji" src="'+replyRes[i].user.avatarUrl+'"><span>'+replyRes[i].user.name.replace(/\:([^\:\s]+)\:/g, '').replace(/\s\s/g, ' ')+'</span><span class="bold" style="font-size: 0.8em;"><a href="https://'+MISSKEYHOST+'/notes/'+replyRes[i].id+'">리모트에서 보기</a></span></div>'
                 }
             })
-            document.querySelector('.collectionnote').innerHTML += ''
         })
     }
 }
