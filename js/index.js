@@ -18,7 +18,7 @@ var json = {
         "summary": "고등학교 때 자캐세계관을 갈아엎는 프로젝트에요. 실제 역사적 사건에 편입시키려고 노력하고 있어요.",
         "description": "고등학교 때 자캐세계관을 갈아엎는 프로젝트에요. 실제 역사적 사건에 편입시키려고 노력하고 있어요.",
         "mainYear": "1718",
-        "map": "./assets/map.png",
+        "map": "https://peachtart2.s3.ap-northeast-1.amazonaws.com/tart/thumbnail-bd68af8b-7a68-4579-9b2f-7e5b54812e44.webp",
         "hashtag": ["별돋조선", "AsteJson"]
     }, 
     "character": {

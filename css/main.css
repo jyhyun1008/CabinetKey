@@ -211,8 +211,7 @@ body {
 }
 
 .worldcol {
-    text-shadow: 1px 1px white, -1px -1px white, -1px 1px white, 1px -1px white;
-    color: var(--darkaccent);
+    text-shadow: 1px 1px var(--darkaccent), -1px -1px var(--darkaccent), -1px 1px var(--darkaccent), 1px -1px var(--darkaccent);
 }
 
 .worldrowhead, .worldcolhead {
