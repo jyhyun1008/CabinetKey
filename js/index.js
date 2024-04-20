@@ -373,6 +373,23 @@ async function parseYourJSON(json) {
                 })
             })
         }
+    } else if (page == 'about'){
+        loadBackground(json)
+        document.querySelector('#wrapper').addEventListener("click", (e) => {
+            location.href = './'
+        })
+        document.querySelector('#popup-content').style.display = 'block'
+        document.querySelector('#popup-content').innerHTML = '<div class="ckeyinfo"></div>'
+        document.querySelector('.ckeyinfo').innerHTML = '<h1>CabinetKey에 대하여...<h1>'
+        document.querySelector('.ckeyinfo').innerHTML += '<div id="readme"><div>'
+
+        var readmeUrl = "https://raw.githubusercontent.com/"+GITHUBUSER+"/"+GITHUBREPO+"/main/README.md"
+        fetch(readmeUrl)
+        .then(res => res.text())
+        .then((out) => {
+            document.querySelector('#readme').innerHTML = parseMd(out)
+        })
+        
     } else if (page == 'info') {
         loadBackground(json)
         document.querySelector('#wrapper').addEventListener("click", (e) => {
