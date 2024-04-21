@@ -614,7 +614,7 @@ async function parseYourJSON(json) {
                 document.querySelector('.cprofilegoal').innerHTML += '<li>'+cList[page].goal[i]+'</li>'
             }
             var hideandseek = true
-            document.querySelector('.characterprofile').innerHTML += '<div class="cprofiletable"><div><span class="bold">연표</span> <span id="hideChronology">펼치기/접기</span></div><table class="chronology"><tr><th>연도</th><th>관직</th><th>사건</th></tr></table><div>'
+            document.querySelector('.characterprofile').innerHTML += '<div class="cprofiletable"><div><span class="bold">연표</span> <span id="hideChronology">펼치기/접기</span></div><table class="chronology"><tr><th>연도</th><th>포지션</th><th>사건</th></tr></table><div>'
 
             for (var i=0; i<(cList[page].lived[1] - cList[page].lived[0]); i++) {
                 if (json.info.mainYear.includes(cList[page].lived[0]+i)) {

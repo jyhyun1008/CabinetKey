@@ -1,8 +1,3 @@
-// 깃허브 레포지토리 정보
-
-const GITHUBUSER = "jyhyun1008" // 깃허브 아이디
-const GITHUBREPO = "CabinetKey" // 깃허브 레포지토리 이름
-
 // 테마 색상
 
 const THEMECOLOR = "#448EE4"
