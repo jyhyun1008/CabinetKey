@@ -373,7 +373,7 @@ a {
 
 #popup-content {
     position: fixed;
-    width: calc(100vw - 45px);
+    width: calc(100vw - 40px);
     max-width: 880px;
     height: calc(100vh - 200px);
     top: 100px;
@@ -487,8 +487,11 @@ strong, b, h3, h4, h5, h6 {
     }
 
     #popup-content {
-        height: calc(100vh - 120px);
+        height: calc(100dvh - 70px);
         top: 70px;
+        border-radius: 0;
+        border: 0px;
+        background-color: var(--darkaccent);
     }
 
     #world-box {
