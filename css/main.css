@@ -189,6 +189,7 @@ body {
 }
 
 .worldcol, .worldoriginhead {
+    aspect-ratio: 1 / 1;
     display: flex;
     flex-basis: 0;
     flex-grow: 1;
@@ -508,8 +509,10 @@ strong, b, h3, h4, h5, h6 {
         max-height: none;
     }
 
-    .worldcol, .worldoriginhead {
-        min-height: none;
+    .worldcol, .worldoriginhead, .worldrowhead, .worldcolhead {
+        min-height: auto;
+        height: min(calc((100dvh - 320px) / 11), calc((100vw - 40px - 10*5px) / 11));
+        border-radius: 5px;
     }
 
     #yearTextInput {
@@ -518,7 +521,7 @@ strong, b, h3, h4, h5, h6 {
 
     .worldmap {
         font-size: 0.6em;
-        width: calc(100vw - 30px);
+        width: calc(100vw - 35px);
     }
 
     #about {
