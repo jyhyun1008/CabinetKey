@@ -32,7 +32,7 @@ var example = {
         "subTitle": "캐비닛키",
         "summary": "",
         "description": "",
-        "YearRange": [0, 100],
+        "yearRange": [0, 100],
         "mainYear": [0],
         "startYear": 0,
         "map": "./assets/map.jpg",
