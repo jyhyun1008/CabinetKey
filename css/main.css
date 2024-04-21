@@ -19,7 +19,6 @@ body {
 }
 
 #background{
-    background-image: url('../assets/bground.jpeg');
     background-repeat: no-repeat;
     background-attachment: fixed;
     background-position: center;
@@ -70,7 +69,7 @@ body {
     /*max-width: calc(100dvh - 150px);*/
     width: 100%;
     display: flex;
-    background-color: #00000055;
+    background-color: var(--opacityaccent);
     border-radius: 20px;
 }
 
@@ -91,7 +90,7 @@ body {
 
 .worldname, .charactername, .charactercategory, .relatedcharactername, .relatedcharactercategory {
     width: 100%;
-    background-color: var(--accent);
+    background-color: black;
     color: white;
     text-align: center;
     height: 1.7rem;
@@ -317,7 +316,7 @@ li:before {
     border-radius: 10px;
 }
 
-.chronology td:nth-child(1){
+.chronology th:nth-child(1){
     text-align: center;
     width: 20% !important;
 }
@@ -375,8 +374,8 @@ a {
     top: 100px;
     left: max(0px, calc(50vw - 440px));
     border-radius: 40px;
-    background-color: #00000099;
-    border: 1px solid white;
+    background-color: var(--bgaccent);
+    border: 1px solid var(--lightaccent);
     z-index: 100;
     display: none;
     overflow-y: scroll;
@@ -481,6 +480,10 @@ textarea {
         min-width: auto;
         max-width: none;
         max-height: none;
+    }
+
+    .worldcol, .worldoriginhead {
+        min-height: none;
     }
 
     #yearTextInput {

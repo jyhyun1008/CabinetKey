@@ -9,6 +9,12 @@ var cssRoot = document.querySelector(':root');
 cssRoot.style.setProperty('--accent', THEMECOLOR)
 cssRoot.style.setProperty('--darkaccent', 'color-mix(in srgb, var(--accent) 70%, #470046)')
 cssRoot.style.setProperty('--lightaccent', 'color-mix(in srgb, var(--accent) 70%, #fbffbb)')
+cssRoot.style.setProperty('--opacityaccent', 'color-mix(in srgb, var(--darkaccent), transparent 40%)')
+cssRoot.style.setProperty('--bgaccent', 'color-mix(in srgb, var(--darkaccent), transparent 20%)')
+
+var background = document.querySelector('#background');
+background.style.backgroundImage = 'url('+BACKIMGURL+')'
+//background-image: url('../assets/bground.jpeg');
 
 var isLogin = false;
 if (sessionId) {
@@ -18,6 +24,82 @@ if (sessionId) {
     } else {
         document.querySelector('.nav-box').innerHTML += '<div class="nav-list"><a href="./?mode=edit">편집</a></div>'
     }
+}
+
+var example = {
+    "info": {
+        "title": "CabinetKey",
+        "subTitle": "캐비닛키",
+        "summary": "",
+        "description": "",
+        "YearRange": [0, 100],
+        "mainYear": [0],
+        "startYear": 0,
+        "map": "./assets/map.jpg",
+        "mainHashtag": "",
+        "hashtags": [""]
+    },
+    "character": {
+        "category": [""],
+        "list": [
+            {
+                "avatar": "",
+                "name": "",
+                "meaning": "",
+                "nickname": {
+                    "자": "",
+                    "호": ""
+                },
+                "lived": [0, 0],
+                "category": "",
+                "subCategory": "",
+                "eventChronology": {
+                    "0.0": "",
+                    "0.0": "",
+                    "0.0": ""
+                },
+                "positionChronology": {
+                    "0.0": "",
+                    "0.0": ""
+                },
+                "relatedTo": {
+                    "분류1": [0],
+                    "분류2": [0]
+                },
+                "goal": ["", ""],
+                "themeSong": [0],
+                "summary": "",
+                "description": "",
+                "secret": "",
+                "hashtag": ""
+            }
+        ]
+    },
+    "world": {
+        "x,y": {
+            "name": "",
+            "image": "",
+            "summary": "",
+            "description": "",
+            "eventChronology": {
+                "0.0": ""
+            },
+            "relatedTo": {
+                "분류1": [0]
+            }
+        }
+    },
+    "themeSong": [
+        {
+            "embed": "",
+            "title": "",
+            "artist": "",
+            "character": 0,
+            "summary": "",
+            "description": "",
+            "lyrics": ""
+        }
+    ]
 }
 
 var json
@@ -174,6 +256,15 @@ if (page == 'signin') {
         localStorage.setItem("sessionId", uuid);
         var signinUrl = 'https://'+MISSKEYHOST+'/miauth/'+uuid+'?name=CabinetKey&callback='+encodeURIComponent(location.href.split('?')[0])+'%3Fpage%3Dcallback&permission=write:account,read:account,write:drive,write:notes,write:pages'
         location.href = signinUrl;
+    } else {
+        var willLogout = confirm('정말 로그아웃하시겠습니까?')
+        if (willLogout) {
+            localStorage.clear()
+            location.href = './'
+        } else {
+            alert('메인 페이지로 돌아갑니다.')
+            location.href = './'
+        }
     }
 } else if (page == 'callback') {
     if (sessionId) {
@@ -188,6 +279,11 @@ if (page == 'signin') {
         fetch(postUrl, postParam)
         .then((tokenData) => {return tokenData.json()})
         .then((tokenRes) => {
+            if (tokenRes.user.username != MISSKEYUSER) {
+                alert('해당 아이디로 로그인하실 수 없습니다.')
+                localStorage.clear()
+                location.href = './'
+            }
             localStorage.setItem("token", tokenRes.token)
             var findInfoUrl = 'https://'+MISSKEYHOST+'/api/notes/search'
             var findInfoParam = {
@@ -254,6 +350,9 @@ if (page == 'signin') {
                 }
             })
         })
+    } else {
+        alert('잘못된 접근입니다.')
+        location.href = './'
     }
 } 
 
@@ -264,6 +363,10 @@ function hoverWorld(e) {
 function hoverCharacter(i) {
     document.querySelector('.charactername').innerHTML = '[' + i + ']' + json.character.list[i].name
 }
+
+document.querySelector('#refresh').addEventListener("click", (e) => {
+    localStorage.removeItem('json')
+})
 
 function loadBackground(json) {
 
@@ -319,7 +422,13 @@ function loadBackground(json) {
     }
 
     document.querySelector("#yearChange").addEventListener("click", (e) => {
-        location.href = './?year='+document.querySelector("#yearTextInput").value
+        var yearValue = document.querySelector("#yearTextInput").value
+        if (yearValue > json.info.yearRange[1]) {
+            yearValue = json.info.yearRange[1]
+        } else if (yearValue < json.info.yearRange[0]) {
+            yearValue = json.info.yearRange[0]
+        }
+        location.href = './?year='+yearValue
     })
 }
 
@@ -331,6 +440,9 @@ async function parseYourJSON(json) {
     document.querySelector("#subtitle").innerHTML = json.info.subTitle
     if (!page && !note) {
         loadBackground(json)
+        document.querySelector('#wrapper').addEventListener("click", (e) => {
+            location.href = './'
+        })
         if (mode == 'edit' && isLogin) {
             var isSaved = false
             window.onbeforeunload = function(){
@@ -383,7 +495,7 @@ async function parseYourJSON(json) {
         document.querySelector('.ckeyinfo').innerHTML = '<h1>CabinetKey에 대하여...<h1>'
         document.querySelector('.ckeyinfo').innerHTML += '<div id="readme"><div>'
 
-        var readmeUrl = "https://raw.githubusercontent.com/"+GITHUBUSER+"/"+GITHUBREPO+"/main/README.md"
+        var readmeUrl = "https://raw.githubusercontent.com/jyhyun1008/CabinetKey/main/README.md"
         fetch(readmeUrl)
         .then(res => res.text())
         .then((out) => {
@@ -486,8 +598,10 @@ async function parseYourJSON(json) {
             document.querySelector('.characterprofile').innerHTML = '<h1 class="cprofilename">'+cList[page].name+'<h1>'
             document.querySelector('.characterprofile').innerHTML += '<div class="cprofileavatar"><img src="'+cList[page].avatar+'"><div>'
             document.querySelector('.characterprofile').innerHTML += '<div class="cprofilecategory"><span class="bold">이름 유래</span> '+cList[page].meaning+'<div>'
-            document.querySelector('.characterprofile').innerHTML += '<div class="cprofilecategory"><span class="bold">자</span> '+cList[page].courtesyName+'<div>'
-            document.querySelector('.characterprofile').innerHTML += '<div class="cprofilecategory"><span class="bold">호</span> '+cList[page].nickname+'<div>'
+            var nicknames = Object.keys(cList[page].nickname)
+            for (var i=0; i<nicknames.length; i++) {
+                document.querySelector('.characterprofile').innerHTML += '<div class="cprofilecategory"><span class="bold">'+nicknames[i]+'</span> '+cList[page].nickname[nicknames[i]]+'<div>'
+            }
             document.querySelector('.characterprofile').innerHTML += '<div class="cprofilecategory"><span class="bold">분류</span> <a href="./?category='+cList[page].category+'">'+cList[page].category+'</a><div>'
             document.querySelector('.characterprofile').innerHTML += '<div class="cprofilesubcategory"><span class="bold">세부분류</span> '+cList[page].subCategory+'<div>'
             document.querySelector('.characterprofile').innerHTML += '<div class="cprofilelived"><span class="bold">생몰년</span> '+cList[page].lived[0]+'~'+cList[page].lived[1]+'<div>'
@@ -682,19 +796,19 @@ async function findJSON() {
             const pageData = await fetch(jsonInfoUrl, jsonInfoParam)
             const pageRes = await pageData.json()
             if (!pageRes.content) {
-                json = {}
+                json = example
             } else {
                 json = JSON.parse(pageRes.content[0].text.split('```')[1])
                 localStorage.setItem('json', JSON.stringify(json))
             }
         } else if (infoRes.length > 1) {
             alert('셋업 노트가 2개 이상 감지되었습니다. 확인 후 유효하지 않은 노트를 삭제해 주세요.')
-            json = {}
+            json = example
         } else {
-            json = {}
+            json = example
         }
     } else {
-        json = {}
+        json = example
     }
     return json
 }
