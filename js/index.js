@@ -47,8 +47,8 @@ var example = {
                 "name": "",
                 "meaning": "",
                 "nickname": {
-                    "자": "",
-                    "호": ""
+                    "별명": "",
+                    "애칭": ""
                 },
                 "lived": [0, 0],
                 "category": "",
@@ -76,16 +76,44 @@ var example = {
         ]
     },
     "world": {
-        "x,y": {
-            "name": "",
-            "image": "",
-            "summary": "",
-            "description": "",
-            "eventChronology": {
-                "0.0": ""
-            },
-            "relatedTo": {
-                "분류1": [0]
+        "0,0": {
+            "0,50": {
+                "name": "장소 1(이전 지명)",
+                "image": "",
+                "summary": "",
+                "description": "",
+                "eventChronology": {
+                    "0": ""
+                },
+                "relatedTo": {
+                    "분류1": [0]
+                }
+            }, 
+            "50,100": {
+                "name": "장소 1(변경된 지명)",
+                "image": "",
+                "summary": "",
+                "description": "",
+                "eventChronology": {
+                    "50": ""
+                },
+                "relatedTo": {
+                    "분류1": [0]
+                }
+            }
+        },
+        "9,9": {
+            "0,100": {
+                "name": "장소 2",
+                "image": "",
+                "summary": "",
+                "description": "",
+                "eventChronology": {
+                    "0": ""
+                },
+                "relatedTo": {
+                    "분류1": [0]
+                }
             }
         }
     },
@@ -94,7 +122,7 @@ var example = {
             "embed": "",
             "title": "",
             "artist": "",
-            "character": 0,
+            "relatedTo": [0],
             "summary": "",
             "description": "",
             "lyrics": ""
@@ -304,7 +332,7 @@ if (page == 'signin') {
             .then((infoData) => {return infoData.json()})
             .then((infoRes) => {
                 if (infoRes.length == 0) {
-                    var jsonInitial = '{"info":{"title":"","subTitle":"","summary":"","description":"","mainYear":"","map":"","hashtag":[""]},"character":{"category":[""],"list":[{"avatar":"","name":"","meaning":"","courtesyName":"","nickname":"","lived":[0,0],"category":"","subCategory":"","eventChronology":{"0.0":""},"positionChronology":{"0.0":""},"relatedTo":{"분류1":[0],"분류2":[0]},"goal":["",""],"themeSong":[0],"summary":"","description":"","secret":"","hashtag":""}]},"world":{"x,y":{"name":"","image":"","summary":"","description":"","eventChronology":{"0.0":""},"relatedTo":{"분류1":[0]}}},"themeSong":[{"embed":"","title":"","artist":"","character":0,"summary":"","description":"","lyrics":""}]}'
+                    var jsonInitial = JSON.stringify(example)
                     var createPageUrl = 'https://'+MISSKEYHOST+'/api/pages/create'
                     var createPageParam = {
                         method: 'POST',
@@ -360,8 +388,9 @@ if (page == 'signin') {
     }
 } 
 
-function hoverWorld(e) {
-    if (json.world[e.innerText]) document.querySelector('.worldname').innerHTML = '[' + e.innerText + ']' + json.world[e.innerText].name
+function hoverWorld(coord, year) {
+    var location = nowHere(coord, year)
+    if (location) document.querySelector('.worldname').innerHTML = '[' + coord + ']' + location.name
 }
 
 function hoverCharacter(i) {
@@ -371,6 +400,20 @@ function hoverCharacter(i) {
 document.querySelector('#refresh').addEventListener("click", (e) => {
     localStorage.removeItem('json')
 })
+
+function nowHere(coord, year) {
+    var worldList = json.world[coord]
+    if (worldList) {
+        var worldPageYear = Object.keys(worldList)
+        for (var i=0; i<worldPageYear.length; i++) {
+            if (year >= parseInt(worldPageYear[i].split(',')[0]) && year <= parseInt(worldPageYear[i].split(',')[1])) {
+                return worldList[worldPageYear[i]]
+            }
+        }
+    } else {
+        return false
+    }
+}
 
 function loadBackground(json) {
 
@@ -394,7 +437,7 @@ function loadBackground(json) {
                 if (j == 0) {
                     document.querySelector('#row'+(i-1)).innerHTML += '<div class="worldrowhead">'+(i-1)+'</div>'
                 } else {
-                    document.querySelector('#row'+(i-1)).innerHTML += '<a href="./?page='+(j-1)+','+(i-1)+'" onmouseover="hoverWorld(this)" class="worldcol" style="background-image: url('+json.info.map+')" id="col'+(j-1)+(i-1)+'">'+(j-1)+','+(i-1)+'</a>'
+                    document.querySelector('#row'+(i-1)).innerHTML += '<a href="./?page='+(j-1)+','+(i-1)+'&year='+year+'" onmouseover="hoverWorld(`'+(j-1)+','+(i-1)+'`,'+year+')" class="worldcol" style="background-image: url('+json.info.map+')" id="col'+(j-1)+(i-1)+'">'+(j-1)+','+(i-1)+'</a>'
                 }
             }
         }
@@ -564,33 +607,56 @@ async function parseYourJSON(json) {
         document.querySelector('#popup-content').style.display = 'block'
         var cList = json.character.list
 
-        if (page.includes(',')) {
-            var worldpage = json.world[page]
+        if (page.includes('song')) {
+            var songNo = parseInt(page.split('song')[1])
+            var songInfo = json.themeSong[songNo]
+            document.querySelector('#popup-content').innerHTML = '<div class="songinfo"></div>'
+            document.querySelector('#popup-content').innerHTML += '<div class="relatedcharacterlist"></div>'
+            
+            document.querySelector('.songinfo').innerHTML = '<h1>'+songInfo.title+'<h1>'
+            document.querySelector('.songinfo').innerHTML = '<div>'+songInfo.artist+'<div>'
+            document.querySelector('.songinfo').innerHTML = '<div>'+songInfo.embed+'<div>'
+
+            document.querySelector('.songinfo').innerHTML += '<h1>요약</h1>'
+            document.querySelector('.songinfo').innerHTML += '<div >'+songInfo.summary+'<div>'
+            document.querySelector('.songinfo').innerHTML += '<h1>설명</h1>'
+            document.querySelector('.songinfo').innerHTML += '<div>'+parseMd(songInfo.description)+'<div>'
+            document.querySelector('.songinfo').innerHTML += '<h1>가사</h1>'
+            document.querySelector('.songinfo').innerHTML += '<div>'+parseMd(songInfo.lyrics)+'<div>'
+            
+            document.querySelector('.songinfo').innerHTML += '<h1>연관 캐릭터</h1>'
+
+            var relatedCategorylist = songInfo.relatedTo
+            for (var j = 0; j < relatedCategorylist.length; j++) {
+                document.querySelector('.relatedcharacterlist').innerHTML += '<a href="./?page='+relatedCategorylist[j]+'"><div class="characteritem" onmouseover="hoverCharacter('+relatedCategorylist[j]+')"><div><img src="'+cList[relatedCategorylist[j]].avatar+'" class="cavatar"></div><div class="cname">'+cList[relatedCategorylist[j]].name+'</div><div class="csummary">'+cList[relatedCategorylist[j]].summary+'</div></div></a>'
+            }
+        } else if (page.includes(',') && year) {
+            var worldPage = nowHere(page, year)
             document.querySelector('#popup-content').innerHTML = '<div class="worldlocation"></div>'
             document.querySelector('#popup-content').innerHTML += '<div class="relatedcharacterlist"></div>'
 
-            document.querySelector('.worldlocation').innerHTML = '<h1 class="wlocationname">'+worldpage.name+'<h1>'
-            document.querySelector('.worldlocation').innerHTML += '<div class="wlocationimage"><img src="'+worldpage.image+'"><div>'
+            document.querySelector('.worldlocation').innerHTML = '<h1 class="wlocationname">'+worldPage.name+'<h1>'
+            document.querySelector('.worldlocation').innerHTML += '<div class="wlocationimage"><img src="'+worldPage.image+'"><div>'
             document.querySelector('.worldlocation').innerHTML += '<div class="cprofiletable"><div><span class="bold">연표</span></div><table class="chronology"><tr><th>연도</th><th>사건</th></tr></table><div>'
 
-            for (var i=0; i<Object.keys(worldpage.eventChronology).length; i++) {
-                var key = Object.keys(worldpage.eventChronology)[i]
-                var event1 = worldpage.eventChronology[key]
+            for (var i=0; i<Object.keys(worldPage.eventChronology).length; i++) {
+                var key = Object.keys(worldPage.eventChronology)[i]
+                var event1 = worldPage.eventChronology[key]
                 document.querySelector('.chronology').innerHTML += '<tr><td>'+key+'</td><td>'+event1+'</td></tr>'
             }
 
             document.querySelector('.worldlocation').innerHTML += '<h1>요약</h1>'
-            document.querySelector('.worldlocation').innerHTML += '<div class="cprofilesummary">'+worldpage.summary+'<div>'
+            document.querySelector('.worldlocation').innerHTML += '<div class="cprofilesummary">'+worldPage.summary+'<div>'
             document.querySelector('.worldlocation').innerHTML += '<h1>설명</h1>'
-            document.querySelector('.worldlocation').innerHTML += '<div class="cprofiledescription">'+parseMd(worldpage.description)+'<div>'
+            document.querySelector('.worldlocation').innerHTML += '<div class="cprofiledescription">'+parseMd(worldPage.description)+'<div>'
 
             document.querySelector('.worldlocation').innerHTML += '<h1>연관 정보</h1>'
 
-            var relatedCategory = Object.keys(worldpage.relatedTo)
+            var relatedCategory = Object.keys(worldPage.relatedTo)
             for (var i = 0; i < relatedCategory.length; i++) {
                 document.querySelector('.relatedcharacterlist').innerHTML += '<div class="relatedcharactercategory" id="relatedcategory'+i+'">'+relatedCategory[i]+'</div>'
                 document.querySelector('.relatedcharacterlist').innerHTML += '<div class="relatedcharactercategorylist" id="relatedlist'+i+'"></div>'
-                var relatedCategorylist = worldpage.relatedTo[relatedCategory[i]]
+                var relatedCategorylist = worldPage.relatedTo[relatedCategory[i]]
                 for (var j = 0; j < relatedCategorylist.length; j++) {
                     document.querySelector('#relatedlist'+i).innerHTML += '<a href="./?page='+relatedCategorylist[j]+'"><div class="characteritem" onmouseover="hoverCharacter('+relatedCategorylist[j]+')"><div><img src="'+cList[relatedCategorylist[j]].avatar+'" class="cavatar"></div><div class="cname">'+cList[relatedCategorylist[j]].name+'</div><div class="csummary">'+cList[relatedCategorylist[j]].summary+'</div></div></a>'
                 }
@@ -667,7 +733,7 @@ async function parseYourJSON(json) {
                 }
             })
         }
-    } else if (note) {
+    } else if (note && !page) {
         loadBackground(json)
         document.querySelector('#wrapper').addEventListener("click", (e) => {
             location.href = './'
