@@ -290,11 +290,16 @@ img {
 
 .cprofilegoal li {
     list-style: none;
-    padding: 5px 0 5px 50px;
+    padding: 5px 0 5px 40px;
 }
 
 li {
     list-style: none;
+    padding: 5px 0 5px 40px;
+}
+
+ul {
+    padding-inline-start: 0;
 }
 
 li:before {
@@ -386,6 +391,11 @@ a {
     text-decoration: underline;
 }
 
+#popup-content > div {
+    max-width: 800px;
+    margin: 0px auto;
+}
+
 .collectionlist {
     display: flex;
     flex-wrap: wrap;
@@ -451,6 +461,19 @@ textarea {
     padding-bottom: 4px;
     padding: 0;
     margin: 0;
+}
+
+.bx-checkbox, .bx-checkbox-square {
+    font-size: 1.3em;
+    transform: translate(0, 3px);
+}
+
+.checkbox-container {
+    padding: 5px 0;
+}
+
+strong, b, h3, h4, h5, h6 {
+    text-shadow: 0.2px 0.2px, -0.2px -0.2px, -0.2px 0.2px, 0.2px -0.2px;
 }
 
 @media only screen and (max-width: 600px) {

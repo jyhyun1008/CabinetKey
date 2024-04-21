@@ -110,6 +110,10 @@ function parseMd(md){
 
     md = "\n"+md+"\n\n"
     var md0 = md;
+
+    //checkbox
+    md = md.replace(/\-\s\[x\]([^\[].+)/gm, '<div class="checkbox-container"><i class="bx bx-checkbox-square" ></i>$1</div>')
+    md = md.replace(/\-\s\[\s\]([^\[].+)/gm, '<div class="checkbox-container"><i class="bx bx-checkbox" ></i>$1</div>')
   
     //ul
     md = md.replace(/^\s*\n\*\s/gm, '<ul>\n* ');
@@ -224,7 +228,7 @@ function parseMd(md){
     md = md.replace(/[\`]{1}([^\`]+)[\`]{1}/g, '<code>$1</code>');
     
     //br
-    md = md.replace(/\n\n([^\n\n]+)/g, '\n<p>$1</p>');
+    md = md.replace(/\n\n([^\n\n]+)\n\n/g, '\n<p>$1</p>');
 
     return md;
 }
