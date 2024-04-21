@@ -444,10 +444,10 @@ async function parseYourJSON(json) {
     document.querySelector("#subtitle").innerHTML = json.info.subTitle
     if (!page && !note) {
         loadBackground(json)
-        document.querySelector('#wrapper').addEventListener("click", (e) => {
-            location.href = './'
-        })
         if (mode == 'edit' && isLogin) {
+            document.querySelector('#wrapper').addEventListener("click", (e) => {
+                location.href = './'
+            })
             var isSaved = false
             window.onbeforeunload = function(){
                 if (!isSaved) {
