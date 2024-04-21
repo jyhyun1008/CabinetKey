@@ -376,7 +376,7 @@ a {
     width: calc(100vw - 40px);
     max-width: 880px;
     height: calc(100vh - 200px);
-    top: 100px;
+    top: 80px;
     left: max(0px, calc(50vw - 440px));
     border-radius: 40px;
     background-color: var(--bgaccent);
