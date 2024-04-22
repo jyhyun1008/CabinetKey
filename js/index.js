@@ -538,7 +538,7 @@ function loadBackground(json) {
             document.querySelector('#character-content').innerHTML += '<div class="charactercategory" id="category'+j+'"><a href="./?category='+cCategory+'">'+cCategory[j]+'</a></div>'
             document.querySelector('#character-content').innerHTML += '<div class="characterlist" id="list'+j+'"></div>'
             for (var i = 0; i < cList.length; i++) {
-                if (cList[i].category == cCategory[j]) {
+                if (cList[i].category == j) {
                     if (year >= cList[i].lived[0] && year <= cList[i].lived[1]) {
                         document.querySelector('#list'+j).innerHTML += '<a href="./?page='+i+'"><div class="characteritem" onmouseover="hoverCharacter('+i+')"><div><img src="'+cList[i].avatar+'" class="cavatar"></div><div class="cname">'+cList[i].name+'</div><div class="csummary">'+cList[i].summary+'</div></div></a>'
                     }
@@ -1154,7 +1154,7 @@ async function parseYourJSON(json) {
                 for (var i=0; i<nicknames.length; i++) {
                     document.querySelector('.characterprofile').innerHTML += '<div class="cprofilecategory"><span class="bold">'+nicknames[i]+'</span> '+cList[page].nickname[nicknames[i]]+'<div>'
                 }
-                document.querySelector('.characterprofile').innerHTML += '<div class="cprofilecategory"><span class="bold">분류</span> <a href="./?category='+cList[page].category+'">'+cList[page].category+'</a><div>'
+                document.querySelector('.characterprofile').innerHTML += '<div class="cprofilecategory"><span class="bold">분류</span> <a href="./?category='+cList[page].category+'">'+json.character.category[cList[page].category]+'</a><div>'
                 document.querySelector('.characterprofile').innerHTML += '<div class="cprofilesubcategory"><span class="bold">세부분류</span> '+cList[page].subCategory+'<div>'
                 document.querySelector('.characterprofile').innerHTML += '<div class="cprofilelived"><span class="bold">생몰년</span> '+cList[page].lived[0]+'~'+cList[page].lived[1]+'<div>'
                 document.querySelector('.characterprofile').innerHTML += '<div class="cprofilebirthday"><span class="bold">생일</span> '+cList[page].birthday+'<div>'
