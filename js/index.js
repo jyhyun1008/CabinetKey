@@ -31,7 +31,7 @@ var example = {
         "title": "CabinetKey",
         "subTitle": "캐비닛키",
         "summary": "",
-        "description": "",
+        "description": "마크다운과 개행을 지원하는 긴 소개글",
         "yearRange": [0, 100],
         "mainYear": [0],
         "startYear": 0,
@@ -43,8 +43,8 @@ var example = {
         "category": [""],
         "list": [
             {
-                "avatar": "",
-                "name": "",
+                "avatar": "https://peachtart2.s3.ap-northeast-1.amazonaws.com/tart/6f0f78c1-bd3f-4732-9c62-15ae451c2257.png",
+                "name": "캐릭터 1",
                 "meaning": "",
                 "nickname": {
                     "별명": "",
@@ -68,8 +68,8 @@ var example = {
                 },
                 "goal": ["", ""],
                 "themeSong": [0],
-                "summary": "",
-                "description": "",
+                "summary": "짧은 요약",
+                "description": "마크다운과 개행을 지원하는 긴 소개글",
                 "secret": "",
                 "hashtag": ""
             }
@@ -80,8 +80,8 @@ var example = {
             "0,50": {
                 "name": "장소 1(이전 지명)",
                 "image": "",
-                "summary": "",
-                "description": "",
+                "summary": "간단 요약",
+                "description": "마크다운과 개행을 지원하는 긴 소개글",
                 "eventChronology": {
                     "0": ""
                 },
@@ -92,8 +92,8 @@ var example = {
             "50,100": {
                 "name": "장소 1(변경된 지명)",
                 "image": "",
-                "summary": "",
-                "description": "",
+                "summary": "간단 요약",
+                "description": "마크다운과 개행을 지원하는 긴 소개글",
                 "eventChronology": {
                     "50": ""
                 },
@@ -106,8 +106,8 @@ var example = {
             "0,100": {
                 "name": "장소 2",
                 "image": "",
-                "summary": "",
-                "description": "",
+                "summary": "간단 요약",
+                "description": "마크다운과 개행을 지원하는 긴 소개글",
                 "eventChronology": {
                     "0": ""
                 },
@@ -120,12 +120,12 @@ var example = {
     "themeSong": [
         {
             "embed": "",
-            "title": "",
-            "artist": "",
+            "title": "테마곡 1",
+            "artist": "Various Artist",
             "relatedTo": [0],
-            "summary": "",
-            "description": "",
-            "lyrics": ""
+            "summary": "간단 요약",
+            "description": "마크다운과 개행을 지원하는 긴 소개글",
+            "lyrics": "마크다운과 개행을 지원하는 가사란"
         }
     ]
 }
@@ -499,7 +499,7 @@ async function parseYourJSON(json) {
             }
             document.querySelector('#popup-content').style.display = 'block'
             document.querySelector('#popup-content').innerHTML = '<div class="editwrapper"></div>'
-            document.querySelector('.editwrapper').innerHTML = '<h1>편집기<h1>'
+            document.querySelector('.editwrapper').innerHTML = '<h1>편집기</h1>'
             document.querySelector('.editwrapper').innerHTML += '<form><label for="editrawjson">Raw JSON Data:</label><textarea id="editrawjson" name="editrawjson">'+JSON.stringify(json, null, 2)+'</textarea><div class="bold" id="editconfirm">수정</div></form>'
 
             document.querySelector('#editconfirm').addEventListener("click", (e) => {
@@ -539,7 +539,7 @@ async function parseYourJSON(json) {
         })
         document.querySelector('#popup-content').style.display = 'block'
         document.querySelector('#popup-content').innerHTML = '<div class="ckeyinfo"></div>'
-        document.querySelector('.ckeyinfo').innerHTML = '<h1>CabinetKey에 대하여...<h1>'
+        document.querySelector('.ckeyinfo').innerHTML = '<h1>CabinetKey에 대하여...</h1>'
         document.querySelector('.ckeyinfo').innerHTML += '<div id="readme"><div>'
 
         var readmeUrl = "https://raw.githubusercontent.com/jyhyun1008/CabinetKey/main/README.md"
@@ -557,7 +557,7 @@ async function parseYourJSON(json) {
         document.querySelector('#popup-content').style.display = 'block'
         document.querySelector('#popup-content').innerHTML = '<div class="worldinfo"></div>'
 
-        document.querySelector('.worldinfo').innerHTML = '<h1 class="winfotitle">'+json.info.title+'<h1>'
+        document.querySelector('.worldinfo').innerHTML = '<h1 class="winfotitle">'+json.info.title+'</h1>'
         document.querySelector('.worldinfo').innerHTML += '<div class="winfosubtitle">'+json.info.subTitle+'<div>'
         document.querySelector('.worldinfo').innerHTML += '<h1>요약</h1>'
         document.querySelector('.worldinfo').innerHTML += '<div class="winfosummary">'+json.info.summary+'<div>'
@@ -571,7 +571,7 @@ async function parseYourJSON(json) {
         document.querySelector('#popup-content').style.display = 'block'
         document.querySelector('#popup-content').innerHTML = '<div class="collection"></div>'
         
-        document.querySelector('.collection').innerHTML += '<h1 class="collectiontitle">작품모음<h1>'
+        document.querySelector('.collection').innerHTML += '<h1 class="collectiontitle">작품모음</h1>'
         document.querySelector('.collection').innerHTML += '<div class="collectionlist"><div>'
 
         var findNotesUrl = 'https://'+MISSKEYHOST+'/api/notes/search'
@@ -592,7 +592,7 @@ async function parseYourJSON(json) {
             for (var i = 0; i<notesRes.length; i++){
                 if (notesRes[i].files.length == 0) {
                     document.querySelector('.collectionlist').innerHTML += '<div class="collectionel"><a href="./?note='+notesRes[i].id+'"><div class="overflowhidden" id="collection'+i+'"></div></a></div>'
-                    if (notesRes[i].cw) document.querySelector('#collection'+i).innerHTML = '<h1>'+notesRes[i].cw+'</h1>'
+                    if (notesRes[i].cw) document.querySelector('#collection'+i).innerHTML = '</h1>'+notesRes[i].cw+'</h1>'
                     document.querySelector('#collection'+i).innerHTML += parseMd(notesRes[i].text)
                 } else {
                     document.querySelector('.collectionlist').innerHTML += '<div class="collectionel"><a href="./?note='+notesRes[i].id+'"><img src="'+notesRes[i].files[0].url+'"></a></div>'
@@ -613,7 +613,7 @@ async function parseYourJSON(json) {
             document.querySelector('#popup-content').innerHTML = '<div class="songinfo"></div>'
             document.querySelector('#popup-content').innerHTML += '<div class="relatedcharacterlist"></div>'
             
-            document.querySelector('.songinfo').innerHTML = '<h1>'+songInfo.title+'<h1>'
+            document.querySelector('.songinfo').innerHTML = '<h1>'+songInfo.title+'</h1>'
             document.querySelector('.songinfo').innerHTML = '<div>'+songInfo.artist+'<div>'
             document.querySelector('.songinfo').innerHTML = '<div>'+songInfo.embed+'<div>'
 
@@ -635,7 +635,7 @@ async function parseYourJSON(json) {
             document.querySelector('#popup-content').innerHTML = '<div class="worldlocation"></div>'
             document.querySelector('#popup-content').innerHTML += '<div class="relatedcharacterlist"></div>'
 
-            document.querySelector('.worldlocation').innerHTML = '<h1 class="wlocationname">'+worldPage.name+'<h1>'
+            document.querySelector('.worldlocation').innerHTML = '<h1 class="wlocationname">'+worldPage.name+'</h1>'
             document.querySelector('.worldlocation').innerHTML += '<div class="wlocationimage"><img src="'+worldPage.image+'"><div>'
             document.querySelector('.worldlocation').innerHTML += '<div class="cprofiletable"><div><span class="bold">연표</span></div><table class="chronology"><tr><th>연도</th><th>사건</th></tr></table><div>'
 
@@ -665,8 +665,12 @@ async function parseYourJSON(json) {
             document.querySelector('#popup-content').innerHTML = '<div class="characterprofile"></div>'
             document.querySelector('#popup-content').innerHTML += '<div class="relatedcharacterlist"></div>'
 
-            document.querySelector('.characterprofile').innerHTML = '<h1 class="cprofilename">'+cList[page].name+'<h1>'
+            document.querySelector('.characterprofile').innerHTML = '<h1 class="cprofilename">'+cList[page].name+'</h1>'
             document.querySelector('.characterprofile').innerHTML += '<div class="cprofileavatar"><img src="'+cList[page].avatar+'"><div>'
+            document.querySelector('.characterprofile').innerHTML += '<div class="cprofilesong"><div><span class="bold">테마 송</span> </div></div>'
+            for (var i=0; i<(cList[page].themeSong.length); i++) {
+                document.querySelector('.cprofilesong').innerHTML += '<li><a href="./?page=song'+cList[page].themeSong[i]+'">'+json.themeSong[cList[page].themeSong[i]].title+'</a></li>'
+            }
             document.querySelector('.characterprofile').innerHTML += '<div class="cprofilecategory"><span class="bold">이름 유래</span> '+cList[page].meaning+'<div>'
             var nicknames = Object.keys(cList[page].nickname)
             for (var i=0; i<nicknames.length; i++) {
@@ -741,7 +745,7 @@ async function parseYourJSON(json) {
         document.querySelector('#popup-content').style.display = 'block'
         document.querySelector('#popup-content').innerHTML = '<div class="collection"></div>'
         
-        document.querySelector('.collection').innerHTML += '<h1 class="collectiontitle">제목 없음<h1>'
+        document.querySelector('.collection').innerHTML += '<h1 class="collectiontitle">제목 없음</h1>'
         document.querySelector('.collection').innerHTML += '<div class="collectionnote"><div>'
 
         var findNotesUrl = 'https://'+MISSKEYHOST+'/api/notes/show'
