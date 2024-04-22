@@ -658,6 +658,7 @@ async function parseYourJSON(json) {
         
         document.querySelector('.collection').innerHTML += '<h1 class="collectiontitle">작품모음</h1>'
         document.querySelector('.collection').innerHTML += '<div class="collectionlist"><div>'
+        document.querySelector('.collection').innerHTML += '<div class="collectionqid"><div>'
 
         var findArtsUrl = 'https://'+MISSKEYHOST+'/api/notes/search'
         var findArtsParam
@@ -673,6 +674,7 @@ async function parseYourJSON(json) {
                     limit: 100
                 })
             }
+            document.querySelector('.collectionqid').innerHTML = '0 · <a href="./?page='+page+'&qid='+1+'">다음</a>'
         } else {
             findArtsParam = {
                 method: 'POST',
@@ -686,6 +688,7 @@ async function parseYourJSON(json) {
                     untilId: fetchAgain(qid, hashTagQuery, MISSKEYID)
                 })
             }
+            document.querySelector('.collectionqid').innerHTML = '<a href="./?page='+page+'&qid='+(qid-1)+'">이전</a> · '+qid+' · <a href="./?page='+page+'&qid='+(qid+1)+'">다음</a>'
         }
         fetch(findArtsUrl, findArtsParam)
         .then((notesData) => {return notesData.json()})
@@ -765,8 +768,8 @@ async function parseYourJSON(json) {
         } else { // i로 감
             document.querySelector('#popup-content').innerHTML = '<div class="characterprofile"></div>'
             document.querySelector('#popup-content').innerHTML += '<div class="relatedcharacterlist"></div>'
-            document.querySelector('#popup-content').innerHTML += '<div class="collectiontitle"></div>'
-            document.querySelector('#popup-content').innerHTML += '<div class="collectionlist"><div class="worktitle"></div><div class="worklist"></div><div class="workqid"></div><div class="drafttitle"></div><div class="draftlist"></div><div class="draftqid"></div></div>'
+            document.querySelector('#popup-content').innerHTML += '<div id="collectiontitle"></div>'
+            document.querySelector('#popup-content').innerHTML += '<div id="collectionlist"><div id="worktitle"></div><div id="worklist" class="collectionlist"></div><div id="workqid" class="collectionqid"></div><div id="drafttitle"></div><div id="draftlist" class="collectionlist"></div><div id="draftqid" class="collectionqid"></div></div>'
 
             document.querySelector('.characterprofile').innerHTML = '<h1 class="cprofilename">'+cList[page].name+'</h1>'
             document.querySelector('.characterprofile').innerHTML += '<div class="cprofileavatar"><img src="'+cList[page].avatar+'"><div>'
@@ -827,9 +830,9 @@ async function parseYourJSON(json) {
 
             var hashTagQuery = cList[page].hashtag
             if (hashTagQuery != '') {
-                document.querySelector('.collectiontitle').innerHTML = '<h1>관련 작품 모음</h1>'
-                document.querySelector('.worktitle').innerHTML = '<h2>완성작</h2>'
-                document.querySelector('.drafttitle').innerHTML = '<h2>초안</h2>'
+                document.querySelector('#collectiontitle').innerHTML = '<h1>관련 작품 모음</h1>'
+                document.querySelector('#worktitle').innerHTML = '<h2>완성작</h2>'
+                document.querySelector('#drafttitle').innerHTML = '<h2>초안</h2>'
 
                 var findArtsUrl = 'https://'+MISSKEYHOST+'/api/notes/search'
                 var findArtsParam
@@ -845,7 +848,7 @@ async function parseYourJSON(json) {
                             limit: 9
                         })
                     }
-                    document.querySelector('.workqid').innerHTML = '0 · <a href="./?page='+page+'&qid='+(workqid+1)+','+draftqid+'">다음</a>'
+                    document.querySelector('#workqid').innerHTML = '0 · <a href="./?page='+page+'&qid='+1+','+draftqid+'">다음</a>'
                 } else {
                     findArtsParam = {
                         method: 'POST',
@@ -859,18 +862,18 @@ async function parseYourJSON(json) {
                             untilId: await fetchAgain(workqid, hashTagQuery, MISSKEYID)
                         })
                     }
-                    document.querySelector('.workqid').innerHTML = '<a href="./?page='+page+'&qid='+(workqid-1)+','+draftqid+'">이전</a> · '+workqid+' · <a href="./?page='+page+'&qid='+(workqid+1)+','+draftqid+'">다음</a>'
+                    document.querySelector('#workqid').innerHTML = '<a href="./?page='+page+'&qid='+(workqid-1)+','+draftqid+'">이전</a> · '+workqid+' · <a href="./?page='+page+'&qid='+(workqid+1)+','+draftqid+'">다음</a>'
                 }
                 fetch(findArtsUrl, findArtsParam)
                 .then((artsData) => {return artsData.json()})
                 .then((artsRes) => {
                     for (var i = 0; i<artsRes.length; i++){
                         if (artsRes[i].files.length == 0) {
-                            document.querySelector('.worklist').innerHTML += '<div class="collectionel"><a href="./?note='+artsRes[i].id+'"><div class="overflowhidden" id="work'+i+'"></div></a></div>'
+                            document.querySelector('#worklist').innerHTML += '<div class="collectionel"><a href="./?note='+artsRes[i].id+'"><div class="overflowhidden" id="work'+i+'"></div></a></div>'
                             if (artsRes[i].cw) document.querySelector('#work'+i).innerHTML = '</h1>'+artsRes[i].cw+'</h1>'
                             document.querySelector('#work'+i).innerHTML += parseMd(artsRes[i].text)
                         } else {
-                            document.querySelector('.worklist').innerHTML += '<div class="collectionel"><a href="./?note='+artsRes[i].id+'"><img src="'+artsRes[i].files[0].url+'"></a></div>'
+                            document.querySelector('#worklist').innerHTML += '<div class="collectionel"><a href="./?note='+artsRes[i].id+'"><img src="'+artsRes[i].files[0].url+'"></a></div>'
                         }
                     }
                 })
@@ -889,7 +892,7 @@ async function parseYourJSON(json) {
                             limit: 9
                         })
                     }
-                    document.querySelector('.draftqid').innerHTML = '0 · <a href="./?page='+page+'&qid='+(workqid)+','+(draftqid+1)+'">다음</a>'
+                    document.querySelector('#draftqid').innerHTML = '0 · <a href="./?page='+page+'&qid='+(workqid)+','+(draftqid+1)+'">다음</a>'
                 } else {
                     findDraftsParam = {
                         method: 'POST',
@@ -903,18 +906,18 @@ async function parseYourJSON(json) {
                             untilId: await fetchAgain(draftqid, hashTagQuery, MISSKEYID)
                         })
                     }
-                    document.querySelector('.draftqid').innerHTML = '<a href="./?page='+page+'&qid='+(workqid)+','+(draftqid-1)+'">이전</a> · '+draftqid+' · <a href="./?page='+page+'&qid='+(workqid)+','+(draftqid+1)+'">다음</a>'
+                    document.querySelector('#draftqid').innerHTML = '<a href="./?page='+page+'&qid='+(workqid)+','+(draftqid-1)+'">이전</a> · '+draftqid+' · <a href="./?page='+page+'&qid='+(workqid)+','+(draftqid+1)+'">다음</a>'
                 }
                 fetch(findDraftsUrl, findDraftsParam)
                 .then((draftsData) => {return draftsData.json()})
                 .then((draftsRes) => {
                     for (var i = 0; i<draftsRes.length; i++){
                         if (draftsRes[i].files.length == 0) {
-                            document.querySelector('.draftlist').innerHTML += '<div class="collectionel"><a href="./?note='+draftsRes[i].id+'"><div class="overflowhidden" id="draft'+i+'"></div></a></div>'
+                            document.querySelector('#draftlist').innerHTML += '<div class="collectionel"><a href="./?note='+draftsRes[i].id+'"><div class="overflowhidden" id="draft'+i+'"></div></a></div>'
                             if (draftsRes[i].cw) document.querySelector('#draft'+i).innerHTML = '</h1>'+draftsRes[i].cw+'</h1>'
                             document.querySelector('#draft'+i).innerHTML += parseMd(draftsRes[i].text)
                         } else {
-                            document.querySelector('.draftlist').innerHTML += '<div class="collectionel"><a href="./?note='+draftsRes[i].id+'"><img src="'+draftsRes[i].files[0].url+'"></a></div>'
+                            document.querySelector('#draftlist').innerHTML += '<div class="collectionel"><a href="./?note='+draftsRes[i].id+'"><img src="'+draftsRes[i].files[0].url+'"></a></div>'
                         }
                     }
                 })
