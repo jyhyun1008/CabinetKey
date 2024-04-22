@@ -1166,9 +1166,9 @@ async function parseYourJSON(json) {
                 document.querySelector('.characterprofile').innerHTML += '<div class="cprofiletable"><div><span class="bold">연표</span> <span id="hideChronology">펼치기/접기</span></div><table class="chronology"><tr><th>연도</th><th>포지션</th><th>사건</th></tr></table><div>'
     
                 for (var i=0; i<(cList[page].lived[1] - cList[page].lived[0] + 1); i++) {
-                    if (json.info.mainYear.includes(cList[page].lived[0]+i)) {
+                    if (json.info.mainYear.includes(parseInt(cList[page].lived[0])+i)) {
                         for (var j=0; j<12; j++){
-                            var key = (cList[page].lived[0]+i)+'.'+(j+1)
+                            var key = (parseInt(cList[page].lived[0])+i)+'.'+(j+1)
                             var position = cList[page].positionChronology[key]
                             var event1 = cList[page].eventChronology[key]
                             if (!position) { position = '' }
@@ -1176,12 +1176,12 @@ async function parseYourJSON(json) {
                             document.querySelector('.chronology').innerHTML += '<tr class="mainyear"><td>'+(key)+'</td><td>'+position+'</td><td>'+event1+'</td></tr>'
                         }
                     } else {
-                        var key = (cList[page].lived[0]+i)
+                        var key = (parseInt(cList[page].lived[0])+i)
                         var position = cList[page].positionChronology[key]
                         var event1 = cList[page].eventChronology[key]
                         if (!position) { position = '' }
                         if (!event1) { event1 = '' }
-                        document.querySelector('.chronology').innerHTML += '<tr class="subyear"><td>'+(cList[page].lived[0]+i)+'</td><td>'+position+'</td><td>'+event1+'</td></tr>'
+                        document.querySelector('.chronology').innerHTML += '<tr class="subyear"><td>'+key+'</td><td>'+position+'</td><td>'+event1+'</td></tr>'
                     }
                 }
                 document.querySelector('.characterprofile').innerHTML += '<h1>요약</h1>'
