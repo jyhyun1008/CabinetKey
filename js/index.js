@@ -50,6 +50,7 @@ var example = {
                     "별명": "",
                     "애칭": ""
                 },
+                "birthday": "",
                 "lived": [0, 50],
                 "category": "",
                 "subCategory": "",
@@ -565,6 +566,23 @@ function loadBackground(json) {
     })
 }
 
+var temporaryRelatedToCharacterCount = []
+
+function addRelatedTo(num) {
+    document.querySelector('#relatedTo'+num).innerHTML += '<div class="multiLineInput relatedTo'+num+'" id="cRelatedToEditor'+num+'-'+temporaryRelatedToCharacterCount[num]+'"><label id="cRelatedToLabel'+num+'-'+temporaryRelatedToCharacterCount[num]+'" for="cRelatedTo'+num+'-'+temporaryRelatedToCharacterCount[num]+'">'+(temporaryRelatedToCharacterCount[num]+1)+' :</label> <select name="cRelatedTo'+num+'-'+temporaryRelatedToCharacterCount[num]+'" id="cRelatedTo'+num+'-'+temporaryRelatedToCharacterCount[num]+'"></select></div>'
+    for (var j=0; j<json.character.list.length; j++) {
+        document.querySelector('#cRelatedTo'+num+'-'+temporaryRelatedToCharacterCount[num]).innerHTML += '<option value="'+j+'">'+json.character.list[j].name+'</option>'
+    }
+    temporaryRelatedToCharacterCount[num] += 1
+}
+function deleteRelatedTo(num) {
+    if (temporaryRelatedToCharacterCount[num] > 0) {
+        temporaryRelatedToCharacterCount[num] -= 1
+        document.querySelector('#cRelatedToEditor'+num+'-'+temporaryRelatedToCharacterCount[num]).remove()
+    }
+}
+
+
 async function parseYourJSON(json) {
     if (!year) {
         year = json.info.startYear
@@ -647,8 +665,13 @@ async function parseYourJSON(json) {
         document.querySelector('.worldinfo').innerHTML += '<div class="winfosubtitle">'+json.info.subTitle+'<div>'
         document.querySelector('.worldinfo').innerHTML += '<h1>요약</h1>'
         document.querySelector('.worldinfo').innerHTML += '<div class="winfosummary">'+json.info.summary+'<div>'
-        document.querySelector('.worldinfo').innerHTML += '<h1>설명</h1>'
+        document.querySelector('.worldinfo').innerHTML += '<h1>상세 정보</h1>'
         document.querySelector('.worldinfo').innerHTML += '<div class="winfodescription">'+json.info.description+'<div>'
+
+        if (mode == 'edit' && isLogin) {
+            //TODO
+        }
+
     } else if (page == 'collection') {
         loadBackground(json)
         document.querySelector('#wrapper').addEventListener("click", (e) => {
@@ -703,7 +726,14 @@ async function parseYourJSON(json) {
                     document.querySelector('.collectionlist').innerHTML += '<div class="collectionel"><a href="./?note='+notesRes[i].id+'"><img src="'+notesRes[i].files[0].url+'"></a></div>'
                 }
             }
+
+            document.querySelector('.collectionlist').innerHTML += '<div class="collectionel"><a href="./?page=collection&mode=edit"><img src="https://peachtart2.s3.ap-northeast-1.amazonaws.com/tart/99cb88ef-a5f4-4e95-a8eb-183c5914d570.webp"></a></div>'
         })
+
+        if (mode == 'edit' && isLogin) {
+            //TODO
+        }
+
     } else if (page && page != 'callback') {
         loadBackground(json)
         document.querySelector('#wrapper').addEventListener("click", (e) => {
@@ -715,6 +745,10 @@ async function parseYourJSON(json) {
         if (page.includes('song')) {
             var songNo = parseInt(page.split('song')[1])
             var songInfo = json.themeSong[songNo]
+            if (!songInfo) {
+                location.href = location.href + '&mode=edit'
+            }
+
             document.querySelector('#popup-content').innerHTML = '<div class="songinfo"></div>'
             document.querySelector('#popup-content').innerHTML += '<div class="relatedcharacterlist"></div>'
             
@@ -724,7 +758,7 @@ async function parseYourJSON(json) {
 
             document.querySelector('.songinfo').innerHTML += '<h1>요약</h1>'
             document.querySelector('.songinfo').innerHTML += '<div >'+songInfo.summary+'<div>'
-            document.querySelector('.songinfo').innerHTML += '<h1>설명</h1>'
+            document.querySelector('.songinfo').innerHTML += '<h1>상세 정보</h1>'
             document.querySelector('.songinfo').innerHTML += '<div>'+parseMd(songInfo.description)+'<div>'
             document.querySelector('.songinfo').innerHTML += '<h1>가사</h1>'
             document.querySelector('.songinfo').innerHTML += '<div>'+parseMd(songInfo.lyrics)+'<div>'
@@ -735,8 +769,18 @@ async function parseYourJSON(json) {
             for (var j = 0; j < relatedCategorylist.length; j++) {
                 document.querySelector('.relatedcharacterlist').innerHTML += '<a href="./?page='+relatedCategorylist[j]+'"><div class="characteritem" onmouseover="hoverCharacter('+relatedCategorylist[j]+')"><div><img src="'+cList[relatedCategorylist[j]].avatar+'" class="cavatar"></div><div class="cname">'+cList[relatedCategorylist[j]].name+'</div><div class="csummary">'+cList[relatedCategorylist[j]].summary+'</div></div></a>'
             }
+
+            if (mode == 'edit' && isLogin) {
+                //TODO
+            }
+
         } else if (page.includes(',') && year) {
             var worldPage = nowHere(page, year)
+
+            if (!worldPage) {
+                location.href = location.href + '&mode=edit'
+            }
+
             document.querySelector('#popup-content').innerHTML = '<div class="worldlocation"></div>'
             document.querySelector('#popup-content').innerHTML += '<div class="relatedcharacterlist"></div>'
 
@@ -752,7 +796,7 @@ async function parseYourJSON(json) {
 
             document.querySelector('.worldlocation').innerHTML += '<h1>요약</h1>'
             document.querySelector('.worldlocation').innerHTML += '<div class="cprofilesummary">'+worldPage.summary+'<div>'
-            document.querySelector('.worldlocation').innerHTML += '<h1>설명</h1>'
+            document.querySelector('.worldlocation').innerHTML += '<h1>상세 정보</h1>'
             document.querySelector('.worldlocation').innerHTML += '<div class="cprofiledescription">'+parseMd(worldPage.description)+'<div>'
 
             document.querySelector('.worldlocation').innerHTML += '<h1>연관 정보</h1>'
@@ -766,178 +810,507 @@ async function parseYourJSON(json) {
                     document.querySelector('#relatedlist'+i).innerHTML += '<a href="./?page='+relatedCategorylist[j]+'"><div class="characteritem" onmouseover="hoverCharacter('+relatedCategorylist[j]+')"><div><img src="'+cList[relatedCategorylist[j]].avatar+'" class="cavatar"></div><div class="cname">'+cList[relatedCategorylist[j]].name+'</div><div class="csummary">'+cList[relatedCategorylist[j]].summary+'</div></div></a>'
                 }
             }
+
+            if (mode == 'edit' && isLogin) {
+                //TODO
+            }
+
         } else { // i로 감
-            document.querySelector('#popup-content').innerHTML = '<div class="characterprofile"></div>'
-            document.querySelector('#popup-content').innerHTML += '<div class="relatedcharacterlist"></div>'
-            document.querySelector('#popup-content').innerHTML += '<div id="collectiontitle"></div>'
-            document.querySelector('#popup-content').innerHTML += '<div id="collectionlist"><div id="worktitle"></div><div id="worklist" class="collectionlist"></div><div id="workqid" class="collectionqid"></div><div id="drafttitle"></div><div id="draftlist" class="collectionlist"></div><div id="draftqid" class="collectionqid"></div></div>'
 
-            document.querySelector('.characterprofile').innerHTML = '<h1 class="cprofilename">'+cList[page].name+'</h1>'
-            document.querySelector('.characterprofile').innerHTML += '<div class="cprofileavatar"><img src="'+cList[page].avatar+'"><div>'
-            document.querySelector('.characterprofile').innerHTML += '<div class="cprofilesong"><div><span class="bold">테마 송</span> </div></div>'
-            for (var i=0; i<(cList[page].themeSong.length); i++) {
-                document.querySelector('.cprofilesong').innerHTML += '<li><a href="./?page=song'+cList[page].themeSong[i]+'">'+json.themeSong[cList[page].themeSong[i]].title+'</a></li>'
+            if (!cList[page]) {
+                location.href = location.href + '&mode=edit'
             }
-            document.querySelector('.characterprofile').innerHTML += '<div class="cprofilecategory"><span class="bold">이름 유래</span> '+cList[page].meaning+'<div>'
-            var nicknames = Object.keys(cList[page].nickname)
-            for (var i=0; i<nicknames.length; i++) {
-                document.querySelector('.characterprofile').innerHTML += '<div class="cprofilecategory"><span class="bold">'+nicknames[i]+'</span> '+cList[page].nickname[nicknames[i]]+'<div>'
-            }
-            document.querySelector('.characterprofile').innerHTML += '<div class="cprofilecategory"><span class="bold">분류</span> <a href="./?category='+cList[page].category+'">'+cList[page].category+'</a><div>'
-            document.querySelector('.characterprofile').innerHTML += '<div class="cprofilesubcategory"><span class="bold">세부분류</span> '+cList[page].subCategory+'<div>'
-            document.querySelector('.characterprofile').innerHTML += '<div class="cprofilelived"><span class="bold">생몰년</span> '+cList[page].lived[0]+'~'+cList[page].lived[1]+'<div>'
-            document.querySelector('.characterprofile').innerHTML += '<div class="cprofilegoal"><div><span class="bold">사명</span> </div></div>'
-            for (var i=0; i<(cList[page].goal.length); i++) {
-                document.querySelector('.cprofilegoal').innerHTML += '<li>'+cList[page].goal[i]+'</li>'
-            }
-            var hideandseek = true
-            document.querySelector('.characterprofile').innerHTML += '<div class="cprofiletable"><div><span class="bold">연표</span> <span id="hideChronology">펼치기/접기</span></div><table class="chronology"><tr><th>연도</th><th>포지션</th><th>사건</th></tr></table><div>'
 
-            for (var i=0; i<(cList[page].lived[1] - cList[page].lived[0] + 1); i++) {
-                if (json.info.mainYear.includes(cList[page].lived[0]+i)) {
-                    for (var j=0; j<12; j++){
-                        var key = (cList[page].lived[0]+i)+'.'+(j+1)
+            if (mode == 'edit' && isLogin) {
+
+                var isSaved = false
+                window.onbeforeunload = function(){
+                    if (!isSaved) {
+                        return '페이지를 나가시겠습니까? 편집한 내용은 저장되지 않습니다.'
+                    }
+                }
+
+                //제목, 틀 생성
+                document.querySelector('#popup-content').innerHTML = '<div class="edit"><form class="editform" action="/confirm.html" method="get"><div class="editordiv"><h1>'+page+'번 캐릭터 수정</h1></div></form></div>'
+
+                //이름
+                document.querySelector('.editform').innerHTML += '<div class="editordiv"><label for="cName"><span class="bold">이름</span></label> <input type="text" id="cName" name="cName" value="'+cList[page].name+'"></div>'
+
+                //해시태그
+                document.querySelector('.editform').innerHTML += '<div class="editordiv"><label for="cHashtag"><span class="bold">전용 태그</span></label> <input type="text" id="cHashtag" name="cHashtag" value="'+cList[page].hashtag+'"></div>'
+
+                //아바타
+                document.querySelector('.editform').innerHTML += '<div class="editordiv"><div class="cprofileavatar"><img src="'+cList[page].avatar+'"></div><label for="cAvatar"><span class="bold">사진</span></label> <input type="text" id="cAvatar" name="cAvatar" value="'+cList[page].avatar+'"></div>'
+
+                //테마 송 (틀 생성)
+                document.querySelector('.editform').innerHTML += '<div class="editordiv"><span class="bold">테마 송</span> <span id="addThemeSong">추가</span> · <span id="deleteThemeSong">한 줄 제거</span></div><div id="themeSong" class="editordiv"></div>'
+
+                //테마 송 (드롭다운)
+                var temporaryThemeSongCount = cList[page].themeSong.length
+                for (var i=0; i<cList[page].themeSong.length; i++) {
+                    document.querySelector('#themeSong').innerHTML += '<div class="multiLineInput themeSong" id="cThemesongEditor'+i+'"><label id="cThemesongLabel'+i+'" for="cThemesong'+i+'">'+(i+1)+' :</label> <select name="cThemesong'+i+'" id="cThemesong'+i+'"></select></div>'
+                    for (var j=0; j<json.themeSong.length; j++) {
+                        if (cList[page].themeSong[i] == j) {
+                            document.querySelector('#cThemesong'+i).innerHTML += '<option value="'+j+'" selected>'+json.themeSong[j].title+'</option>'
+                        } else {
+                            document.querySelector('#cThemesong'+i).innerHTML += '<option value="'+j+'">'+json.themeSong[j].title+'</option>'
+                        }
+                    }
+                }
+
+                //이름의 유래
+                document.querySelector('.editform').innerHTML += '<div class="editordiv"><label for="cMeaning"><span class="bold">이름 유래</span></label> <input type="text" id="cMeaning" name="cMeaning" value="'+cList[page].meaning+'"></div>'
+
+                //다른 이름들 (틀 생성)
+                document.querySelector('.editform').innerHTML += '<div class="editordiv"><span class="bold">다른 이름들</span> <span id="addNickname">추가</span> · <span id="deleteNickname">한 줄 제거</span></div><div id="nicknames" class="editordiv"></div>'
+
+                //다른 이름들 (input 지옥)
+                var nicknames = Object.keys(cList[page].nickname)
+                var temporaryNicknameCount = nicknames.length
+                for (var i=0; i<nicknames.length; i++) {
+                    document.querySelector('#nicknames').innerHTML += '<div class="multiLineInput" id="cNicknamesEditor'+i+'"><input class="key nicknames" id="cNicknamesLabel'+i+'" name="cNicknamesLabel'+i+'" value="'+nicknames[i]+'"> <input type="text" class="val nicknames" id="cNicknames'+i+'" name="cNicknames'+i+'" value="'+cList[page].nickname[nicknames[i]]+'"></div>'
+                }
+
+                //분류
+                document.querySelector('.editform').innerHTML += '<div class="editordiv" id="cCategoryEditor"><label id="cCategoryLabel" for="cCategory"><span class="bold"> 분류</span> </label> <select name="cCategory" id="cCategory"></select></div>'
+                for (var j=0; j<json.character.category.length; j++) {
+                    if (cList[page].category == j) {
+                        document.querySelector('#cCategory').innerHTML += '<option value="'+j+'" selected>'+json.character.category[j]+'</option>'
+                    } else {
+                        document.querySelector('#cCategory').innerHTML += '<option value="'+j+'">'+json.character.category[j]+'</option>'
+                    }
+                }
+
+                //세부분류
+                document.querySelector('.editform').innerHTML += '<div class="editordiv"><label for="cSubcateogory"><span class="bold">세부분류</span></label> <input type="text" id="cSubcateogory" name="cSubcateogory" value="'+cList[page].subCategory+'"></div>'
+
+                //생년
+                document.querySelector('.editform').innerHTML += '<div class="editordiv"><label for="cBirthYear"><span class="bold">생년</span></label> <input type="text" id="cBirthYear" name="cBirthYear" value="'+cList[page].lived[0]+'"></div>'
+
+                //몰년
+                document.querySelector('.editform').innerHTML += '<div class="editordiv"><label for="cDeathYear"><span class="bold">몰년</span></label> <input type="text" id="cDeathYear" name="cDeathYear" value="'+cList[page].lived[1]+'"></div>'
+
+                //생일
+                document.querySelector('.editform').innerHTML += '<div class="editordiv"><label for="cBirthday"><span class="bold">생일</span></label> <input type="text" id="cBirthday" name="cBirthday" value="'+cList[page].birthday+'"></div>'
+
+                //사명 (틀 생성)
+                document.querySelector('.editform').innerHTML += '<div class="editordiv"><span class="bold">사명</span> <span id="addGoal">추가</span> · <span id="deleteGoal">한 줄 제거</span></div><div id="goal" class="editordiv"></div>'
+
+                //사명 (드롭다운)
+                var temporaryGoalCount = cList[page].goal.length
+                for (var i=0; i<cList[page].goal.length; i++) {
+                    document.querySelector('#goal').innerHTML += '<div class="multiLineInput goal" id="cGoalEditor'+i+'"><label id="cGoalLabel'+i+'" for="cGoal'+i+'">'+(i+1)+' :</label> <input name="cGoal'+i+'" id="cGoal'+i+'"></div>'
+                }
+
+                //포지션 (틀 생성)
+                document.querySelector('.editform').innerHTML += '<div class="editordiv"><span class="bold">포지션</span> <span id="addPosition">추가</span> · <span id="deletePosition">한 줄 제거</span></div><ul><li>순서대로 적으실 필요 없습니다.</li><li>주요 연도의 경우 YYYY.M과 같이 적어주세요.</li></ul><div id="position" class="editordiv"></div>'
+
+                //포지션 (input 지옥)
+                var position = Object.keys(cList[page].positionChronology)
+                var temporaryPositionCount = position.length
+                for (var i=0; i<position.length; i++) {
+                    document.querySelector('#position').innerHTML += '<div class="multiLineInput" id="cPositionEditor'+i+'"><input class="key position" id="cPositionLabel'+i+'" name="cPositionLabel'+i+'" value="'+position[i]+'"> <input type="text" id="cPosition'+i+'" name="cPosition'+i+'" value="'+cList[page].positionChronology[position[i]]+'"></div>'
+                }
+
+                //사건 (틀 생성)
+                document.querySelector('.editform').innerHTML += '<div class="editordiv"><span class="bold">사건</span> <span id="addEvent">추가</span> · <span id="deleteEvent">한 줄 제거</span></div><ul><li>순서대로 적으실 필요 없습니다.</li><li>주요 연도의 경우 YYYY.M과 같이 적어주세요.</li></ul><div id="event" class="editordiv"></div>'
+
+                //사건 (input 지옥)
+                var event = Object.keys(cList[page].eventChronology)
+                var temporaryEventCount = event.length
+                for (var i=0; i<event.length; i++) {
+                    document.querySelector('#event').innerHTML += '<div class="multiLineInput" id="cEventEditor'+i+'"><input class="key event" id="cEventLabel'+i+'" name="cEventLabel'+i+'" value="'+event[i]+'"> <input type="text" id="cEvent'+i+'" name="cEvent'+i+'" value="'+cList[page].eventChronology[event[i]]+'"></div>'
+                }
+
+                //요약
+                document.querySelector('.editform').innerHTML += '<div class="editordiv"><h1>요약</h1><textarea class="summary" id="cSummary" name="cSummary">'+cList[page].summary+'</textarea>'
+
+                //상세 정보
+                document.querySelector('.editform').innerHTML += '<div class="editordiv"><h1>상세 정보</h1><textarea id="cDescription" name="cDescription">'+cList[page].description+'</textarea>'
+
+                //비밀 설정
+                document.querySelector('.editform').innerHTML += '<div class="editordiv"><h1>비밀 설정</h1><textarea id="cSecret" name="cSecret">'+cList[page].secret+'</textarea>'
+
+                //인간관계 (1차 틀 생성)
+                document.querySelector('.editform').innerHTML += '<div class="editordiv"><h1>인간관계</h1><div><span id="addRelatedTo">분류 추가</span> · <span id="deleteRelatedTo">분류 하나 제거</span></div><br><div id="cRelatedTo"></div>'
+
+                //인간관계 (2차 틀 생성 및 드롭다운)
+                var relatedToKey = Object.keys(cList[page].relatedTo)
+                var temporaryRelatedToCount = relatedToKey.length
+                for (var i=0; i<temporaryRelatedToCount; i++) {
+                    document.querySelector('#cRelatedTo').innerHTML += '<div class="editordiv" id="cRelatedToEditor'+i+'"><input class="key relatedTo" id="cRelatedToKey'+i+'" value="'+relatedToKey[i]+'"> <span id="addRelatedTo'+i+'" onclick="addRelatedTo('+i+')">추가</span> · <span id="deleteRelatedTo'+i+'" onclick="deleteRelatedTo('+i+')">한 줄 제거</span><div id="relatedTo'+i+'" class="editordiv"></div></div>'
+
+                    temporaryRelatedToCharacterCount.push(cList[page].relatedTo[relatedToKey[i]].length)
+                    for (var l=0; l<cList[page].relatedTo[relatedToKey[i]].length; l++) {
+                        document.querySelector('#relatedTo'+i).innerHTML += '<div class="multiLineInput" id="cRelatedToEditor'+i+'-'+l+'"><label id="cRelatedToLabel'+i+'-'+l+'" for="cRelatedTo'+i+'-'+l+'">'+(l+1)+' :</label> <select name="cRelatedTo'+i+'-'+l+'" id="cRelatedTo'+i+'-'+l+'"></select></div>'
+                        for (var j=0; j<json.character.list.length; j++) {
+                            if (cList[page].relatedTo[relatedToKey[l]] == j) {
+                                document.querySelector('#cRelatedTo'+i+'-'+l).innerHTML += '<option value="'+j+'" selected>'+json.character.list[j].name+'</option>'
+                            } else {
+                                document.querySelector('#cRelatedTo'+i+'-'+l).innerHTML += '<option value="'+j+'">'+json.character.list[j].name+'</option>'
+                            }
+                        }
+                    }
+                }
+                
+                //확인 버튼
+                document.querySelector('.editform').innerHTML += '<div class="editordiv"><span class="bold" id="confirm">완료</span> <span class="bold" id="cancel">취소</span>'
+
+                //이벤트 리스너들
+                document.querySelector('#cAvatar').addEventListener("input", (e) => {
+                    document.querySelector('.cprofileavatar').innerHTML = '<img src="'+document.querySelector('#cAvatar').value+'">'
+                })
+
+                //테마송 이벤트리스너
+                document.querySelector('#addThemeSong').addEventListener("click", (e) => {
+                    document.querySelector('#themeSong').innerHTML += '<div class="multiLineInput" id="cThemesongEditor'+temporaryThemeSongCount+'"><label id="cThemesongLabel'+temporaryThemeSongCount+'" for="cThemesong'+temporaryThemeSongCount+'">'+(temporaryThemeSongCount+1)+' :</label> <select name="cThemesong'+temporaryThemeSongCount+'" id="cThemesong'+temporaryThemeSongCount+'"></select></div>'
+                    for (var j=0; j<json.themeSong.length; j++) {
+                        document.querySelector('#cThemesong'+temporaryThemeSongCount).innerHTML += '<option value="'+j+'">'+json.themeSong[j].title+'</option>'
+                    }
+                    temporaryThemeSongCount += 1
+                })
+                document.querySelector('#deleteThemeSong').addEventListener("click", (e) => {
+                    if (temporaryThemeSongCount > 0) {
+                        temporaryThemeSongCount -= 1
+                        document.querySelector('#cThemesongEditor'+temporaryThemeSongCount).remove()
+                    }
+                })
+
+                //다른 이름들 이벤트리스너
+                document.querySelector('#addNickname').addEventListener("click", (e) => {
+                    document.querySelector('#nicknames').innerHTML += '<div class="multiLineInput" id="cNicknamesEditor'+temporaryNicknameCount+'"><input class="key nicknames" name="cNicknamesLabel'+temporaryNicknameCount+'" id="cNicknamesLabel'+temporaryNicknameCount+'" value="'+(temporaryNicknameCount+1)+'"> <input name="cNicknames'+temporaryNicknameCount+'" id="cNicknames'+temporaryNicknameCount+'"></div>'
+                    temporaryNicknameCount += 1
+                })
+                document.querySelector('#deleteNickname').addEventListener("click", (e) => {
+                    if (temporaryNicknameCount > 0) {
+                        temporaryNicknameCount -= 1
+                        document.querySelector('#cNicknamesEditor'+temporaryNicknameCount).remove()    
+                    }
+                })
+
+                //사명 이벤트리스너
+                document.querySelector('#addGoal').addEventListener("click", (e) => {
+                    document.querySelector('#goal').innerHTML += '<div class="multiLineInput" id="cGoalEditor'+temporaryGoalCount+'"><label id="cGoalLabel'+temporaryGoalCount+'" for="cGoal'+temporaryGoalCount+'">'+(temporaryGoalCount+1)+' :</label>  <input name="cGoal'+temporaryGoalCount+'" id="cGoal'+temporaryGoalCount+'"></div>'
+                    temporaryGoalCount += 1
+                })
+
+                document.querySelector('#deleteGoal').addEventListener("click", (e) => {
+                    if (temporaryGoalCount > 0) {
+                        temporaryGoalCount -= 1
+                        document.querySelector('#cGoalEditor'+temporaryGoalCount).remove()    
+                    }
+                })
+
+                //포지션 이벤트리스너
+                document.querySelector('#addPosition').addEventListener("click", (e) => {
+                    document.querySelector('#position').innerHTML += '<div class="multiLineInput" id="cPositionsEditor'+temporaryPositionCount+'"><input class="key position" name="cPositionsLabel'+temporaryPositionCount+'" id="cPositionsLabel'+temporaryPositionCount+'" value="0.0"> <input name="cPositions'+temporaryPositionCount+'" id="cPositions'+temporaryPositionCount+'"></div>'
+                    temporaryPositionCount += 1
+                })
+                document.querySelector('#deletePosition').addEventListener("click", (e) => {
+                    if (temporaryPositionCount > 0) {
+                        temporaryPositionCount -= 1
+                        document.querySelector('#cPositionsEditor'+temporaryPositionCount).remove()    
+                    }
+                })
+
+                //사건 이벤트리스너
+                document.querySelector('#addEvent').addEventListener("click", (e) => {
+                    document.querySelector('#event').innerHTML += '<div class="multiLineInput" id="cEventsEditor'+temporaryEventCount+'"><input class="key event" name="cEventsLabel'+temporaryEventCount+'" id="cEventsLabel'+temporaryEventCount+'" value="0.0"> <input name="cEvents'+temporaryEventCount+'" id="cEvents'+temporaryEventCount+'"></div>'
+                    temporaryEventCount += 1
+                })
+                document.querySelector('#deleteEvent').addEventListener("click", (e) => {
+                    if (temporaryEventCount > 0) {
+                        temporaryEventCount -= 1
+                        document.querySelector('#cEventsEditor'+temporaryEventCount).remove()    
+                    }
+                })
+
+                //인간관계 이벤트리스너
+
+                //인간관계 (분류) 이벤트리스너
+                document.querySelector('#addRelatedTo').addEventListener("click", (e) => {
+                    document.querySelector('#cRelatedTo').innerHTML += '<div class="editordiv" id="cRelatedToEditor'+temporaryRelatedToCount+'"><input class="key relatedTo" value="" id="cRelatedToKey'+temporaryRelatedToCount+'"> <span id="addRelatedTo'+temporaryRelatedToCount+'" onclick="addRelatedTo('+temporaryRelatedToCount+')">추가</span> · <span id="deleteRelatedTo'+temporaryRelatedToCount+'" onclick="deleteRelatedTo('+temporaryRelatedToCount+')">한 줄 제거</span><div id="relatedTo'+temporaryRelatedToCount+'" class="editordiv"></div></div>'
+                    temporaryRelatedToCharacterCount.push(0)
+                    temporaryRelatedToCount += 1
+                })
+                document.querySelector('#deleteRelatedTo').addEventListener("click", (e) => {
+                    if (temporaryRelatedToCount > 0) {
+                        temporaryRelatedToCount -= 1
+                        temporaryRelatedToCharacterCount.pop()
+                        document.querySelector('#cRelatedToEditor'+temporaryRelatedToCount).remove()
+                    }
+                })
+
+                //확인 버튼 이벤트리스너
+                document.querySelector('#confirm').addEventListener("click", (e) => {
+
+                    //변수에 저장
+                    var cAvatar = document.querySelector('#cAvatar').value
+                    var cName = document.querySelector('#cName').value
+                    var cMeaning = document.querySelector('#cMeaning').value
+                    var cNicknames = {}
+                    for (var i=0; i < document.querySelectorAll('.key.nicknames').length; i++) {
+                        var key = document.querySelector('#cNicknamesLabel'+i).value
+                        cNicknames[key] = document.querySelector('#cNicknames'+i).value
+                    }
+                    var cBirthday = document.querySelector('#cBirthday').value
+                    var cLived = [document.querySelector('#cBirthYear').value, document.querySelector('#cDeathYear').value]
+                    var cCategory = document.querySelector('#cCategory').value
+                    var cSubcateogory = document.querySelector('#cSubcateogory').value
+                    var cEvent = {}
+                    for (var i=0; i < document.querySelectorAll('.key.event').length; i++) {
+                        var key = document.querySelector('#cEventLabel'+i).value
+                        cEvent[key] = document.querySelector('#cEvent'+i).value
+                    }
+                    var cPosition = {}
+                    for (var i=0; i < document.querySelectorAll('.key.position').length; i++) {
+                        var key = document.querySelector('#cPositionLabel'+i).value
+                        cPosition[key] = document.querySelector('#cPosition'+i).value
+                    }
+                    var cRelatedTo = {}
+                    for (var i=0; i < document.querySelectorAll('.key.relatedTo').length; i++) {
+                        var key = document.querySelector('#cRelatedToKey'+i).value
+                        cRelatedTo[key] = []
+                        for (var j=0; j < document.querySelectorAll('#relatedTo'+i).length; j++) {
+                            cRelatedTo[key][j] = document.querySelector('#cRelatedTo'+i+'-'+j).value
+                        }
+                    }
+                    var cGoal = []
+                    for (var i=0; i < document.querySelectorAll('.goal').length; i++) {
+                        cGoal[i] = document.querySelector('#cGoal'+i).value
+                    }
+                    var cThemesong = []
+                    for (var i=0; i < document.querySelectorAll('.themeSong').length; i++) {
+                        cThemesong[i] = document.querySelector('#cThemesong'+i).value
+                    }
+                    var cSummary = document.querySelector('#cSummary').value
+                    var cDescription = document.querySelector('#cDescription').value
+                    var cSecret = document.querySelector('#cSecret').value
+                    var cHashtag = document.querySelector('#cHashtag').value
+                    
+                    var updatedJsonCharacterProfile = {
+                        "avatar": cAvatar,
+                        "name": cName,
+                        "meaning": cMeaning,
+                        "nickname": cNicknames,
+                        "birthday": cBirthday,
+                        "lived": cLived,
+                        "category": cCategory,
+                        "subCategory": cSubcateogory,
+                        "eventChronology": cEvent,
+                        "positionChronology": cPosition,
+                        "relatedTo": cRelatedTo,
+                        "goal": cGoal,
+                        "themeSong": cThemesong,
+                        "summary": cSummary,
+                        "description": cDescription,
+                        "secret": cSecret,
+                        "hashtag": cHashtag
+                    }
+                    json.character.list[page] = updatedJsonCharacterProfile
+                    
+                    localStorage.setItem('json', JSON.stringify(json))
+                    var updatePageUrl = 'https://'+MISSKEYHOST+'/api/pages/update'
+                    var updatePageParam = {
+                        method: 'POST',
+                        headers: {
+                            'content-type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            i: token,
+                            pageId: jsonPageId,
+                            title: 'CabinetKey.json',
+                            name: 'CabinetKey.json',
+                            summary: 'CabinetKey.json',
+                            variables: [],
+                            script: '',
+                            content: [{
+                                text: '```\n'+JSON.stringify(json)+'\n```',
+                                type: 'text'
+                            }]
+                        })
+                    }
+                    fetch(updatePageUrl, updatePageParam)
+                    .then(() => {
+                        isSaved = true
+                        location.href = './'
+                    })
+
+                })
+            } else {
+                document.querySelector('#popup-content').innerHTML = '<div class="characterprofile"></div>'
+                document.querySelector('#popup-content').innerHTML += '<div class="relatedcharacterlist"></div>'
+                document.querySelector('#popup-content').innerHTML += '<div id="collectiontitle"></div>'
+                document.querySelector('#popup-content').innerHTML += '<div id="collectionlist"><div id="worktitle"></div><div id="worklist" class="collectionlist"></div><div id="workqid" class="collectionqid"></div><div id="drafttitle"></div><div id="draftlist" class="collectionlist"></div><div id="draftqid" class="collectionqid"></div></div>'
+    
+                document.querySelector('.characterprofile').innerHTML = '<h1 class="cprofilename">'+cList[page].name+'</h1>'
+                document.querySelector('.characterprofile').innerHTML += '<div class="cprofileavatar"><img src="'+cList[page].avatar+'"><div>'
+                document.querySelector('.characterprofile').innerHTML += '<div class="cprofilesong"><div><span class="bold">테마 송</span> </div></div>'
+                for (var i=0; i<(cList[page].themeSong.length); i++) {
+                    document.querySelector('.cprofilesong').innerHTML += '<li><a href="./?page=song'+cList[page].themeSong[i]+'">'+json.themeSong[cList[page].themeSong[i]].title+'</a></li>'
+                }
+                document.querySelector('.characterprofile').innerHTML += '<div class="cprofilecategory"><span class="bold">이름 유래</span> '+cList[page].meaning+'<div>'
+                var nicknames = Object.keys(cList[page].nickname)
+                for (var i=0; i<nicknames.length; i++) {
+                    document.querySelector('.characterprofile').innerHTML += '<div class="cprofilecategory"><span class="bold">'+nicknames[i]+'</span> '+cList[page].nickname[nicknames[i]]+'<div>'
+                }
+                document.querySelector('.characterprofile').innerHTML += '<div class="cprofilecategory"><span class="bold">분류</span> <a href="./?category='+cList[page].category+'">'+cList[page].category+'</a><div>'
+                document.querySelector('.characterprofile').innerHTML += '<div class="cprofilesubcategory"><span class="bold">세부분류</span> '+cList[page].subCategory+'<div>'
+                document.querySelector('.characterprofile').innerHTML += '<div class="cprofilelived"><span class="bold">생몰년</span> '+cList[page].lived[0]+'~'+cList[page].lived[1]+'<div>'
+                document.querySelector('.characterprofile').innerHTML += '<div class="cprofilebirthday"><span class="bold">생일</span> '+cList[page].birthday+'<div>'
+                document.querySelector('.characterprofile').innerHTML += '<div class="cprofilegoal"><div><span class="bold">사명</span> </div></div>'
+                for (var i=0; i<(cList[page].goal.length); i++) {
+                    document.querySelector('.cprofilegoal').innerHTML += '<li>'+cList[page].goal[i]+'</li>'
+                }
+                var hideandseek = true
+                document.querySelector('.characterprofile').innerHTML += '<div class="cprofiletable"><div><span class="bold">연표</span> <span id="hideChronology">펼치기/접기</span></div><table class="chronology"><tr><th>연도</th><th>포지션</th><th>사건</th></tr></table><div>'
+    
+                for (var i=0; i<(cList[page].lived[1] - cList[page].lived[0] + 1); i++) {
+                    if (json.info.mainYear.includes(cList[page].lived[0]+i)) {
+                        for (var j=0; j<12; j++){
+                            var key = (cList[page].lived[0]+i)+'.'+(j+1)
+                            var position = cList[page].positionChronology[key]
+                            var event1 = cList[page].eventChronology[key]
+                            if (!position) { position = '' }
+                            if (!event1) { event1 = '' }
+                            document.querySelector('.chronology').innerHTML += '<tr class="mainyear"><td>'+(key)+'</td><td>'+position+'</td><td>'+event1+'</td></tr>'
+                        }
+                    } else {
+                        var key = (cList[page].lived[0]+i)
                         var position = cList[page].positionChronology[key]
                         var event1 = cList[page].eventChronology[key]
                         if (!position) { position = '' }
                         if (!event1) { event1 = '' }
-                        document.querySelector('.chronology').innerHTML += '<tr class="mainyear"><td>'+(key)+'</td><td>'+position+'</td><td>'+event1+'</td></tr>'
+                        document.querySelector('.chronology').innerHTML += '<tr class="subyear"><td>'+(cList[page].lived[0]+i)+'</td><td>'+position+'</td><td>'+event1+'</td></tr>'
                     }
-                } else {
-                    var key = (cList[page].lived[0]+i)
-                    var position = cList[page].positionChronology[key]
-                    var event1 = cList[page].eventChronology[key]
-                    if (!position) { position = '' }
-                    if (!event1) { event1 = '' }
-                    document.querySelector('.chronology').innerHTML += '<tr class="subyear"><td>'+(cList[page].lived[0]+i)+'</td><td>'+position+'</td><td>'+event1+'</td></tr>'
                 }
-            }
-            document.querySelector('.characterprofile').innerHTML += '<h1>요약</h1>'
-            document.querySelector('.characterprofile').innerHTML += '<div class="cprofilesummary">'+cList[page].summary+'<div>'
-            document.querySelector('.characterprofile').innerHTML += '<h1>설명</h1>'
-            document.querySelector('.characterprofile').innerHTML += '<div class="cprofiledescription">'+parseMd(cList[page].description)+'<div>'
-
-            document.querySelector('.characterprofile').innerHTML += '<h1>인간관계</h1>'
-
-            var relatedCategory = Object.keys(json.character.list[page].relatedTo)
-            for (var i = 0; i < relatedCategory.length; i++) {
-                document.querySelector('.relatedcharacterlist').innerHTML += '<div class="relatedcharactercategory" id="relatedcategory'+i+'">'+relatedCategory[i]+'</div>'
-                document.querySelector('.relatedcharacterlist').innerHTML += '<div class="relatedcharactercategorylist" id="relatedlist'+i+'"></div>'
-                var relatedCategorylist = json.character.list[page].relatedTo[relatedCategory[i]]
-                for (var j = 0; j < relatedCategorylist.length; j++) {
-                    document.querySelector('#relatedlist'+i).innerHTML += '<a href="./?page='+relatedCategorylist[j]+'"><div class="characteritem" onmouseover="hoverCharacter('+relatedCategorylist[j]+')"><div><img src="'+cList[relatedCategorylist[j]].avatar+'" class="cavatar"></div><div class="cname">'+cList[relatedCategorylist[j]].name+'</div><div class="csummary">'+cList[relatedCategorylist[j]].summary+'</div></div></a>'
-                }
-            }
-
-            var hashTagQuery = cList[page].hashtag
-            if (hashTagQuery != '') {
-                document.querySelector('#collectiontitle').innerHTML = '<h1>관련 작품 모음</h1>'
-                document.querySelector('#worktitle').innerHTML = '<h2>완성작</h2>'
-                document.querySelector('#drafttitle').innerHTML = '<h2>초안</h2>'
-
-                var findArtsUrl = 'https://'+MISSKEYHOST+'/api/notes/search'
-                var findArtsParam
-                if (!workqid || workqid == 0 ) {
-                    findArtsParam = {
-                        method: 'POST',
-                        headers: {
-                            'content-type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            query: hashTagQuery+' #'+json.info.mainHashtag+' #창작',
-                            userId: MISSKEYID,
-                            limit: 9
-                        })
+                document.querySelector('.characterprofile').innerHTML += '<h1>요약</h1>'
+                document.querySelector('.characterprofile').innerHTML += '<div class="cprofilesummary">'+cList[page].summary+'<div>'
+                document.querySelector('.characterprofile').innerHTML += '<h1>상세 정보</h1>'
+                document.querySelector('.characterprofile').innerHTML += '<div class="cprofiledescription">'+parseMd(cList[page].description)+'<div>'
+    
+                document.querySelector('.characterprofile').innerHTML += '<h1>인간관계</h1>'
+    
+                var relatedCategory = Object.keys(json.character.list[page].relatedTo)
+                for (var i = 0; i < relatedCategory.length; i++) {
+                    document.querySelector('.relatedcharacterlist').innerHTML += '<div class="relatedcharactercategory" id="relatedcategory'+i+'">'+relatedCategory[i]+'</div>'
+                    document.querySelector('.relatedcharacterlist').innerHTML += '<div class="relatedcharactercategorylist" id="relatedlist'+i+'"></div>'
+                    var relatedCategorylist = json.character.list[page].relatedTo[relatedCategory[i]]
+                    for (var j = 0; j < relatedCategorylist.length; j++) {
+                        document.querySelector('#relatedlist'+i).innerHTML += '<a href="./?page='+relatedCategorylist[j]+'"><div class="characteritem" onmouseover="hoverCharacter('+relatedCategorylist[j]+')"><div><img src="'+cList[relatedCategorylist[j]].avatar+'" class="cavatar"></div><div class="cname">'+cList[relatedCategorylist[j]].name+'</div><div class="csummary">'+cList[relatedCategorylist[j]].summary+'</div></div></a>'
                     }
-                    document.querySelector('#workqid').innerHTML = '0 · <a href="./?page='+page+'&qid='+1+','+draftqid+'">다음</a>'
-                } else {
-                    findArtsParam = {
-                        method: 'POST',
-                        headers: {
-                            'content-type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            query: hashTagQuery+' #'+json.info.mainHashtag+' #창작',
-                            userId: MISSKEYID,
-                            limit: 9,
-                            untilId: await fetchAgain(workqid, hashTagQuery, MISSKEYID)
-                        })
-                    }
-                    document.querySelector('#workqid').innerHTML = '<a href="./?page='+page+'&qid='+(workqid-1)+','+draftqid+'">이전</a> · '+workqid+' · <a href="./?page='+page+'&qid='+(workqid+1)+','+draftqid+'">다음</a>'
                 }
-                fetch(findArtsUrl, findArtsParam)
-                .then((artsData) => {return artsData.json()})
-                .then((artsRes) => {
-                    for (var i = 0; i<artsRes.length; i++){
-                        if (artsRes[i].files.length == 0) {
-                            document.querySelector('#worklist').innerHTML += '<div class="collectionel"><a href="./?note='+artsRes[i].id+'"><div class="overflowhidden" id="work'+i+'"></div></a></div>'
-                            if (artsRes[i].cw) document.querySelector('#work'+i).innerHTML = '</h1>'+artsRes[i].cw+'</h1>'
-                            document.querySelector('#work'+i).innerHTML += parseMd(artsRes[i].text)
-                        } else {
-                            document.querySelector('#worklist').innerHTML += '<div class="collectionel"><a href="./?note='+artsRes[i].id+'"><img src="'+artsRes[i].files[0].url+'"></a></div>'
+    
+                var hashTagQuery = cList[page].hashtag
+                if (hashTagQuery != '') {
+                    document.querySelector('#collectiontitle').innerHTML = '<h1>관련 작품 모음</h1>'
+                    document.querySelector('#worktitle').innerHTML = '<h2>완성작</h2>'
+                    document.querySelector('#drafttitle').innerHTML = '<h2>초안</h2>'
+    
+                    var findArtsUrl = 'https://'+MISSKEYHOST+'/api/notes/search'
+                    var findArtsParam
+                    if (!workqid || workqid == 0 ) {
+                        findArtsParam = {
+                            method: 'POST',
+                            headers: {
+                                'content-type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                query: hashTagQuery+' #'+json.info.mainHashtag+' #창작',
+                                userId: MISSKEYID,
+                                limit: 9
+                            })
                         }
+                        document.querySelector('#workqid').innerHTML = '0 · <a href="./?page='+page+'&qid='+1+','+draftqid+'">다음</a>'
+                    } else {
+                        findArtsParam = {
+                            method: 'POST',
+                            headers: {
+                                'content-type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                query: hashTagQuery+' #'+json.info.mainHashtag+' #창작',
+                                userId: MISSKEYID,
+                                limit: 9,
+                                untilId: await fetchAgain(workqid, hashTagQuery, MISSKEYID)
+                            })
+                        }
+                        document.querySelector('#workqid').innerHTML = '<a href="./?page='+page+'&qid='+(workqid-1)+','+draftqid+'">이전</a> · '+workqid+' · <a href="./?page='+page+'&qid='+(workqid+1)+','+draftqid+'">다음</a>'
+                    }
+                    fetch(findArtsUrl, findArtsParam)
+                    .then((artsData) => {return artsData.json()})
+                    .then((artsRes) => {
+                        for (var i = 0; i<artsRes.length; i++){
+                            if (artsRes[i].files.length == 0) {
+                                document.querySelector('#worklist').innerHTML += '<div class="collectionel"><a href="./?note='+artsRes[i].id+'"><div class="overflowhidden" id="work'+i+'"></div></a></div>'
+                                if (artsRes[i].cw) document.querySelector('#work'+i).innerHTML = '</h1>'+artsRes[i].cw+'</h1>'
+                                document.querySelector('#work'+i).innerHTML += parseMd(artsRes[i].text)
+                            } else {
+                                document.querySelector('#worklist').innerHTML += '<div class="collectionel"><a href="./?note='+artsRes[i].id+'"><img src="'+artsRes[i].files[0].url+'"></a></div>'
+                            }
+                        }
+                    })
+    
+                    var findDraftsUrl = 'https://'+MISSKEYHOST+'/api/notes/search'
+                    var findDraftsParam
+                    if (!draftqid || draftqid == 0 ) {
+                        findDraftsParam = {
+                            method: 'POST',
+                            headers: {
+                                'content-type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                query: hashTagQuery+' #'+json.info.mainHashtag+' #초안',
+                                userId: MISSKEYID,
+                                limit: 9
+                            })
+                        }
+                        document.querySelector('#draftqid').innerHTML = '0 · <a href="./?page='+page+'&qid='+(workqid)+','+(draftqid+1)+'">다음</a>'
+                    } else {
+                        findDraftsParam = {
+                            method: 'POST',
+                            headers: {
+                                'content-type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                query: hashTagQuery+' #'+json.info.mainHashtag+' #초안',
+                                userId: MISSKEYID,
+                                limit: 9,
+                                untilId: await fetchAgain(draftqid, hashTagQuery, MISSKEYID)
+                            })
+                        }
+                        document.querySelector('#draftqid').innerHTML = '<a href="./?page='+page+'&qid='+(workqid)+','+(draftqid-1)+'">이전</a> · '+draftqid+' · <a href="./?page='+page+'&qid='+(workqid)+','+(draftqid+1)+'">다음</a>'
+                    }
+                    fetch(findDraftsUrl, findDraftsParam)
+                    .then((draftsData) => {return draftsData.json()})
+                    .then((draftsRes) => {
+                        for (var i = 0; i<draftsRes.length; i++){
+                            if (draftsRes[i].files.length == 0) {
+                                document.querySelector('#draftlist').innerHTML += '<div class="collectionel"><a href="./?note='+draftsRes[i].id+'"><div class="overflowhidden" id="draft'+i+'"></div></a></div>'
+                                if (draftsRes[i].cw) document.querySelector('#draft'+i).innerHTML = '</h1>'+draftsRes[i].cw+'</h1>'
+                                document.querySelector('#draft'+i).innerHTML += parseMd(draftsRes[i].text)
+                            } else {
+                                document.querySelector('#draftlist').innerHTML += '<div class="collectionel"><a href="./?note='+draftsRes[i].id+'"><img src="'+draftsRes[i].files[0].url+'"></a></div>'
+                            }
+                        }
+                    })
+                }
+    
+                document.querySelector('#hideChronology').addEventListener("click", (e) => {
+                    var els = document.querySelectorAll('.subyear')
+                    if (hideandseek) {
+                        for (var el=0; el<els.length; el++) {
+                            els[el].style.display = "table-row";
+                        }
+                        hideandseek = false
+                    } else {
+                        for (var el=0; el<els.length; el++) {
+                            els[el].style.display = "none";
+                        }
+                        hideandseek = true
                     }
                 })
-
-                var findDraftsUrl = 'https://'+MISSKEYHOST+'/api/notes/search'
-                var findDraftsParam
-                if (!draftqid || draftqid == 0 ) {
-                    findDraftsParam = {
-                        method: 'POST',
-                        headers: {
-                            'content-type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            query: hashTagQuery+' #'+json.info.mainHashtag+' #초안',
-                            userId: MISSKEYID,
-                            limit: 9
-                        })
-                    }
-                    document.querySelector('#draftqid').innerHTML = '0 · <a href="./?page='+page+'&qid='+(workqid)+','+(draftqid+1)+'">다음</a>'
-                } else {
-                    findDraftsParam = {
-                        method: 'POST',
-                        headers: {
-                            'content-type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            query: hashTagQuery+' #'+json.info.mainHashtag+' #초안',
-                            userId: MISSKEYID,
-                            limit: 9,
-                            untilId: await fetchAgain(draftqid, hashTagQuery, MISSKEYID)
-                        })
-                    }
-                    document.querySelector('#draftqid').innerHTML = '<a href="./?page='+page+'&qid='+(workqid)+','+(draftqid-1)+'">이전</a> · '+draftqid+' · <a href="./?page='+page+'&qid='+(workqid)+','+(draftqid+1)+'">다음</a>'
-                }
-                fetch(findDraftsUrl, findDraftsParam)
-                .then((draftsData) => {return draftsData.json()})
-                .then((draftsRes) => {
-                    for (var i = 0; i<draftsRes.length; i++){
-                        if (draftsRes[i].files.length == 0) {
-                            document.querySelector('#draftlist').innerHTML += '<div class="collectionel"><a href="./?note='+draftsRes[i].id+'"><div class="overflowhidden" id="draft'+i+'"></div></a></div>'
-                            if (draftsRes[i].cw) document.querySelector('#draft'+i).innerHTML = '</h1>'+draftsRes[i].cw+'</h1>'
-                            document.querySelector('#draft'+i).innerHTML += parseMd(draftsRes[i].text)
-                        } else {
-                            document.querySelector('#draftlist').innerHTML += '<div class="collectionel"><a href="./?note='+draftsRes[i].id+'"><img src="'+draftsRes[i].files[0].url+'"></a></div>'
-                        }
-                    }
-                })
             }
-
-            document.querySelector('#hideChronology').addEventListener("click", (e) => {
-                var els = document.querySelectorAll('.subyear')
-                if (hideandseek) {
-                    for (var el=0; el<els.length; el++) {
-                        els[el].style.display = "table-row";
-                    }
-                    hideandseek = false
-                } else {
-                    for (var el=0; el<els.length; el++) {
-                        els[el].style.display = "none";
-                    }
-                    hideandseek = true
-                }
-            })
         }
     } else if (note && !page) {
         loadBackground(json)

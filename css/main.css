@@ -447,10 +447,16 @@ a {
 }
 
 textarea {
-    width: 100%;
+    width: calc(100% - 10px);
     height: calc(100vh - 400px);
+    border-radius: 9px;
+    border: 1px solid white;
     background-color: black;
     color: white;
+}
+
+textarea.summary {
+    height: 2em;
 }
 
 #about {
@@ -481,7 +487,37 @@ strong, b, h3, h4, h5, h6 {
     text-align: center;
 }
 
-@media only screen and (max-width: 600px) {
+.editform {
+    margin-bottom: 50px;
+}
+
+select {
+    width: calc(100% - 150px);
+    outline: 0;
+    background: black;
+    color: white;
+    border: 1px solid white;
+    padding: 7px;
+    border-radius: 9px;
+}
+
+#popup-content input{
+    width: calc(100% - 150px);
+}
+
+#popup-content input.key{
+    width: 100px;
+}
+
+.editordiv {
+    padding: 5px 0;
+}
+
+.multiLineInput {
+    padding-bottom: 5px;
+}
+
+@media only screen and (max-width: 1000px) {
     #title-box {    
         height: 70px;
     }
