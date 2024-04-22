@@ -35,7 +35,7 @@ var example = {
         "yearRange": [0, 100],
         "mainYear": [0],
         "startYear": 0,
-        "map": "./assets/map.jpg",
+        "map": "https://peachtart2.s3.ap-northeast-1.amazonaws.com/tart/c973e2de-8986-4fcd-8f0e-c4ab74ac7d67.webp",
         "mainHashtag": "CabinetKey",
         "hashtags": ["CabinetKey"]
     },
