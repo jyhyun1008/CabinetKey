@@ -1,4 +1,4 @@
-var MISSKEYID
+var MISSKEYID = localStorage.getItem('misskeyId')
 
 const token = localStorage.getItem("token")
 const signedusername = localStorage.getItem("username")
@@ -36,8 +36,8 @@ var example = {
         "mainYear": [0],
         "startYear": 0,
         "map": "./assets/map.jpg",
-        "mainHashtag": "",
-        "hashtags": [""]
+        "mainHashtag": "CabinetKey",
+        "hashtags": ["CabinetKey"]
     },
     "character": {
         "category": [""],
@@ -50,7 +50,7 @@ var example = {
                     "별명": "",
                     "애칭": ""
                 },
-                "lived": [0, 0],
+                "lived": [0, 50],
                 "category": "",
                 "subCategory": "",
                 "eventChronology": {
@@ -71,7 +71,7 @@ var example = {
                 "summary": "짧은 요약",
                 "description": "마크다운과 개행을 지원하는 긴 소개글",
                 "secret": "",
-                "hashtag": ""
+                "hashtag": "CabinetKey"
             }
         ]
     },
@@ -281,6 +281,14 @@ var year = qs.year
 var category = qs.category
 var note = qs.note
 var mode = qs.mode
+var qid = qs.qid
+var workqid, draftqid
+if (qid.includes(',')) {
+    workqid = parseInt(qid.split(',')[0])
+    draftqid = parseInt(qid.split(',')[1])
+} else {
+    qid = parseInt(qs.qid)
+}
 
 if (page == 'signin') {
     if (!isLogin) {
@@ -399,6 +407,7 @@ function hoverCharacter(i) {
 
 document.querySelector('#refresh').addEventListener("click", (e) => {
     localStorage.removeItem('json')
+    localStorage.removeItem('misskeyId')
 })
 
 function nowHere(coord, year) {
@@ -413,6 +422,82 @@ function nowHere(coord, year) {
     } else {
         return false
     }
+}
+
+function changeParam(MISSKEYID, query, limit, untilId='') {
+    return new Promise((resolve) => {
+        if (untilId == '') {
+            resolve({
+                method: 'POST',
+                headers: {
+                    'content-type': 'application/json',
+                },
+                body: JSON.stringify({
+                    query: query,
+                    userId: MISSKEYID,
+                    limit: limit
+                })
+            })
+        } else {
+            resolve({
+                method: 'POST',
+                headers: {
+                    'content-type': 'application/json',
+                },
+                body: JSON.stringify({
+                    query: query,
+                    userId: MISSKEYID,
+                    limit: limit,
+                    untilId: untilId
+                })
+            })
+        }
+    });
+}
+
+async function fetchAgain(qid, hashtag, MISSKEYID) {
+
+    var fetchUrl = 'https://'+MISSKEYHOST+'/api/notes/search'
+    var fetchCount = 0
+    var remainder = 0
+    if (!qid || qid == 0) {
+        console.log('')
+        return ''
+    } else if (qid > 11) {
+        fetchCount = Math.floor((qid * 9 + 1)/100)
+        remainder = (qid * 9 + 1) % 100
+    } else {
+        remainder = qid * 9
+    }
+
+    var fetchParam = await changeParam(MISSKEYID, hashtag, remainder)
+
+    var data = await fetch(fetchUrl, fetchParam)
+    var result = await data.json()
+    var untilId = await result[remainder - 1].id
+    if (fetchCount == 0) {
+        console.log(untilId)
+        return await untilId
+    } else {
+        var fetchParam2 = await changeParam(MISSKEYID, hashtag, 100, untilId)
+
+        for (var i=0; i<fetchCount; i++) {
+            data = await fetch(fetchUrl, fetchParam2)
+            result = await data.json()
+            if (result.length < 100) {
+                break
+            } 
+            if (i == fetchCount - 1) {
+                console.log(result[99].id)
+                return await result[99].id
+            } else {
+                untilId = await result[99].id
+                fetchParam2 = await changeParam(MISSKEYID, hashtag, 100, untilId)
+                console.log(fetchParam2)
+            }
+        }
+    }
+
 }
 
 function loadBackground(json) {
@@ -574,19 +659,35 @@ async function parseYourJSON(json) {
         document.querySelector('.collection').innerHTML += '<h1 class="collectiontitle">작품모음</h1>'
         document.querySelector('.collection').innerHTML += '<div class="collectionlist"><div>'
 
-        var findNotesUrl = 'https://'+MISSKEYHOST+'/api/notes/search'
-        var findNotesParam = {
-            method: 'POST',
-            headers: {
-                'content-type': 'application/json',
-            },
-            body: JSON.stringify({
-                query: '#'+json.info.hashtag.join(' #')+' #창작',
-                userId: MISSKEYID,
-                limit: 100
-            })
+        var findArtsUrl = 'https://'+MISSKEYHOST+'/api/notes/search'
+        var findArtsParam
+        if (!qid || qid == 0 ) {
+            findArtsParam = {
+                method: 'POST',
+                headers: {
+                    'content-type': 'application/json',
+                },
+                body: JSON.stringify({
+                    query: json.info.mainHashtag+' #창작',
+                    userId: MISSKEYID,
+                    limit: 100
+                })
+            }
+        } else {
+            findArtsParam = {
+                method: 'POST',
+                headers: {
+                    'content-type': 'application/json',
+                },
+                body: JSON.stringify({
+                    query: json.info.mainHashtag+' #창작',
+                    userId: MISSKEYID,
+                    limit: 100,
+                    untilId: fetchAgain(qid, hashTagQuery, MISSKEYID)
+                })
+            }
         }
-        fetch(findNotesUrl, findNotesParam)
+        fetch(findArtsUrl, findArtsParam)
         .then((notesData) => {return notesData.json()})
         .then((notesRes) => {
             for (var i = 0; i<notesRes.length; i++){
@@ -664,6 +765,8 @@ async function parseYourJSON(json) {
         } else { // i로 감
             document.querySelector('#popup-content').innerHTML = '<div class="characterprofile"></div>'
             document.querySelector('#popup-content').innerHTML += '<div class="relatedcharacterlist"></div>'
+            document.querySelector('#popup-content').innerHTML += '<div class="collectiontitle"></div>'
+            document.querySelector('#popup-content').innerHTML += '<div class="collectionlist"><div class="worktitle"></div><div class="worklist"></div><div class="workqid"></div><div class="drafttitle"></div><div class="draftlist"></div><div class="draftqid"></div></div>'
 
             document.querySelector('.characterprofile').innerHTML = '<h1 class="cprofilename">'+cList[page].name+'</h1>'
             document.querySelector('.characterprofile').innerHTML += '<div class="cprofileavatar"><img src="'+cList[page].avatar+'"><div>'
@@ -686,7 +789,7 @@ async function parseYourJSON(json) {
             var hideandseek = true
             document.querySelector('.characterprofile').innerHTML += '<div class="cprofiletable"><div><span class="bold">연표</span> <span id="hideChronology">펼치기/접기</span></div><table class="chronology"><tr><th>연도</th><th>포지션</th><th>사건</th></tr></table><div>'
 
-            for (var i=0; i<(cList[page].lived[1] - cList[page].lived[0]); i++) {
+            for (var i=0; i<(cList[page].lived[1] - cList[page].lived[0] + 1); i++) {
                 if (json.info.mainYear.includes(cList[page].lived[0]+i)) {
                     for (var j=0; j<12; j++){
                         var key = (cList[page].lived[0]+i)+'.'+(j+1)
@@ -720,6 +823,101 @@ async function parseYourJSON(json) {
                 for (var j = 0; j < relatedCategorylist.length; j++) {
                     document.querySelector('#relatedlist'+i).innerHTML += '<a href="./?page='+relatedCategorylist[j]+'"><div class="characteritem" onmouseover="hoverCharacter('+relatedCategorylist[j]+')"><div><img src="'+cList[relatedCategorylist[j]].avatar+'" class="cavatar"></div><div class="cname">'+cList[relatedCategorylist[j]].name+'</div><div class="csummary">'+cList[relatedCategorylist[j]].summary+'</div></div></a>'
                 }
+            }
+
+            var hashTagQuery = cList[page].hashtag
+            if (hashTagQuery != '') {
+                document.querySelector('.collectiontitle').innerHTML = '<h1>관련 작품 모음</h1>'
+                document.querySelector('.worktitle').innerHTML = '<h2>완성작</h2>'
+                document.querySelector('.drafttitle').innerHTML = '<h2>초안</h2>'
+
+                var findArtsUrl = 'https://'+MISSKEYHOST+'/api/notes/search'
+                var findArtsParam
+                if (!workqid || workqid == 0 ) {
+                    findArtsParam = {
+                        method: 'POST',
+                        headers: {
+                            'content-type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            query: hashTagQuery+' #'+json.info.mainHashtag+' #창작',
+                            userId: MISSKEYID,
+                            limit: 9
+                        })
+                    }
+                    document.querySelector('.workqid').innerHTML = '0 · <a href="./?page='+page+'&qid='+(workqid+1)+','+draftqid+'">다음</a>'
+                } else {
+                    findArtsParam = {
+                        method: 'POST',
+                        headers: {
+                            'content-type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            query: hashTagQuery+' #'+json.info.mainHashtag+' #창작',
+                            userId: MISSKEYID,
+                            limit: 9,
+                            untilId: await fetchAgain(workqid, hashTagQuery, MISSKEYID)
+                        })
+                    }
+                    document.querySelector('.workqid').innerHTML = '<a href="./?page='+page+'&qid='+(workqid-1)+','+draftqid+'">이전</a> · '+workqid+' · <a href="./?page='+page+'&qid='+(workqid+1)+','+draftqid+'">다음</a>'
+                }
+                fetch(findArtsUrl, findArtsParam)
+                .then((artsData) => {return artsData.json()})
+                .then((artsRes) => {
+                    for (var i = 0; i<artsRes.length; i++){
+                        if (artsRes[i].files.length == 0) {
+                            document.querySelector('.worklist').innerHTML += '<div class="collectionel"><a href="./?note='+artsRes[i].id+'"><div class="overflowhidden" id="work'+i+'"></div></a></div>'
+                            if (artsRes[i].cw) document.querySelector('#work'+i).innerHTML = '</h1>'+artsRes[i].cw+'</h1>'
+                            document.querySelector('#work'+i).innerHTML += parseMd(artsRes[i].text)
+                        } else {
+                            document.querySelector('.worklist').innerHTML += '<div class="collectionel"><a href="./?note='+artsRes[i].id+'"><img src="'+artsRes[i].files[0].url+'"></a></div>'
+                        }
+                    }
+                })
+
+                var findDraftsUrl = 'https://'+MISSKEYHOST+'/api/notes/search'
+                var findDraftsParam
+                if (!draftqid || draftqid == 0 ) {
+                    findDraftsParam = {
+                        method: 'POST',
+                        headers: {
+                            'content-type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            query: hashTagQuery+' #'+json.info.mainHashtag+' #초안',
+                            userId: MISSKEYID,
+                            limit: 9
+                        })
+                    }
+                    document.querySelector('.draftqid').innerHTML = '0 · <a href="./?page='+page+'&qid='+(workqid)+','+(draftqid+1)+'">다음</a>'
+                } else {
+                    findDraftsParam = {
+                        method: 'POST',
+                        headers: {
+                            'content-type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            query: hashTagQuery+' #'+json.info.mainHashtag+' #초안',
+                            userId: MISSKEYID,
+                            limit: 9,
+                            untilId: await fetchAgain(draftqid, hashTagQuery, MISSKEYID)
+                        })
+                    }
+                    document.querySelector('.draftqid').innerHTML = '<a href="./?page='+page+'&qid='+(workqid)+','+(draftqid-1)+'">이전</a> · '+draftqid+' · <a href="./?page='+page+'&qid='+(workqid)+','+(draftqid+1)+'">다음</a>'
+                }
+                fetch(findDraftsUrl, findDraftsParam)
+                .then((draftsData) => {return draftsData.json()})
+                .then((draftsRes) => {
+                    for (var i = 0; i<draftsRes.length; i++){
+                        if (draftsRes[i].files.length == 0) {
+                            document.querySelector('.draftlist').innerHTML += '<div class="collectionel"><a href="./?note='+draftsRes[i].id+'"><div class="overflowhidden" id="draft'+i+'"></div></a></div>'
+                            if (draftsRes[i].cw) document.querySelector('#draft'+i).innerHTML = '</h1>'+draftsRes[i].cw+'</h1>'
+                            document.querySelector('#draft'+i).innerHTML += parseMd(draftsRes[i].text)
+                        } else {
+                            document.querySelector('.draftlist').innerHTML += '<div class="collectionel"><a href="./?note='+draftsRes[i].id+'"><img src="'+draftsRes[i].files[0].url+'"></a></div>'
+                        }
+                    }
+                })
             }
 
             document.querySelector('#hideChronology').addEventListener("click", (e) => {
@@ -836,6 +1034,7 @@ async function findJSON() {
     const userRes = await userData.json()
     if (userRes.length > 0) {
         MISSKEYID = userRes[0].id
+        localStorage.setItem('misskeyId', MISSKEYID)
 
         var findInfoUrl = 'https://'+MISSKEYHOST+'/api/notes/search'
         var findInfoParam = {

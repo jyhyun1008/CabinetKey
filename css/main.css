@@ -327,8 +327,8 @@ li:before {
     width: 20% !important;
 }
 
-.chronology .subyear, .chronology .mainyear{
-    text-align: center;
+.chronology td:nth-child(1) {
+    text-align: right;
     width: 20% !important;
 }
 
@@ -475,6 +475,10 @@ textarea {
 
 strong, b, h3, h4, h5, h6 {
     text-shadow: 0.2px 0.2px, -0.2px -0.2px, -0.2px 0.2px, 0.2px -0.2px;
+}
+
+.collectionqid {
+    text-align: center;
 }
 
 @media only screen and (max-width: 600px) {
