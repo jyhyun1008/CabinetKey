@@ -283,7 +283,7 @@ var note = qs.note
 var mode = qs.mode
 var qid = qs.qid
 var workqid, draftqid
-if (qid.includes(',')) {
+if (qid && qid.includes(',')) {
     workqid = parseInt(qid.split(',')[0])
     draftqid = parseInt(qid.split(',')[1])
 } else {
