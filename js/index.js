@@ -281,12 +281,13 @@ var year = qs.year
 var category = qs.category
 var note = qs.note
 var mode = qs.mode
-var qid = qs.qid
-var workqid, draftqid
-if (qid && qid.includes(',')) {
-    workqid = parseInt(qid.split(',')[0])
-    draftqid = parseInt(qid.split(',')[1])
-} else {
+var qid = 0
+var workqid = 0
+var draftqid = 0
+if (qs.qid && qs.qid.includes(',')) {
+    workqid = parseInt(qs.qid.split(',')[0])
+    draftqid = parseInt(qs.qid.split(',')[1])
+} else if (qs.qid) {
     qid = parseInt(qs.qid)
 }
 
