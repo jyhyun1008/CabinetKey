@@ -418,7 +418,10 @@ function nowHere(coord, year) {
         var worldPageYear = Object.keys(worldList)
         for (var i=0; i<worldPageYear.length; i++) {
             if (year >= parseInt(worldPageYear[i].split(',')[0]) && year <= parseInt(worldPageYear[i].split(',')[1])) {
-                return worldList[worldPageYear[i]]
+                return {
+                    "data": worldList[worldPageYear[i]],
+                    "key": worldPageYear[i]
+                }
             }
         }
     } else {
@@ -876,14 +879,34 @@ async function parseYourJSON(json) {
                 //TODO
             }
 
-        } else if (page.includes(',') && year) {
-            var worldPage = nowHere(page, year)
+        } else if (page.includes(',')) {
 
-            if (!worldPage && !mode) {
-                location.href = location.href + '&mode=edit'
+            if (!year) year = json.info.startYear
+            var worldPage = nowHere(page, year)
+            var originalKey = ''
+            if (worldPage) originalKey = worldPage.key
+
+            if (!worldPage && isLogin) {
+                if (!mode) {
+                    location.href = location.href + '&mode=edit'
+                } else {
+                    worldPage = {
+                        "data": {
+                            "name": "",
+                            "image": "",
+                            "summary": "",
+                            "description": "",
+                            "secret": "",
+                            "eventChronology": {},
+                            "relatedTo": {}
+                        },
+                        "key": year+","+year
+                    }
+                }
             }
 
-            if (mode == 'edit' && isLogin) {
+            if (mode == 'edit') {
+            //if (mode == 'edit' && isLogin) {
                 
                 var isSaved = false
                 window.onbeforeunload = function(){
@@ -893,37 +916,190 @@ async function parseYourJSON(json) {
                 }
 
                 //제목, 틀 생성
-                document.querySelector('#popup-content').innerHTML = '<div class="edit"><form class="editform" action="/confirm.html" method="get"><div class="editordiv"><h1>좌표 ('+page+') 수정</h1></div></form></div>'
+                document.querySelector('#popup-content').innerHTML = '<div class="edit"><form class="editform" method="get"><div class="editordiv"><h1>좌표 ('+page+') 수정</h1></div></form></div>'
 
                 //이름
-                document.querySelector('.editform').innerHTML += '<div class="editordiv"><label for="cName"><span class="bold">이름</span></label> <input type="text" id="cName" name="cName" value="'+cList[page].name+'"></div>'
+                document.querySelector('.editform').innerHTML += '<div class="editordiv"><label for="cName"><span class="bold">이름</span></label> <input type="text" id="cName" name="cName" value="'+worldPage.name+'"></div>'
+
+                //이미지
+                document.querySelector('.editform').innerHTML += '<div class="editordiv"><div class="cprofileavatar"><img src="'+worldPage.data.image+'"></div><div class="editordiv"><label for="cAvatar"><span class="bold">이미지</span></label> <input type="text" id="cAvatar" name="cAvatar" value="'+worldPage.data.image+'"></div>'
+
+                //유효 연도 1
+                document.querySelector('.editform').innerHTML += '<div class="editordiv"><label for="cYearFrom"><span class="bold">연도 범위 1</span></label> <input type="text" id="cYearFrom" name="cYearFrom" value="'+worldPage.key.split(',')[0]+'"></div>'
+
+                //유효 연도 2
+                document.querySelector('.editform').innerHTML += '<div class="editordiv"><label for="cYearTo"><span class="bold">연도 범위 2</span></label> <input type="text" id="cYearTo" name="cYearTo" value="'+worldPage.key.split(',')[0]+'"></div>'
+
+                //사건 (틀 생성)
+                document.querySelector('.editform').innerHTML += '<div class="editordiv"><span class="bold">사건</span> <span id="addEvent">추가</span> · <span id="deleteEvent">한 줄 제거</span></div><ul><li>순서대로 적으실 필요 없습니다.</li></ul><div id="event" class="editordiv"></div>'
+
+                //사건 (input 지옥)
+                var event = Object.keys(worldPage.data.eventChronology)
+                var temporaryEventCount = event.length
+                for (var i=0; i<event.length; i++) {
+                    document.querySelector('#event').innerHTML += '<div class="multiLineInput" id="cEventEditor'+i+'"><input class="key event" id="cEventLabel'+i+'" name="cEventLabel'+i+'" value="'+event[i]+'"> <input type="text" id="cEvent'+i+'" name="cEvent'+i+'" value="'+worldPage.data.eventChronology[event[i]]+'"></div>'
+                }
+
+                //요약
+                document.querySelector('.editform').innerHTML += '<div class="editordiv"><h1>요약</h1><textarea class="summary" id="cSummary" name="cSummary">'+worldPage.data.summary+'</textarea>'
+
+                //상세 정보
+                document.querySelector('.editform').innerHTML += '<div class="editordiv"><h1>상세 정보</h1><textarea id="cDescription" name="cDescription">'+worldPage.data.description+'</textarea>'
+
+                //비밀 설정
+                document.querySelector('.editform').innerHTML += '<div class="editordiv"><h1>비밀 설정</h1><textarea id="cSecret" name="cSecret">'+worldPage.data.secret+'</textarea>'
+
+                //관계 (1차 틀 생성)
+                document.querySelector('.editform').innerHTML += '<div class="editordiv"><h1>인간관계</h1><div><span id="addRelatedTo">분류 추가</span> · <span id="deleteRelatedTo">분류 하나 제거</span></div><br><div id="cRelatedTo"></div>'
+
+                //관계 (2차 틀 생성 및 드롭다운)
+                var relatedToKey = Object.keys(worldPage.data.relatedTo)
+                var temporaryRelatedToCount = relatedToKey.length
+                for (var i=0; i<temporaryRelatedToCount; i++) {
+                    document.querySelector('#cRelatedTo').innerHTML += '<div class="editordiv" id="cRelatedToEditor'+i+'"><input class="key relatedTo" id="cRelatedToKey'+i+'" value="'+relatedToKey[i]+'"> <span id="addRelatedTo'+i+'" onclick="addRelatedTo('+i+')">추가</span> · <span id="deleteRelatedTo'+i+'" onclick="deleteRelatedTo('+i+')">한 줄 제거</span><div id="relatedTo'+i+'" class="editordiv"></div></div>'
+
+                    temporaryRelatedToCharacterCount.push(worldPage.data.relatedTo[relatedToKey[i]].length)
+                    for (var l=0; l<worldPage.data.relatedTo[relatedToKey[i]].length; l++) {
+                        document.querySelector('#relatedTo'+i).innerHTML += '<div class="multiLineInput" id="cRelatedToEditor'+i+'-'+l+'"><label id="cRelatedToLabel'+i+'-'+l+'" for="cRelatedTo'+i+'-'+l+'">'+(l+1)+' :</label> <select name="cRelatedTo'+i+'-'+l+'" id="cRelatedTo'+i+'-'+l+'"></select></div>'
+                        for (var j=0; j<json.character.list.length; j++) {
+                            if (worldPage.data.relatedTo[relatedToKey[l]] == j) {
+                                document.querySelector('#cRelatedTo'+i+'-'+l).innerHTML += '<option value="'+j+'" selected>'+json.character.list[j].name+'</option>'
+                            } else {
+                                document.querySelector('#cRelatedTo'+i+'-'+l).innerHTML += '<option value="'+j+'">'+json.character.list[j].name+'</option>'
+                            }
+                        }
+                    }
+                }
+
+                //확인 버튼
+                document.querySelector('.editform').innerHTML += '<div class="editordiv"><span class="bold" id="confirm">완료</span> <span class="bold" id="cancel">취소</span>'
+
+                //이벤트 리스너들
+                document.querySelector('#cAvatar').addEventListener("input", (e) => {
+                    document.querySelector('.cprofileavatar').innerHTML = '<img src="'+document.querySelector('#cAvatar').value+'">'
+                })
+
+                //사건 이벤트리스너
+                document.querySelector('#addEvent').addEventListener("click", (e) => {
+                    document.querySelector('#event').innerHTML += '<div class="multiLineInput" id="cEventsEditor'+temporaryEventCount+'"><input class="key event" name="cEventsLabel'+temporaryEventCount+'" id="cEventsLabel'+temporaryEventCount+'" value="0"> <input name="cEvents'+temporaryEventCount+'" id="cEvents'+temporaryEventCount+'"></div>'
+                    temporaryEventCount += 1
+                })
+                document.querySelector('#deleteEvent').addEventListener("click", (e) => {
+                    if (temporaryEventCount > 0) {
+                        temporaryEventCount -= 1
+                        document.querySelector('#cEventsEditor'+temporaryEventCount).remove()    
+                    }
+                })
+
+                //인간관계 이벤트리스너
+
+                //인간관계 (분류) 이벤트리스너
+                document.querySelector('#addRelatedTo').addEventListener("click", (e) => {
+                    document.querySelector('#cRelatedTo').innerHTML += '<div class="editordiv" id="cRelatedToEditor'+temporaryRelatedToCount+'"><input class="key relatedTo" value="" id="cRelatedToKey'+temporaryRelatedToCount+'"> <span id="addRelatedTo'+temporaryRelatedToCount+'" onclick="addRelatedTo('+temporaryRelatedToCount+')">추가</span> · <span id="deleteRelatedTo'+temporaryRelatedToCount+'" onclick="deleteRelatedTo('+temporaryRelatedToCount+')">한 줄 제거</span><div id="relatedTo'+temporaryRelatedToCount+'" class="editordiv"></div></div>'
+                    temporaryRelatedToCharacterCount.push(0)
+                    temporaryRelatedToCount += 1
+                })
+                document.querySelector('#deleteRelatedTo').addEventListener("click", (e) => {
+                    if (temporaryRelatedToCount > 0) {
+                        temporaryRelatedToCount -= 1
+                        temporaryRelatedToCharacterCount.pop()
+                        document.querySelector('#cRelatedToEditor'+temporaryRelatedToCount).remove()
+                    }
+                })
+
+                //확인 버튼 이벤트리스너
+                document.querySelector('#confirm').addEventListener("click", (e) => {
+
+                    //변수에 저장
+                    var cName = document.querySelector('#cName').value
+                    var cAvatar = document.querySelector('#cAvatar').value
+                    var cLived = document.querySelector('#cBirthYear').value + ',' + document.querySelector('#cDeathYear').value
+                    var cEvent = {}
+                    for (var i=0; i < document.querySelectorAll('.key.event').length; i++) {
+                        var key = document.querySelector('#cEventLabel'+i).value
+                        cEvent[key] = document.querySelector('#cEvent'+i).value
+                    }
+                    var cRelatedTo = {}
+                    for (var i=0; i < document.querySelectorAll('.key.relatedTo').length; i++) {
+                        var key = document.querySelector('#cRelatedToKey'+i).value
+                        cRelatedTo[key] = []
+                        for (var j=0; j < document.querySelectorAll('#relatedTo'+i).length; j++) {
+                            cRelatedTo[key][j] = document.querySelector('#cRelatedTo'+i+'-'+j).value
+                        }
+                    }
+                    var cSummary = document.querySelector('#cSummary').value
+                    var cDescription = document.querySelector('#cDescription').value
+                    var cSecret = document.querySelector('#cSecret').value
+                    
+                    var updatedKey = cLived
+                    var updatedJsonworldInfo = {
+                        "name": cName,
+                        "image": cAvatar,
+                        "eventChronology": cEvent,
+                        "relatedTo": cRelatedTo,
+                        "summary": cSummary,
+                        "description": cDescription,
+                        "secret": cSecret
+                    }
+                    json.world[updatedKey] = updatedJsonworldInfo
+                    if (originalKey != '') {
+                        delete json.world[originalKey]
+                    }
+                    
+                    localStorage.setItem('json', JSON.stringify(json))
+                    var updatePageUrl = 'https://'+MISSKEYHOST+'/api/pages/update'
+                    var updatePageParam = {
+                        method: 'POST',
+                        headers: {
+                            'content-type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            i: token,
+                            pageId: jsonPageId,
+                            title: 'CabinetKey.json',
+                            name: 'CabinetKey.json',
+                            summary: 'CabinetKey.json',
+                            variables: [],
+                            script: '',
+                            content: [{
+                                text: '```\n'+JSON.stringify(json)+'\n```',
+                                type: 'text'
+                            }]
+                        })
+                    }
+                    fetch(updatePageUrl, updatePageParam)
+                    .then(() => {
+                        isSaved = true
+                        location.href = './?page='+page
+                    })
+                })
 
             } else {
                 document.querySelector('#popup-content').innerHTML = '<div class="worldlocation"></div>'
                 document.querySelector('#popup-content').innerHTML += '<div class="relatedcharacterlist"></div>'
     
-                document.querySelector('.worldlocation').innerHTML = '<h1 class="wlocationname">'+worldPage.name+'</h1>'
-                document.querySelector('.worldlocation').innerHTML += '<div class="wlocationimage"><img src="'+worldPage.image+'"><div>'
+                document.querySelector('.worldlocation').innerHTML = '<h1 class="wlocationname">'+worldPage.data.name+'</h1>'
+                document.querySelector('.worldlocation').innerHTML += '<div class="wlocationimage"><img src="'+worldPage.data.image+'"><div>'
                 document.querySelector('.worldlocation').innerHTML += '<div class="cprofiletable"><div><span class="bold">연표</span></div><table class="chronology"><tr><th>연도</th><th>사건</th></tr></table><div>'
     
-                for (var i=0; i<Object.keys(worldPage.eventChronology).length; i++) {
-                    var key = Object.keys(worldPage.eventChronology)[i]
-                    var event1 = worldPage.eventChronology[key]
+                for (var i=0; i<Object.keys(worldPage.data.eventChronology).length; i++) {
+                    var key = Object.keys(worldPage.data.eventChronology)[i]
+                    var event1 = worldPage.data.eventChronology[key]
                     document.querySelector('.chronology').innerHTML += '<tr><td>'+key+'</td><td>'+event1+'</td></tr>'
                 }
     
                 document.querySelector('.worldlocation').innerHTML += '<h1>요약</h1>'
-                document.querySelector('.worldlocation').innerHTML += '<div class="cprofilesummary">'+worldPage.summary+'<div>'
+                document.querySelector('.worldlocation').innerHTML += '<div class="cprofilesummary">'+worldPage.data.summary+'<div>'
                 document.querySelector('.worldlocation').innerHTML += '<h1>상세 정보</h1>'
-                document.querySelector('.worldlocation').innerHTML += '<div class="cprofiledescription">'+parseMd(worldPage.description)+'<div>'
+                document.querySelector('.worldlocation').innerHTML += '<div class="cprofiledescription">'+parseMd(worldPage.data.description)+'<div>'
     
                 document.querySelector('.worldlocation').innerHTML += '<h1>연관 정보</h1>'
     
-                var relatedCategory = Object.keys(worldPage.relatedTo)
+                var relatedCategory = Object.keys(worldPage.data.relatedTo)
                 for (var i = 0; i < relatedCategory.length; i++) {
                     document.querySelector('.relatedcharacterlist').innerHTML += '<div class="relatedcharactercategory" id="relatedcategory'+i+'">'+relatedCategory[i]+'</div>'
                     document.querySelector('.relatedcharacterlist').innerHTML += '<div class="relatedcharactercategorylist" id="relatedlist'+i+'"></div>'
-                    var relatedCategorylist = worldPage.relatedTo[relatedCategory[i]]
+                    var relatedCategorylist = worldPage.data.relatedTo[relatedCategory[i]]
                     for (var j = 0; j < relatedCategorylist.length; j++) {
                         document.querySelector('#relatedlist'+i).innerHTML += '<a href="./?page='+relatedCategorylist[j]+'"><div class="characteritem" onmouseover="hoverCharacter('+relatedCategorylist[j]+')"><div><img src="'+cList[relatedCategorylist[j]].avatar+'" class="cavatar"></div><div class="cname">'+cList[relatedCategorylist[j]].name+'</div><div class="csummary">'+cList[relatedCategorylist[j]].summary+'</div></div></a>'
                     }
@@ -932,8 +1108,30 @@ async function parseYourJSON(json) {
 
         } else { // i로 감
 
-            if (!cList[page] && !mode) {
-                location.href = location.href + '&mode=edit'
+            if (!cList[page] && isLogin) {
+                if (!mode) {
+                    location.href = location.href + '&mode=edit'
+                } else {
+                    cList[page] = {
+                        "avatar": "https://peachtart2.s3.ap-northeast-1.amazonaws.com/tart/6f0f78c1-bd3f-4732-9c62-15ae451c2257.png",
+                        "name": "",
+                        "meaning": "",
+                        "nickname": {},
+                        "birthday": "",
+                        "lived": [0, 0],
+                        "category": "0",
+                        "subCategory": "",
+                        "eventChronology": {},
+                        "positionChronology": {},
+                        "relatedTo": {},
+                        "goal": [],
+                        "themeSong": [],
+                        "summary": "",
+                        "description": "",
+                        "secret": "",
+                        "hashtag": ""
+                      }
+                }
             }
 
             if (mode == 'edit' && isLogin) {
@@ -1256,6 +1454,7 @@ async function parseYourJSON(json) {
                 document.querySelector('#cancel').addEventListener("click", (e) => {
                     location.href = './?page='+page
                 })
+                
             } else {
                 document.querySelector('#popup-content').innerHTML = '<div class="characterprofile"></div>'
                 document.querySelector('#popup-content').innerHTML += '<div class="relatedcharacterlist"></div>'
