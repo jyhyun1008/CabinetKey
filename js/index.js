@@ -962,7 +962,7 @@ async function parseYourJSON(json) {
                         "relatedTo": cRelatedTo,
                         "summary": cSummary,
                         "description": cDescription,
-                        "cLyrics": cLyrics
+                        "lyrics": cLyrics
                     }
                     json.themeSong[songNo] = updatedJsonSongInfo
 
