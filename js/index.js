@@ -945,10 +945,10 @@ async function parseYourJSON(json) {
                     }
                 }
                 fetch(createNoteUrl, createNoteParam)
-                .then((noteData) => { noteData.json() })
+                .then((noteData) => { return noteData.json() })
                 .then((noteRes) => {
                     isSaved = true
-                    location.href = './?note='+noteRes.createdNote.id
+                    location.href = './?note='+noteRes.id
                 })
             })
         } else {
