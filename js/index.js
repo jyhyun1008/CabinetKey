@@ -807,7 +807,7 @@ async function parseYourJSON(json) {
         })
         document.querySelector('#popup-content').style.display = 'block'
 
-        if (mode == 'edit') {
+        if (mode == 'edit' && isLogin) {
         //if (mode == 'edit' && isLogin) {
 
             document.querySelector('#popup-content').innerHTML = '<div class="editform"></div>'
@@ -2045,8 +2045,205 @@ async function parseYourJSON(json) {
         .then((notesData) => {return notesData.json()})
         .then((notesRes) => {
 
-            if (mode == 'edit' && isLogin) {
-                //TODO
+            if (mode == 'edit') {
+            //if (mode == 'edit' && isLogin) {
+
+                document.querySelector('#popup-content').innerHTML = '<div class="editform"></div>'
+                document.querySelector('.editform').innerHTML = '<h1>글 편집</h1>'
+    
+                //제목
+                document.querySelector('.editform').innerHTML += '<div class="editordiv"><label for="cTitle"><span class="bold">제목</span></label> <input type="text" id="cTitle" name="cTitle" value="'+notesRes.cw+'"></div>'
+    
+                //완성작 및 초안 선택
+                if (notesRes.tags.includes('창작')) {
+                    document.querySelector('.editform').innerHTML += '<div class="editordiv"><span class="bold">작품 유형</span> <select name="cType" id="cType"><option value=" #창작" selected>완성작</option><option value=" #초안">초안</option></select></div>'
+                } else if (notesRes.tags.includes('초안')) {
+                    document.querySelector('.editform').innerHTML += '<div class="editordiv"><span class="bold">작품 유형</span> <select name="cType" id="cType"><option value=" #창작">완성작</option><option value=" #초안" selected>초안</option></select></div>'
+                }
+
+                //연관 캐릭터 (틀 생성)
+                document.querySelector('.editform').innerHTML += '<div class="editordiv"><span class="bold">캐릭터</span> <span id="addRelatedTo">추가</span> · <span id="deleteRelatedTo">한 줄 제거</span></div><div id="relatedTo" class="editordiv"></div>'
+
+                var relatedCharacter = []
+                for (var i=0; i<json.character.list.length; i++) {
+                    if (notesRes.tags.includes(json.character.list[i].hashtag)) {
+                        relatedCharacter.push(i)
+                    }
+                }
+
+                //연관 캐릭터 (드롭다운)
+                var temporaryRelatedToCount = relatedCharacter.length
+                for (var i=0; i<relatedCharacter.length; i++) {
+                    document.querySelector('#relatedTo').innerHTML += '<div class="multiLineInput relatedTo" id="cRelatedToEditor'+i+'"><label id="cRelatedToLabel'+i+'" for="cRelatedTo'+i+'">'+(i+1)+' :</label> <select name="cRelatedTo'+i+'" id="cRelatedTo'+i+'"></select></div>'
+                    for (var j=0; j<json.character.list.length; j++) {
+                        if (relatedCharacter[i] == j) {
+                            document.querySelector('#cRelatedTo'+i).innerHTML += '<option value="'+j+'" selected>'+json.character.list[j].name+'</option>'
+                        } else {
+                            document.querySelector('#cRelatedTo'+i).innerHTML += '<option value="'+j+'">'+json.character.list[j].name+'</option>'
+                        }
+                    }
+                }
+    
+                //공개 범위 (홈, 홈로컬, 비공개)
+                if (notesRes.visibility == 'home' && !notesRes.localOnly) {
+                    document.querySelector('.editform').innerHTML += '<div class="editordiv"><span class="bold">공개 범위</span> <select name="cVisibility" id="cVisibility"><option value="home" selected>홈</option><option value="local">홈+로컬</option><option value="specified">비공개</option></select></div>'
+                } else if (notesRes.visibility == 'home' && notesRes.localOnly) {
+                    document.querySelector('.editform').innerHTML += '<div class="editordiv"><span class="bold">공개 범위</span> <select name="cVisibility" id="cVisibility"><option value="home">홈</option><option value="local" selected>홈+로컬</option><option value="specified">비공개</option></select></div>'
+                } else if (notesRes.visibility == 'specified') {
+                    document.querySelector('.editform').innerHTML += '<div class="editordiv"><span class="bold">공개 범위</span> <select name="cVisibility" id="cVisibility"><option value="home">홈</option><option value="local">홈+로컬</option><option value="specified" selected>비공개</option></select></div>'
+                }
+    
+                //내용
+                var noteText = notesRes.text.split('\n\n')
+                noteText.pop()
+                noteText = noteText.join('\n\n')
+                document.querySelector('.editform').innerHTML += '<textarea id="cContent" name="cContent">'+noteText+'</textarea>'
+    
+                //파일첨부
+                document.querySelector('.editform').innerHTML += '<div class="editordiv" id="imgUploader"></div><input type="file" id="imgRealUpload" accept="image/*" style="display: none;">'
+                
+                for (var i=0; i<notesRes.fileIds.length; i++) {
+                    document.querySelector('#imgUploader').innerHTML += '<div><span class="bold">파일 첨부</span> <span class="imgUploaded" id="imgUploaded'+i+'">'+notesRes.fileIds[i]+'</span></div>'
+                }
+
+                document.querySelector('#imgUploader').innerHTML += '<div><span class="bold">파일 첨부</span> <span id="imgUpload">클릭</span></div>'
+    
+                //확인 버튼
+                document.querySelector('.editform').innerHTML += '<div class="editordiv"><span class="bold" id="confirm">완료</span> <span class="bold" id="cancel">취소</span>'
+    
+                //연관 캐릭터 이벤트 리스너
+                document.querySelector('#addRelatedTo').addEventListener("click", (e) => {
+                    document.querySelector('#relatedTo').innerHTML += '<div class="multiLineInput" id="cRelatedToEditor'+temporaryRelatedToCount+'"><label id="cRelatedToLabel'+temporaryRelatedToCount+'" for="cRelatedTo'+temporaryRelatedToCount+'">'+(temporaryRelatedToCount+1)+' :</label> <select name="cRelatedTo'+temporaryRelatedToCount+'" id="cRelatedTo'+temporaryRelatedToCount+'"></select></div>'
+                    for (var j=0; j<json.character.list.length; j++) {
+                        document.querySelector('#cRelatedTo'+temporaryRelatedToCount).innerHTML += '<option value="'+j+'">'+json.character.list[j].name+'</option>'
+                    }
+                    temporaryRelatedToCount += 1
+                })
+                document.querySelector('#deleteRelatedTo').addEventListener("click", (e) => {
+                    if (temporaryRelatedToCount > 0) {
+                        temporaryRelatedToCount -= 1
+                        document.querySelector('#cRelatedToEditor'+temporaryRelatedToCount).remove()
+                    }
+                })
+    
+                //이미지 업로드버튼
+                var fileCount = 0
+                var imgUpload = document.querySelector('#imgUpload')
+                var imgRealUpload = document.querySelector('#imgRealUpload')
+                imgUpload.addEventListener('click', () => imgRealUpload.click())
+                imgRealUpload.addEventListener('change', function(e) {
+                    var reader = new FileReader();
+                    reader.onloadend = function() {
+                        var blob = window.dataURLtoBlob(reader.result)
+                        console.log('Encoded Base 64 File String:', blob);
+                        const formData = new FormData()
+                        formData.append('file', blob, {
+                            filename: 'untitled.png',
+                            contentType: 'image/png',
+                        });
+                        formData.append("i", token)
+                        
+                        var imgUploadURL = 'https://'+MISSKEYHOST+'/api/drive/files/create'
+                        var imgUploadParam = {
+                            method: 'POST',
+                            headers: {
+                            },
+                            body: formData
+                        }
+                        //console.log(imgUploadParam.body)
+                        fetch(imgUploadURL, imgUploadParam)
+                        .then((imgData) => {return imgData.json()})
+                        .then((imgRes) => {
+                            document.querySelector('#imgUpload').innerText = imgRes.id
+                            document.querySelector('#imgUpload').classList.add('imgUploaded')
+                            document.querySelector('#imgUpload').id = 'imgUploaded'+fileCount
+                            fileCount += 1
+                            document.querySelector('#imgUploader').innerHTML += '<div><span class="bold">파일 첨부</span> <span id="imgUpload">클릭</span></div>'
+                        })
+                        .catch(err => {throw err});
+                        
+                    }
+                    reader.readAsDataURL(this.files[0])
+                })
+    
+                //확인버튼 이벤트리스너
+                document.querySelector('#confirm').addEventListener("click", (e) => {
+    
+                    var cTitle = document.querySelector('#cTitle').value.replace(/\/g, '')
+                    var cType = document.querySelector('#cType').value.replace(/\/g, '')
+                    var cRelatedTo = []
+                    for (var j=0; j < document.querySelectorAll('#relatedTo').length; j++) {
+                        var cIndex = parseInt(document.querySelector('#cRelatedTo'+j).value.replace(/\/g, ''))
+                        cRelatedTo[j] = json.character.list[cIndex].hashtag
+                    }
+                    var cRelatedText = cRelatedTo.join(' #')
+                    var cVisibility = document.querySelector('#cVisibility').value.replace(/\/g, '')
+                    if (cVisibility == 'home' || cVisibility == 'specified') {
+                        cLocalOnly = false
+                    } else {
+                        cLocalOnly = true
+                        cVisibility = 'home'
+                    }
+                    var cContent = document.querySelector('#cContent').value.replace(/\/g, '')
+                    var cFile = []
+                    for (var i=0; i < Math.min(document.querySelectorAll('.imgUploaded').length, 16); i++) {
+                        cFile.push(document.querySelector('#imgUploaded'+i).innerText)
+                    }
+                    
+                    var createNoteUrl = 'https://'+MISSKEYHOST+'/api/notes/create'
+                    var createNoteParam
+                    if (cFile.length > 0) {
+                        createNoteParam = {
+                            method: 'POST',
+                            headers: {
+                                'content-type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                i: token,
+                                cw: cTitle,
+                                text: cContent+'\n\n#'+cRelatedText+' #'+json.info.mainHashtag+cType,
+                                visibility: cVisibility,
+                                localOnly: cLocalOnly,
+                                fileIds: cFile
+                            })
+                        }
+                    } else {
+                        createNoteParam = {
+                            method: 'POST',
+                            headers: {
+                                'content-type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                i: token,
+                                cw: cTitle,
+                                text: cContent+'\n\n#'+cRelatedText+' #'+json.info.mainHashtag+cType,
+                                visibility: cVisibility,
+                                localOnly: cLocalOnly,
+                            })
+                        }
+                    }
+                    fetch(createNoteUrl, createNoteParam)
+                    .then((noteData) => { return noteData.json() })
+                    .then((noteRes) => {
+
+                        var deleteNoteUrl = 'https://'+MISSKEYHOST+'/api/notes/delete'
+                        var deleteNoteParam = {
+                            method: 'POST',
+                            headers: {
+                                'content-type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                i: token,
+                                noteId: note
+                            })
+                        }
+                        fetch(deleteNoteUrl, deleteNoteParam)
+                        .then((res) => { 
+                            isSaved = true
+                            location.href = './?note='+noteRes.createdNote.id
+                        })
+                    })
+                })
             } else {
 
                 if (notesRes.cw) document.querySelector('.collectiontitle').innerText = notesRes.cw
