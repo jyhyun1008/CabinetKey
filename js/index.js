@@ -2000,67 +2000,36 @@ async function parseYourJSON(json) {
             }
         }
     } else if (note && !page) {
+
+        //개별 노트 표시.
+
         loadBackground(json)
         document.querySelector('#wrapper').addEventListener("click", (e) => {
             location.href = './'
         })
         document.querySelector('#popup-content').style.display = 'block'
+
         document.querySelector('#popup-content').innerHTML = '<div class="collection"></div>'
         
         document.querySelector('.collection').innerHTML += '<h1 class="collectiontitle">제목 없음</h1>'
         document.querySelector('.collection').innerHTML += '<div class="collectionnote"><div>'
 
         var findNotesUrl = 'https://'+MISSKEYHOST+'/api/notes/show'
-        var findNotesParam = {
-            method: 'POST',
-            headers: {
-                'content-type': 'application/json',
-            },
-            body: JSON.stringify({
-                noteId: note,
-            })
-        }
-        fetch(findNotesUrl, findNotesParam)
-        .then((notesData) => {return notesData.json()})
-        .then((notesRes) => {
-            if (notesRes.cw) document.querySelector('.collectiontitle').innerText = notesRes.cw
-            if (notesRes.files.length > 0) {
-                for (var i = 0; i<notesRes.files.length; i++) {
-                    document.querySelector('.collectionnote').innerHTML += '<img src="'+notesRes.files[i].url+'">'
-                }
+        var findNotesParam
+
+        if (isLogin) {
+            findNotesParam = {
+                method: 'POST',
+                headers: {
+                    'content-type': 'application/json',
+                },
+                body: JSON.stringify({
+                    i: token,
+                    noteId: note,
+                })
             }
-            document.querySelector('.collectionnote').innerHTML = '<div class="createdAt">'+notesRes.createdAt+'</div>'
-            document.querySelector('.collectionnote').innerHTML += '<div class="createdAt"><span class="bold"><a href="https://'+MISSKEYHOST+'/notes/'+notesRes.id+'">리모트에서 보기</a></span></div>'
-            document.querySelector('.collectionnote').innerHTML += '<div class="noteContent">'+parseMd(notesRes.text)+'</div><hr>'
-            document.querySelector('.collectionnote').innerHTML += '<div class="reactionList"></div>'
-            for (var i = 0; i<Object.keys(notesRes.reactions).length; i++) {
-                var emojiName = Object.keys(notesRes.reactions)[i]
-                if (emojiName.includes('@')) {
-                    var emojiHost
-                    if (emojiName.split('@')[1] == '.:') {
-                        emojiHost = MISSKEYHOST
-                    } else {
-                        emojiHost = emojiName.split('@')[1].split(':')[0]
-                    }
-                    var emojiFetchUrl = 'https://'+emojiHost+'/api/emoji?name='+emojiName.split('@')[0].split(':')[1]
-                    var emojiFetchParam = {
-                        method: 'GET',
-                        headers: {
-                            'content-type': 'application/json',
-                        },
-                    }
-                    fetch(emojiFetchUrl, emojiFetchParam)
-                    .then((emojiData) => {return emojiData.json()})
-                    .then((emojiRes) => {
-                        document.querySelector('.reactionList').innerHTML += '<span class="bold"><img src="'+emojiRes.url+'" class="emoji"> '+notesRes.reactions[emojiName]+'</span> '
-                    })
-                } else {
-                    document.querySelector('.reactionList').innerHTML += '<span class="bold"><span class="emoji">'+emojiName+'</span> '+notesRes.reactions[emojiName]+'</span>'
-                }
-            }
-            document.querySelector('.collectionnote').innerHTML += '<div class="replyList"></div>'
-            var findReplysUrl = 'https://'+MISSKEYHOST+'/api/notes/replies'
-            var findReplysParam = {
+        } else {
+            findNotesParam = {
                 method: 'POST',
                 headers: {
                     'content-type': 'application/json',
@@ -2069,15 +2038,71 @@ async function parseYourJSON(json) {
                     noteId: note,
                 })
             }
-            fetch(findReplysUrl, findReplysParam)
-            .then((replyData) => {return replyData.json()})
-            .then((replyRes) => {
-                for (var i = 0; i<Object.keys(notesRes.reactions).length; i++) {
-                    document.querySelector('.replyList').innerHTML += '<hr><div class="replyel" id="replyid'+i+'"></div>'
-                    document.querySelector('#replyid'+i).innerHTML += '<div>'+replyRes[i].text+'</div>'
-                    document.querySelector('#replyid'+i).innerHTML += '<div class="replyProfile"><span> ー by</span><img class="emoji" src="'+replyRes[i].user.avatarUrl+'"><span>'+replyRes[i].user.name.replace(/\:([^\:\s]+)\:/g, '').replace(/\s\s/g, ' ')+'</span><span class="bold" style="font-size: 0.8em;"><a href="https://'+MISSKEYHOST+'/notes/'+replyRes[i].id+'">리모트에서 보기</a></span></div>'
+        }
+        fetch(findNotesUrl, findNotesParam)
+        .then((notesData) => {return notesData.json()})
+        .then((notesRes) => {
+
+            if (mode == 'edit' && isLogin) {
+                //TODO
+            } else {
+
+                if (notesRes.cw) document.querySelector('.collectiontitle').innerText = notesRes.cw
+                if (notesRes.files.length > 0) {
+                    for (var i = 0; i<notesRes.files.length; i++) {
+                        document.querySelector('.collectionnote').innerHTML += '<img src="'+notesRes.files[i].url+'">'
+                    }
                 }
-            })
+                document.querySelector('.collectionnote').innerHTML = '<div class="createdAt">'+notesRes.createdAt+'</div>'
+                document.querySelector('.collectionnote').innerHTML += '<div class="createdAt"><span class="bold"><a href="https://'+MISSKEYHOST+'/notes/'+notesRes.id+'">리모트에서 보기</a></span></div>'
+                document.querySelector('.collectionnote').innerHTML += '<div class="noteContent">'+parseMd(notesRes.text)+'</div><hr>'
+                document.querySelector('.collectionnote').innerHTML += '<div class="reactionList"></div>'
+                for (var i = 0; i<Object.keys(notesRes.reactions).length; i++) {
+                    var emojiName = Object.keys(notesRes.reactions)[i]
+                    if (emojiName.includes('@')) {
+                        var emojiHost
+                        if (emojiName.split('@')[1] == '.:') {
+                            emojiHost = MISSKEYHOST
+                        } else {
+                            emojiHost = emojiName.split('@')[1].split(':')[0]
+                        }
+                        var emojiFetchUrl = 'https://'+emojiHost+'/api/emoji?name='+emojiName.split('@')[0].split(':')[1]
+                        var emojiFetchParam = {
+                            method: 'GET',
+                            headers: {
+                                'content-type': 'application/json',
+                            },
+                        }
+                        fetch(emojiFetchUrl, emojiFetchParam)
+                        .then((emojiData) => {return emojiData.json()})
+                        .then((emojiRes) => {
+                            document.querySelector('.reactionList').innerHTML += '<span class="bold"><img src="'+emojiRes.url+'" class="emoji"> '+notesRes.reactions[emojiName]+'</span> '
+                        })
+                    } else {
+                        document.querySelector('.reactionList').innerHTML += '<span class="bold"><span class="emoji">'+emojiName+'</span> '+notesRes.reactions[emojiName]+'</span>'
+                    }
+                }
+                document.querySelector('.collectionnote').innerHTML += '<div class="replyList"></div>'
+                var findReplysUrl = 'https://'+MISSKEYHOST+'/api/notes/replies'
+                var findReplysParam = {
+                    method: 'POST',
+                    headers: {
+                        'content-type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        noteId: note,
+                    })
+                }
+                fetch(findReplysUrl, findReplysParam)
+                .then((replyData) => {return replyData.json()})
+                .then((replyRes) => {
+                    for (var i = 0; i<Object.keys(notesRes.reactions).length; i++) {
+                        document.querySelector('.replyList').innerHTML += '<hr><div class="replyel" id="replyid'+i+'"></div>'
+                        document.querySelector('#replyid'+i).innerHTML += '<div>'+replyRes[i].text+'</div>'
+                        document.querySelector('#replyid'+i).innerHTML += '<div class="replyProfile"><span> ー by</span><img class="emoji" src="'+replyRes[i].user.avatarUrl+'"><span>'+replyRes[i].user.name.replace(/\:([^\:\s]+)\:/g, '').replace(/\s\s/g, ' ')+'</span><span class="bold" style="font-size: 0.8em;"><a href="https://'+MISSKEYHOST+'/notes/'+replyRes[i].id+'">리모트에서 보기</a></span></div>'
+                    }
+                })
+            }
         })
     }
 }
