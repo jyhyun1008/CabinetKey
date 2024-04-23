@@ -25,6 +25,8 @@ document.querySelector('#collectionnav').innerText = LANG.COLLECTION
 var background = document.querySelector('#background');
 background.style.backgroundImage = 'url('+BACKIMGURL+')'
 
+var fileCount = 0
+
 var isLogin = false;
 if (sessionId) {
     isLogin = true;
@@ -929,6 +931,7 @@ async function parseYourJSON(json) {
                 for (var i=0; i < Math.min(document.querySelectorAll('.imgUploaded').length, 16); i++) {
                     cFile.push(document.querySelector('#imgUploaded'+i).innerText)
                 }
+                
                 
                 var createNoteUrl = 'https://'+MISSKEYHOST+'/api/notes/create'
                 var createNoteParam
@@ -2118,6 +2121,7 @@ async function parseYourJSON(json) {
                 for (var i=0; i<notesRes.fileIds.length; i++) {
                     document.querySelector('#imgUploader').innerHTML += '<div><span class="bold">'+LANG.ADDFILE+'</span> <span class="imgUploaded" id="imgUploaded'+i+'">'+notesRes.fileIds[i]+'</span></div>'
                 }
+                fileCount = notesRes.fileIds.length
 
                 document.querySelector('#imgUploader').innerHTML += '<div><span class="bold">'+LANG.ADDFILE+'</span> <span id="imgUpload">'+LANG.CLICK+'</span></div>'
     
@@ -2140,7 +2144,6 @@ async function parseYourJSON(json) {
                 })
     
                 //이미지 업로드버튼
-                var fileCount = 0
                 var imgUpload = document.querySelector('#imgUpload')
                 var imgRealUpload = document.querySelector('#imgRealUpload')
                 imgUpload.addEventListener('click', () => imgRealUpload.click())
@@ -2170,13 +2173,16 @@ async function parseYourJSON(json) {
                             document.querySelector('#imgUpload').id = 'imgUploaded'+fileCount
 
                             document.querySelector('#imgUploader').innerHTML += '<div><span class="bold">'+LANG.ADDFILE+'</span> <span id="imgUpload">'+LANG.CLICK+'</span></div>'
-                            document.querySelector('#imgUploaded'+fileCount).addEventListener("click", (e) => {
-                                var isDeleting = confirm(LANG.cDELETEFILE)
-                                if (isDeleting) {
-                                    e.currentTarget.remove()
-                                }
-                            })
                             fileCount += 1
+
+                            for (var i=0; i<fileCount; i++) {
+                                document.querySelector('#imgUploaded'+i).addEventListener("click", (e) => {
+                                    var isDeleting = confirm(LANG.cDELETEFILE)
+                                    if (isDeleting) {
+                                        e.currentTarget.remove()
+                                    }
+                                })
+                            }
                         })
                         .catch(err => {throw err});
                         
@@ -2206,6 +2212,12 @@ async function parseYourJSON(json) {
                     var cFile = []
                     for (var i=0; i < Math.min(document.querySelectorAll('.imgUploaded').length, 16); i++) {
                         cFile.push(document.querySelector('#imgUploaded'+i).innerText)
+                        document.querySelector('#imgUploaded'+i).addEventListener("click", (e) => {
+                            var isDeleting = confirm(LANG.cDELETEFILE)
+                            if (isDeleting) {
+                                e.currentTarget.remove()
+                            }
+                        })
                     }
                     
                     var createNoteUrl = 'https://'+MISSKEYHOST+'/api/notes/create'
