@@ -398,6 +398,20 @@ if (page == 'signin') {
     }
 } 
 
+function dataURLtoBlob(data) {
+    var parts = data.split(',');
+    var meta = parts[0].substring(5).split(';');
+    var type = meta[0];
+    var decoder = meta.indexOf('base64') !== -1 ? atob : decodeURIComponent;
+    var bstr = decoder(parts[1]);
+    var n = bstr.length;
+    var u8arr = new Uint8Array(n);
+    while (n--) {
+        u8arr[n] = bstr.charCodeAt(n);
+    }
+    return new Blob([u8arr], { type: type });
+}
+
 function hoverWorld(coord, year) {
     var location = nowHere(coord, year)
     if (location) document.querySelector('.worldname').innerHTML = '[' + coord + ']' + location.data.name
@@ -607,7 +621,7 @@ async function parseYourJSON(json) {
             document.querySelector('#popup-content').style.display = 'block'
             document.querySelector('#popup-content').innerHTML = '<div class="editwrapper"></div>'
             document.querySelector('.editwrapper').innerHTML = '<h1>편집기</h1>'
-            document.querySelector('.editwrapper').innerHTML += '<form><label for="editrawjson">Raw JSON Data:</label><textarea id="editrawjson" name="editrawjson">'+JSON.stringify(json, null, 2)+'</textarea><div class="bold" id="editconfirm">수정</div></form>'
+            document.querySelector('.editwrapper').innerHTML += '<form><label for="editrawjson">Raw JSON Data:</label><textarea id="editrawjson" name="editrawjson">'+JSON.stringify(json, null, 4)+'</textarea><div class="bold" id="editconfirm">수정</div></form>'
 
             document.querySelector('#editconfirm').addEventListener("click", (e) => {
                 json = JSON.parse(document.querySelector('#editrawjson').value)
@@ -790,62 +804,195 @@ async function parseYourJSON(json) {
             location.href = './'
         })
         document.querySelector('#popup-content').style.display = 'block'
-        document.querySelector('#popup-content').innerHTML = '<div class="collection"></div>'
-        
-        document.querySelector('.collection').innerHTML += '<h1 class="collectiontitle">작품모음</h1>'
-        document.querySelector('.collection').innerHTML += '<div class="collectionlist"><div>'
-        document.querySelector('.collection').innerHTML += '<div class="collectionqid"><div>'
 
-        var findArtsUrl = 'https://'+MISSKEYHOST+'/api/notes/search'
-        var findArtsParam
-        if (!qid || qid == 0 ) {
-            findArtsParam = {
-                method: 'POST',
-                headers: {
-                    'content-type': 'application/json',
-                },
-                body: JSON.stringify({
-                    query: json.info.mainHashtag+' #창작',
-                    userId: MISSKEYID,
-                    limit: 100
-                })
-            }
-            document.querySelector('.collectionqid').innerHTML = '0 · <a href="./?page='+page+'&qid='+1+'">다음</a>'
-        } else {
-            findArtsParam = {
-                method: 'POST',
-                headers: {
-                    'content-type': 'application/json',
-                },
-                body: JSON.stringify({
-                    query: json.info.mainHashtag+' #창작',
-                    userId: MISSKEYID,
-                    limit: 100,
-                    untilId: fetchAgain(qid, hashTagQuery, MISSKEYID)
-                })
-            }
-            document.querySelector('.collectionqid').innerHTML = '<a href="./?page='+page+'&qid='+(qid-1)+'">이전</a> · '+qid+' · <a href="./?page='+page+'&qid='+(qid+1)+'">다음</a>'
-        }
-        fetch(findArtsUrl, findArtsParam)
-        .then((notesData) => {return notesData.json()})
-        .then((notesRes) => {
-            for (var i = 0; i<notesRes.length; i++){
+        if (mode == 'edit') {
+        //if (mode == 'edit' && isLogin) {
 
-                if (mode == 'edit' && isLogin) {
-                    //TODO
+            document.querySelector('#popup-content').innerHTML = '<div class="editform"></div>'
+            document.querySelector('.editform').innerHTML = '<h1>새 글 작성</h1>'
+
+            //제목
+            document.querySelector('.editform').innerHTML += '<div class="editordiv"><label for="cTitle"><span class="bold">제목</span></label> <input type="text" id="cTitle" name="cTitle""></div>'
+
+            //완성작 및 초안 선택
+            document.querySelector('.editform').innerHTML += '<div class="editordiv"><span class="bold">작품 유형</span> <select name="cType" id="cType"><option value=" #창작">완성작</option><option value=" #초안">초안</option></select></div>'
+
+            //연관 캐릭터 (틀 생성)
+            var temporaryRelatedToCount = 0
+            document.querySelector('.editform').innerHTML += '<div class="editordiv"><span class="bold">캐릭터</span> <span id="addRelatedTo">추가</span> · <span id="deleteRelatedTo">한 줄 제거</span></div><div id="relatedTo" class="editordiv"></div>'
+
+            //공개 범위 (홈, 홈로컬, 비공개)
+            document.querySelector('.editform').innerHTML += '<div class="editordiv"><span class="bold">공개 범위</span> <select name="cVisibility" id="cVisibility"><option value="home">홈</option><option value="local">홈+로컬</option><option value="specified">비공개</option></select></div>'
+
+            //내용
+            document.querySelector('.editform').innerHTML += '<textarea id="cContent" name="cContent"></textarea>'
+
+            //파일첨부
+            document.querySelector('.editform').innerHTML += '<div class="editordiv" id="imgUploader"><div><span class="bold">파일 첨부</span> <span id="imgUpload">클릭</span></div></div><input type="file" id="imgRealUpload" accept="image/*" style="display: none;">'
+
+            //확인 버튼
+            document.querySelector('.editform').innerHTML += '<div class="editordiv"><span class="bold" id="confirm">완료</span> <span class="bold" id="cancel">취소</span>'
+
+            //연관 캐릭터 이벤트 리스너
+            document.querySelector('#addRelatedTo').addEventListener("click", (e) => {
+                document.querySelector('#relatedTo').innerHTML += '<div class="multiLineInput" id="cRelatedToEditor'+temporaryRelatedToCount+'"><label id="cRelatedToLabel'+temporaryRelatedToCount+'" for="cRelatedTo'+temporaryRelatedToCount+'">'+(temporaryRelatedToCount+1)+' :</label> <select name="cRelatedTo'+temporaryRelatedToCount+'" id="cRelatedTo'+temporaryRelatedToCount+'"></select></div>'
+                for (var j=0; j<json.character.list.length; j++) {
+                    document.querySelector('#cRelatedTo'+temporaryRelatedToCount).innerHTML += '<option value="'+j+'">'+json.character.list[j].name+'</option>'
+                }
+                temporaryRelatedToCount += 1
+            })
+            document.querySelector('#deleteRelatedTo').addEventListener("click", (e) => {
+                if (temporaryRelatedToCount > 0) {
+                    temporaryRelatedToCount -= 1
+                    document.querySelector('#cRelatedToEditor'+temporaryRelatedToCount).remove()
+                }
+            })
+
+            //이미지 업로드버튼
+            var fileCount = 0
+            var imgUpload = document.querySelector('#imgUpload')
+            var imgRealUpload = document.querySelector('#imgRealUpload')
+            imgUpload.addEventListener('click', () => imgRealUpload.click())
+            imgRealUpload.addEventListener('change', function(e) {
+                var reader = new FileReader();
+                reader.onloadend = function() {
+                    var blob = window.dataURLtoBlob(reader.result)
+                    console.log('Encoded Base 64 File String:', blob);
+                    const formData = new FormData()
+                    formData.append('file', blob, {
+                        filename: 'untitled.png',
+                        contentType: 'image/png',
+                    });
+                    formData.append("i", token)
+                    
+                    var imgUploadURL = 'https://'+MISSKEYHOST+'/api/drive/files/create'
+                    var imgUploadParam = {
+                        method: 'POST',
+                        headers: {
+                        },
+                        body: formData
+                    }
+                    //console.log(imgUploadParam.body)
+                    fetch(imgUploadURL, imgUploadParam)
+                    .then((imgData) => {return imgData.json()})
+                    .then((imgRes) => {
+                        document.querySelector('#imgUpload').innerText = imgRes.id
+                        document.querySelector('#imgUpload').id = 'imgUploaded'+fileCount
+                        document.querySelector('#imgUpload').className.append('imgUploaded')
+                        fileCount += 1
+                        document.querySelector('#imgUploader').innerHTML += '<div><span class="bold">파일 첨부</span> <span id="imgUpload">클릭</span></div>'
+                    })
+                    .catch(err => {throw err});
+                    
+                }
+                reader.readAsDataURL(this.files[0])
+            })
+
+            //확인버튼 이벤트리스너
+            document.querySelector('#confirm').addEventListener("click", (e) => {
+
+                var cTitle = document.querySelector('#cTitle').value
+                var cType = document.querySelector('#cType').value
+                var cRelatedTo = []
+                for (var j=0; j < document.querySelectorAll('#relatedTo').length; j++) {
+                    var cIndex = parseInt(document.querySelector('#cRelatedTo'+j).value)
+                    cRelatedTo[j] = json.character.list[cIndex].hashtag
+                }
+                var cRelatedText = cRelatedTo.join(' #')
+                var cVisibility = document.querySelector('#cVisibility').value
+                if (cVisibility == 'home' || cVisibility == 'specified') {
+                    cLocalOnly = false
                 } else {
-                    if (notesRes[i].files.length == 0) {
-                        document.querySelector('.collectionlist').innerHTML += '<div class="collectionel"><a href="./?note='+notesRes[i].id+'"><div class="overflowhidden" id="collection'+i+'"></div></a></div>'
-                        if (notesRes[i].cw) document.querySelector('#collection'+i).innerHTML = '</h1>'+notesRes[i].cw+'</h1>'
-                        document.querySelector('#collection'+i).innerHTML += parseMd(notesRes[i].text)
+                    cLocalOnly = true
+                    cVisibility = 'home'
+                }
+                var cContent = document.querySelector('#cContent').value
+                var cFile = []
+                for (var i=0; i < Math.min(document.querySelectorAll('.imgUploaded').length, 16); i++) {
+                    cFile.push(document.querySelector('#imgUploaded'+i).innerText)
+                }
+                
+                var createNoteUrl = 'https://'+MISSKEYHOST+'/api/notes/create'
+                var createNoteParam = {
+                    method: 'POST',
+                    headers: {
+                        'content-type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        i: token,
+                        cw: cTitle,
+                        text: cContent+'\n\n#'+cRelatedText+' #'+json.info.mainHashtag+cType,
+                        visibility: cVisibility,
+                        localOnly: cLocalOnly,
+                        fileIds: cFile
+                    })
+                }
+                fetch(createNoteUrl, createNoteParam)
+                .then((noteData) => { noteData.json() })
+                .then((noteRes) => {
+                    isSaved = true
+                    location.href = './'
+                })
+            })
+        } else {
+
+            document.querySelector('#popup-content').innerHTML = '<div class="collection"></div>'
+        
+            document.querySelector('.collection').innerHTML += '<h1 class="collectiontitle">작품모음</h1>'
+            document.querySelector('.collection').innerHTML += '<div class="collectionlist"><div>'
+            document.querySelector('.collection').innerHTML += '<div class="collectionqid"><div>'
+    
+            var findArtsUrl = 'https://'+MISSKEYHOST+'/api/notes/search'
+            var findArtsParam
+            if (!qid || qid == 0 ) {
+                findArtsParam = {
+                    method: 'POST',
+                    headers: {
+                        'content-type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        query: json.info.mainHashtag+' #창작',
+                        userId: MISSKEYID,
+                        limit: 100
+                    })
+                }
+                document.querySelector('.collectionqid').innerHTML = '0 · <a href="./?page='+page+'&qid='+1+'">다음</a>'
+            } else {
+                findArtsParam = {
+                    method: 'POST',
+                    headers: {
+                        'content-type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        query: json.info.mainHashtag+' #창작',
+                        userId: MISSKEYID,
+                        limit: 100,
+                        untilId: fetchAgain(qid, hashTagQuery, MISSKEYID)
+                    })
+                }
+                document.querySelector('.collectionqid').innerHTML = '<a href="./?page='+page+'&qid='+(qid-1)+'">이전</a> · '+qid+' · <a href="./?page='+page+'&qid='+(qid+1)+'">다음</a>'
+            }
+            fetch(findArtsUrl, findArtsParam)
+            .then((notesData) => {return notesData.json()})
+            .then((notesRes) => {
+                for (var i = 0; i<notesRes.length; i++){
+    
+                    if (mode == 'edit' && isLogin) {
+                        //TODO
                     } else {
-                        document.querySelector('.collectionlist').innerHTML += '<div class="collectionel"><a href="./?note='+notesRes[i].id+'"><img src="'+notesRes[i].files[0].url+'"></a></div>'
+                        if (notesRes[i].files.length == 0) {
+                            document.querySelector('.collectionlist').innerHTML += '<div class="collectionel"><a href="./?note='+notesRes[i].id+'"><div class="overflowhidden" id="collection'+i+'"></div></a></div>'
+                            if (notesRes[i].cw) document.querySelector('#collection'+i).innerHTML = '</h1>'+notesRes[i].cw+'</h1>'
+                            document.querySelector('#collection'+i).innerHTML += parseMd(notesRes[i].text)
+                        } else {
+                            document.querySelector('.collectionlist').innerHTML += '<div class="collectionel"><a href="./?note='+notesRes[i].id+'"><img src="'+notesRes[i].files[0].url+'"></a></div>'
+                        }
                     }
                 }
-            }
-
-            document.querySelector('.collectionlist').innerHTML += '<div class="collectionel"><a href="./?page=collection&mode=edit"><img src="https://peachtart2.s3.ap-northeast-1.amazonaws.com/tart/99cb88ef-a5f4-4e95-a8eb-183c5914d570.webp"></a></div>'
-        })
+    
+                document.querySelector('.collectionlist').innerHTML += '<div class="collectionel"><a href="./?page=collection&mode=edit"><img src="https://peachtart2.s3.ap-northeast-1.amazonaws.com/tart/99cb88ef-a5f4-4e95-a8eb-183c5914d570.webp"></a></div>'
+            })
+        }
 
     } else if (page && page != 'callback') {
         loadBackground(json)

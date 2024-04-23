@@ -505,6 +505,17 @@ select {
     width: calc(100% - 150px);
 }
 
+#imgUpload, #imgUploaded{
+    height: 30px;
+    border-radius: 10px;
+    border: 1px solid white;
+    background-color: black;
+    color: white;
+    display: inline-block;
+    width: calc(100% - 150px);
+    min-width: calc(100% - 150px);
+}
+
 #popup-content input.key{
     width: 100px;
 }
