@@ -887,8 +887,15 @@ async function parseYourJSON(json) {
                         document.querySelector('#imgUpload').innerText = imgRes.id
                         document.querySelector('#imgUpload').classList.add('imgUploaded')
                         document.querySelector('#imgUpload').id = 'imgUploaded'+fileCount
-                        fileCount += 1
+
                         document.querySelector('#imgUploader').innerHTML += '<div><span class="bold">'+LANG.ADDFILE+'</span> <span id="imgUpload">'+LANG.CLICK+'</span></div>'
+                        document.querySelector('#imgUpload'+fileCount).addEventListener("click", (e) => {
+                            var isDeleting = confirm(LANG.cDELETEFILE)
+                            if (isDeleting) {
+                                e.currentTarget.remove()
+                            }
+                        })
+                        fileCount += 1
                     })
                     .catch(err => {throw err});
                     
@@ -2160,7 +2167,7 @@ async function parseYourJSON(json) {
                             document.querySelector('#imgUpload').id = 'imgUploaded'+fileCount
 
                             document.querySelector('#imgUploader').innerHTML += '<div><span class="bold">'+LANG.ADDFILE+'</span> <span id="imgUpload">'+LANG.CLICK+'</span></div>'
-                            document.querySelector('#imgUpload').addEventListener("click", (e) => {
+                            document.querySelector('#imgUpload'+fileCount).addEventListener("click", (e) => {
                                 var isDeleting = confirm(LANG.cDELETEFILE)
                                 if (isDeleting) {
                                     e.currentTarget.remove()
