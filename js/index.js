@@ -659,17 +659,115 @@ async function parseYourJSON(json) {
             location.href = './'
         })
         document.querySelector('#popup-content').style.display = 'block'
-        document.querySelector('#popup-content').innerHTML = '<div class="worldinfo"></div>'
 
-        document.querySelector('.worldinfo').innerHTML = '<h1 class="winfotitle">'+json.info.title+'</h1>'
-        document.querySelector('.worldinfo').innerHTML += '<div class="winfosubtitle">'+json.info.subTitle+'<div>'
-        document.querySelector('.worldinfo').innerHTML += '<h1>요약</h1>'
-        document.querySelector('.worldinfo').innerHTML += '<div class="winfosummary">'+json.info.summary+'<div>'
-        document.querySelector('.worldinfo').innerHTML += '<h1>상세 정보</h1>'
-        document.querySelector('.worldinfo').innerHTML += '<div class="winfodescription">'+json.info.description+'<div>'
+        if (mode == 'edit') {
+            
+            //제목, 틀 생성
+            document.querySelector('#popup-content').innerHTML = '<div class="edit"><form class="editform" method="get"><div class="editordiv"><h1>기본정보 편집</h1></div></form></div>'
 
-        if (mode == 'edit' && isLogin) {
-            //TODO
+            //세계관 제목
+            document.querySelector('.editform').innerHTML += '<div class="editordiv"><label for="cTitle"><span class="bold">제목</span></label> <input type="text" id="cTitle" name="cTitle" value="'+json.info.title+'"></div>'
+            document.querySelector('.editform').innerHTML += '<div class="editordiv"><label for="cSubTitle"><span class="bold">부제목</span></label> <input type="text" id="cSubTitle" name="cSubTitle" value="'+json.info.subTitle+'"></div>'
+
+            //세계관 해시태그
+            document.querySelector('.editform').innerHTML += '<div class="editordiv"><label for="cMainHashtag"><span class="bold">주요 태그</span></label> <input type="text" id="cMainHashtag" name="cMainHashtag" value="'+json.info.mainHashtag+'"></div><div class="editordiv">주요 태그는 한 개만 입력합니다.</div>'
+            document.querySelector('.editform').innerHTML += '<div class="editordiv"><label for="cHashtag"><span class="bold">보조 태그</span></label> <input type="text" id="cHashtag" name="cHashtag" value="'+json.info.hashtags.join(', ')+'"></div><div class="editordiv">해시태그는 콤마(,)로 구분해주세요.</div>'
+
+            //연도 정보
+            document.querySelector('.editform').innerHTML += '<div class="editordiv"><label for="cStartYear"><span class="bold">기본 연도</span></label> <input type="text" id="cStartYear" name="cStartYear" value="'+json.info.startYear+'"></div>'
+
+            document.querySelector('.editform').innerHTML += '<div class="editordiv"><label for="cMainYear"><span class="bold">주요 연도</span></label> <input type="text" id="cMainYear" name="cMainYear" value="'+json.info.mainYear.join(', ')+'"></div><div class="editordiv">주요 연도는 콤마(,)로 구분해주세요.</div>'
+
+            document.querySelector('.editform').innerHTML += '<div class="editordiv"><label for="cYearFrom"><span class="bold">연도 범위 1</span></label> <input type="text" id="cYearFrom" name="cYearFrom" value="'+json.info.yearRange[0]+'"></div>'
+
+            document.querySelector('.editform').innerHTML += '<div class="editordiv"><label for="cYearTo"><span class="bold">연도 범위 2</span></label> <input type="text" id="cYearTo" name="cYearTo" value="'+json.info.yearRange[1]+'"></div>'
+
+            //지도
+            document.querySelector('.editform').innerHTML += '<div class="editordiv"><div class="cprofileavatar"><img src="'+json.info.map+'"></div><label for="cAvatar"><span class="bold">지도</span></label> <input type="text" id="cAvatar" name="cAvatar" value="'+json.info.map+'"></div>'
+
+            //요약
+            document.querySelector('.editform').innerHTML += '<div class="editordiv"><h1>요약</h1><textarea class="summary" id="cSummary" name="cSummary">'+json.info.summary+'</textarea>'
+
+            //상세 정보
+            document.querySelector('.editform').innerHTML += '<div class="editordiv"><h1>상세 정보</h1><textarea id="cDescription" name="cDescription">'+json.info.description+'</textarea>'
+
+            //확인 버튼
+            document.querySelector('.editform').innerHTML += '<div class="editordiv"><span class="bold" id="confirm">완료</span> <span class="bold" id="cancel">취소</span>'
+
+            //이벤트 리스너들
+            document.querySelector('#cAvatar').addEventListener("input", (e) => {
+                document.querySelector('.cprofileavatar').innerHTML = '<img src="'+document.querySelector('#cAvatar').value+'">'
+            })
+
+            //확인 버튼 이벤트리스너
+            document.querySelector('#confirm').addEventListener("click", (e) => {
+
+                //변수에 저장
+                var cTitle = document.querySelector('#cTitle').value
+                var cSubTitle = document.querySelector('#cSubTitle').value
+                var cMainHashtag = document.querySelector('#cMainHashtag').value
+                var cHashtag = document.querySelector('#cHashtag').value.replace(/\s/g, '').split(',')
+                var cStartYear = parseInt(document.querySelector('#cStartYear').value)
+                var cMainYearArray = document.querySelector('#cMainYear').value.replace(/\s/g, '').split(',')
+                var cMainYear = cMainYearArray.map(function (x) { 
+                    return parseInt(x, cStartYear); 
+                })
+                var cYearRange = [parseInt(document.querySelector('#cYearFrom').value), parseInt(document.querySelector('#cYearTo').value)]
+                var cAvatar = document.querySelector('#cAvatar').value
+                var cSummary = document.querySelector('#cSummary').value
+                var cDescription = document.querySelector('#cDescription').value
+                
+                var updatedJsonInfo = {
+                    "title": cTitle,
+                    "subTitle": cSubTitle,
+                    "mainHashtag": cMainHashtag,
+                    "hashtags": cHashtag,
+                    "startYear": cStartYear,
+                    "MainYear": cMainYear,
+                    "yearRange": cYearRange,
+                    "map": cAvatar,
+                    "summary": cSummary,
+                    "description": cDescription,
+                }
+                
+                json.info = updatedJsonInfo
+                localStorage.setItem('json', JSON.stringify(json))
+                var updatePageUrl = 'https://'+MISSKEYHOST+'/api/pages/update'
+                var updatePageParam = {
+                    method: 'POST',
+                    headers: {
+                        'content-type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        i: token,
+                        pageId: jsonPageId,
+                        title: 'CabinetKey.json',
+                        name: 'CabinetKey.json',
+                        summary: 'CabinetKey.json',
+                        variables: [],
+                        script: '',
+                        content: [{
+                            text: '```\n'+JSON.stringify(json)+'\n```',
+                            type: 'text'
+                        }]
+                    })
+                }
+                fetch(updatePageUrl, updatePageParam)
+                .then(() => {
+                    isSaved = true
+                    location.href = './'
+                })
+            })
+
+        } else {
+            document.querySelector('#popup-content').innerHTML = '<div class="worldinfo"></div>'
+
+            document.querySelector('.worldinfo').innerHTML = '<h1 class="winfotitle">'+json.info.title+'</h1>'
+            document.querySelector('.worldinfo').innerHTML += '<div class="winfosubtitle">'+json.info.subTitle+'<div>'
+            document.querySelector('.worldinfo').innerHTML += '<h1>요약</h1>'
+            document.querySelector('.worldinfo').innerHTML += '<div class="winfosummary">'+json.info.summary+'<div>'
+            document.querySelector('.worldinfo').innerHTML += '<h1>상세 정보</h1>'
+            document.querySelector('.worldinfo').innerHTML += '<div class="winfodescription">'+json.info.description+'<div>'
         }
 
     } else if (page == 'collection') {
@@ -1054,7 +1152,7 @@ async function parseYourJSON(json) {
                         cNicknames[key] = document.querySelector('#cNicknames'+i).value
                     }
                     var cBirthday = document.querySelector('#cBirthday').value
-                    var cLived = [document.querySelector('#cBirthYear').value, document.querySelector('#cDeathYear').value]
+                    var cLived = [parseInt(document.querySelector('#cBirthYear').value), parseInt(document.querySelector('#cDeathYear').value)]
                     var cCategory = document.querySelector('#cCategory').value
                     var cSubcateogory = document.querySelector('#cSubcateogory').value
                     var cEvent = {}
@@ -1133,9 +1231,13 @@ async function parseYourJSON(json) {
                     fetch(updatePageUrl, updatePageParam)
                     .then(() => {
                         isSaved = true
-                        location.href = './'
+                        location.href = './?page='+page
                     })
 
+                })
+
+                document.querySelector('#confirm').addEventListener("click", (e) => {
+                    location.href = './?page='+page
                 })
             } else {
                 document.querySelector('#popup-content').innerHTML = '<div class="characterprofile"></div>'

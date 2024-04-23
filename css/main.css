@@ -334,7 +334,7 @@ li:before {
 
 .chronology td{
     width: 40%;
-    text-align: left;
+    text-align: center;
 }
 
 .chronology tr.subyear {
