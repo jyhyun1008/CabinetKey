@@ -823,21 +823,22 @@ async function parseYourJSON(json) {
         .then((notesData) => {return notesData.json()})
         .then((notesRes) => {
             for (var i = 0; i<notesRes.length; i++){
-                if (notesRes[i].files.length == 0) {
-                    document.querySelector('.collectionlist').innerHTML += '<div class="collectionel"><a href="./?note='+notesRes[i].id+'"><div class="overflowhidden" id="collection'+i+'"></div></a></div>'
-                    if (notesRes[i].cw) document.querySelector('#collection'+i).innerHTML = '</h1>'+notesRes[i].cw+'</h1>'
-                    document.querySelector('#collection'+i).innerHTML += parseMd(notesRes[i].text)
+
+                if (mode == 'edit' && isLogin) {
+                    //TODO
                 } else {
-                    document.querySelector('.collectionlist').innerHTML += '<div class="collectionel"><a href="./?note='+notesRes[i].id+'"><img src="'+notesRes[i].files[0].url+'"></a></div>'
+                    if (notesRes[i].files.length == 0) {
+                        document.querySelector('.collectionlist').innerHTML += '<div class="collectionel"><a href="./?note='+notesRes[i].id+'"><div class="overflowhidden" id="collection'+i+'"></div></a></div>'
+                        if (notesRes[i].cw) document.querySelector('#collection'+i).innerHTML = '</h1>'+notesRes[i].cw+'</h1>'
+                        document.querySelector('#collection'+i).innerHTML += parseMd(notesRes[i].text)
+                    } else {
+                        document.querySelector('.collectionlist').innerHTML += '<div class="collectionel"><a href="./?note='+notesRes[i].id+'"><img src="'+notesRes[i].files[0].url+'"></a></div>'
+                    }
                 }
             }
 
             document.querySelector('.collectionlist').innerHTML += '<div class="collectionel"><a href="./?page=collection&mode=edit"><img src="https://peachtart2.s3.ap-northeast-1.amazonaws.com/tart/99cb88ef-a5f4-4e95-a8eb-183c5914d570.webp"></a></div>'
         })
-
-        if (mode == 'edit' && isLogin) {
-            //TODO
-        }
 
     } else if (page && page != 'callback') {
         loadBackground(json)
@@ -850,41 +851,173 @@ async function parseYourJSON(json) {
         if (page.includes('song')) {
             var songNo = parseInt(page.split('song')[1])
             var songInfo = json.themeSong[songNo]
-            if (!songInfo) {
-                location.href = location.href + '&mode=edit'
-            }
-
-            document.querySelector('#popup-content').innerHTML = '<div class="songinfo"></div>'
-            document.querySelector('#popup-content').innerHTML += '<div class="relatedcharacterlist"></div>'
-            
-            document.querySelector('.songinfo').innerHTML = '<h1>'+songInfo.title+'</h1>'
-            document.querySelector('.songinfo').innerHTML = '<div>'+songInfo.artist+'<div>'
-            document.querySelector('.songinfo').innerHTML = '<div>'+songInfo.embed+'<div>'
-
-            document.querySelector('.songinfo').innerHTML += '<h1>요약</h1>'
-            document.querySelector('.songinfo').innerHTML += '<div >'+songInfo.summary+'<div>'
-            document.querySelector('.songinfo').innerHTML += '<h1>상세 정보</h1>'
-            document.querySelector('.songinfo').innerHTML += '<div>'+parseMd(songInfo.description)+'<div>'
-            document.querySelector('.songinfo').innerHTML += '<h1>가사</h1>'
-            document.querySelector('.songinfo').innerHTML += '<div>'+parseMd(songInfo.lyrics)+'<div>'
-            
-            document.querySelector('.songinfo').innerHTML += '<h1>연관 캐릭터</h1>'
-
-            var relatedCategorylist = songInfo.relatedTo
-            for (var j = 0; j < relatedCategorylist.length; j++) {
-                document.querySelector('.relatedcharacterlist').innerHTML += '<a href="./?page='+relatedCategorylist[j]+'"><div class="characteritem" onmouseover="hoverCharacter('+relatedCategorylist[j]+')"><div><img src="'+cList[relatedCategorylist[j]].avatar+'" class="cavatar"></div><div class="cname">'+cList[relatedCategorylist[j]].name+'</div><div class="csummary">'+cList[relatedCategorylist[j]].summary+'</div></div></a>'
+            if (!songInfo && isLogin) {
+                if (!mode) {
+                    location.href = location.href + '&mode=edit'
+                } else {
+                    songInfo = {
+                        "embed": "",
+                        "title": "",
+                        "artist": "",
+                        "relatedTo": [],
+                        "summary": "",
+                        "description": "",
+                        "lyrics": ""
+                      }
+                }
             }
 
             if (mode == 'edit' && isLogin) {
-                //TODO
-            }
+                
+                var isSaved = false
+                window.onbeforeunload = function(){
+                    if (!isSaved) {
+                        return '페이지를 나가시겠습니까? 편집한 내용은 저장되지 않습니다.'
+                    }
+                }
 
+                //제목, 틀 생성
+                document.querySelector('#popup-content').innerHTML = '<div class="edit"><form class="editform" method="get"><div class="editordiv"><h1>'+songNo+'번 테마곡 수정</h1></div></form></div>'
+
+                //이름
+                document.querySelector('.editform').innerHTML += '<div class="editordiv"><label for="cTitle"><span class="bold">이름</span></label> <input type="text" id="cTitle" name="cTitle" value="'+songInfo.title+'"></div>'
+
+                //임베딩
+                document.querySelector('.editform').innerHTML += '<div class="editordiv"><div class="cEmbedclass">'+songInfo.embed+'</div><div class="editordiv"><label for="cEmbed"><span class="bold">임베딩 코드</span></label> <input type="text" id="cEmbed" name="cEmbed" value="'+songInfo.embed+'"></div>'
+
+                //아티스트
+                document.querySelector('.editform').innerHTML += '<div class="editordiv"><label for="cArtist"><span class="bold">아티스트</span></label> <input type="text" id="cArtist" name="cArtist" value="'+songInfo.artist+'"></div>'
+
+                //요약
+                document.querySelector('.editform').innerHTML += '<div class="editordiv"><h1>요약</h1><textarea class="summary" id="cSummary" name="cSummary">'+songInfo.summary+'</textarea>'
+
+                //상세 정보
+                document.querySelector('.editform').innerHTML += '<div class="editordiv"><h1>상세 정보</h1><textarea id="cDescription" name="cDescription">'+songInfo.description+'</textarea>'
+
+                //가사
+                document.querySelector('.editform').innerHTML += '<div class="editordiv"><h1>가사</h1><textarea id="cLyrics" name="cLyrics">'+songInfo.lyrics+'</textarea>'
+
+                //연관 캐릭터 (틀 생성)
+                document.querySelector('.editform').innerHTML += '<div class="editordiv"><h1>연관 캐릭터</h1><span id="addRelatedTo">추가</span> · <span id="deleteRelatedTo">한 줄 제거</span></div><div id="relatedTo" class="editordiv"></div>'
+
+                //연관 캐릭터 (드롭다운)
+                var temporaryRelatedToCount = songInfo.relatedTo.length
+                for (var i=0; i<songInfo.relatedTo.length; i++) {
+                    document.querySelector('#relatedTo').innerHTML += '<div class="multiLineInput relatedTo" id="cRelatedToEditor'+i+'"><label id="cRelatedToLabel'+i+'" for="cRelatedTo'+i+'">'+(i+1)+' :</label> <select name="cRelatedTo'+i+'" id="cRelatedTo'+i+'"></select></div>'
+                    for (var j=0; j<json.character.list.length; j++) {
+                        if (songInfo.relatedTo[i] == j) {
+                            document.querySelector('#cRelatedTo'+i).innerHTML += '<option value="'+j+'" selected>'+json.character.list[j].name+'</option>'
+                        } else {
+                            document.querySelector('#cRelatedTo'+i).innerHTML += '<option value="'+j+'">'+json.character.list[j].name+'</option>'
+                        }
+                    }
+                }
+
+                //확인 버튼
+                document.querySelector('.editform').innerHTML += '<div class="editordiv"><span class="bold" id="confirm">완료</span> <span class="bold" id="cancel">취소</span>'
+
+                //이벤트 리스너들
+                document.querySelector('#cEmbed').addEventListener("input", (e) => {
+                    document.querySelector('.cEmbedclass').innerHTML = document.querySelector('#cEmbed').value
+                })
+
+                //연관 캐릭터 이벤트 리스너
+                document.querySelector('#addRelatedTo').addEventListener("click", (e) => {
+                    document.querySelector('#relatedTo').innerHTML += '<div class="multiLineInput" id="cRelatedToEditor'+temporaryRelatedToCount+'"><label id="cRelatedToLabel'+temporaryRelatedToCount+'" for="cRelatedTo'+temporaryRelatedToCount+'">'+(temporaryRelatedToCount+1)+' :</label> <select name="cRelatedTo'+temporaryRelatedToCount+'" id="cRelatedTo'+temporaryRelatedToCount+'"></select></div>'
+                    for (var j=0; j<json.character.list.length; j++) {
+                        document.querySelector('#cRelatedTo'+temporaryRelatedToCount).innerHTML += '<option value="'+j+'">'+json.character.list[j].name+'</option>'
+                    }
+                    temporaryRelatedToCount += 1
+                })
+                document.querySelector('#deleteRelatedTo').addEventListener("click", (e) => {
+                    if (temporaryRelatedToCount > 0) {
+                        temporaryRelatedToCount -= 1
+                        document.querySelector('#cRelatedToEditor'+temporaryRelatedToCount).remove()
+                    }
+                })
+
+                //확인 버튼 이벤트리스너
+                document.querySelector('#confirm').addEventListener("click", (e) => {
+
+                    var cTitle = document.querySelector('#cTitle').value
+                    var cEmbed = document.querySelector('#cEmbed').value
+                    var cRelatedTo = []
+                    for (var j=0; j < document.querySelectorAll('#relatedTo'+i).length; j++) {
+                        cRelatedTo[j] = document.querySelector('#cRelatedTo'+j).value
+                    }
+                    var cSummary = document.querySelector('#cSummary').value
+                    var cDescription = document.querySelector('#cDescription').value
+                    var cLyrics = document.querySelector('#cLyrics').value
+                    
+                    var updatedJsonSongInfo = {
+                        "title": cTitle,
+                        "embed": cEmbed,
+                        "relatedTo": cRelatedTo,
+                        "summary": cSummary,
+                        "description": cDescription,
+                        "cLyrics": cLyrics
+                    }
+                    json.themeSong[songNo] = updatedJsonSongInfo
+
+                    localStorage.setItem('json', JSON.stringify(json))
+                    var updatePageUrl = 'https://'+MISSKEYHOST+'/api/pages/update'
+                    var updatePageParam = {
+                        method: 'POST',
+                        headers: {
+                            'content-type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            i: token,
+                            pageId: jsonPageId,
+                            title: 'CabinetKey.json',
+                            name: 'CabinetKey.json',
+                            summary: 'CabinetKey.json',
+                            variables: [],
+                            script: '',
+                            content: [{
+                                text: '```\n'+JSON.stringify(json)+'\n```',
+                                type: 'text'
+                            }]
+                        })
+                    }
+                    fetch(updatePageUrl, updatePageParam)
+                    .then(() => {
+                        isSaved = true
+                        location.href = './?page='+page
+                    })
+                })
+
+                document.querySelector('#cancel').addEventListener("click", (e) => {
+                    location.href = './?page='+page
+                })
+                
+            } else {
+
+                document.querySelector('#popup-content').innerHTML = '<div class="songinfo"></div>'
+                document.querySelector('#popup-content').innerHTML += '<div class="relatedcharacterlist"></div>'
+                
+                document.querySelector('.songinfo').innerHTML = '<h1>'+songInfo.title+'</h1>'
+                document.querySelector('.songinfo').innerHTML = '<div>'+songInfo.artist+'<div>'
+                document.querySelector('.songinfo').innerHTML = '<div>'+songInfo.embed+'<div>'
+    
+                document.querySelector('.songinfo').innerHTML += '<h1>요약</h1>'
+                document.querySelector('.songinfo').innerHTML += '<div >'+songInfo.summary+'<div>'
+                document.querySelector('.songinfo').innerHTML += '<h1>상세 정보</h1>'
+                document.querySelector('.songinfo').innerHTML += '<div>'+parseMd(songInfo.description)+'<div>'
+                document.querySelector('.songinfo').innerHTML += '<h1>가사</h1>'
+                document.querySelector('.songinfo').innerHTML += '<div>'+parseMd(songInfo.lyrics)+'<div>'
+                
+                document.querySelector('.songinfo').innerHTML += '<h1>연관 캐릭터</h1>'
+    
+                var relatedCategorylist = songInfo.relatedTo
+                for (var j = 0; j < relatedCategorylist.length; j++) {
+                    document.querySelector('.relatedcharacterlist').innerHTML += '<a href="./?page='+relatedCategorylist[j]+'"><div class="characteritem" onmouseover="hoverCharacter('+relatedCategorylist[j]+')"><div><img src="'+cList[relatedCategorylist[j]].avatar+'" class="cavatar"></div><div class="cname">'+cList[relatedCategorylist[j]].name+'</div><div class="csummary">'+cList[relatedCategorylist[j]].summary+'</div></div></a>'
+                }
+            }
         } else if (page.includes(',')) {
 
             if (!year) year = json.info.startYear
             var worldPage = nowHere(page, year)
-            var originalKey = ''
-            if (worldPage) originalKey = worldPage.key
 
             if (!worldPage && isLogin) {
                 if (!mode) {
@@ -905,8 +1038,7 @@ async function parseYourJSON(json) {
                 }
             }
 
-            if (mode == 'edit') {
-            //if (mode == 'edit' && isLogin) {
+            if (mode == 'edit' && isLogin) {
                 
                 var isSaved = false
                 window.onbeforeunload = function(){
@@ -1010,7 +1142,6 @@ async function parseYourJSON(json) {
                 //확인 버튼 이벤트리스너
                 document.querySelector('#confirm').addEventListener("click", (e) => {
 
-                    //변수에 저장
                     var cName = document.querySelector('#cName').value
                     var cAvatar = document.querySelector('#cAvatar').value
                     var cLived = document.querySelector('#cBirthYear').value + ',' + document.querySelector('#cDeathYear').value
@@ -1042,10 +1173,14 @@ async function parseYourJSON(json) {
                         "secret": cSecret
                     }
                     json.world[updatedKey] = updatedJsonworldInfo
-                    if (originalKey != '') {
-                        delete json.world[originalKey]
+
+                    //겹치는 키값 삭제
+                    for (var i=0; i<Object.keys(json.world[page]).length; i++) {
+                        if (updatedKey[1] >= Object.keys(json.world[page])[i].split(',')[0] && updatedKey[0] <= Object.keys(json.world[page])[i].split(',')[1]) {
+                            delete json.world[page][Object.keys(json.world[page])[i]]
+                        }
                     }
-                    
+
                     localStorage.setItem('json', JSON.stringify(json))
                     var updatePageUrl = 'https://'+MISSKEYHOST+'/api/pages/update'
                     var updatePageParam = {
@@ -1074,6 +1209,10 @@ async function parseYourJSON(json) {
                     })
                 })
 
+                document.querySelector('#cancel').addEventListener("click", (e) => {
+                    location.href = './?page='+page
+                })
+
             } else {
                 document.querySelector('#popup-content').innerHTML = '<div class="worldlocation"></div>'
                 document.querySelector('#popup-content').innerHTML += '<div class="relatedcharacterlist"></div>'
@@ -1092,6 +1231,8 @@ async function parseYourJSON(json) {
                 document.querySelector('.worldlocation').innerHTML += '<div class="cprofilesummary">'+worldPage.data.summary+'<div>'
                 document.querySelector('.worldlocation').innerHTML += '<h1>상세 정보</h1>'
                 document.querySelector('.worldlocation').innerHTML += '<div class="cprofiledescription">'+parseMd(worldPage.data.description)+'<div>'
+                document.querySelector('.worldlocation').innerHTML += '<h1>비밀 설정</h1>'
+                document.querySelector('.worldlocation').innerHTML += '<div class="cprofilesecret">'+parseMd(worldPage.data.secret)+'<div>'
     
                 document.querySelector('.worldlocation').innerHTML += '<h1>연관 정보</h1>'
     
@@ -1106,7 +1247,7 @@ async function parseYourJSON(json) {
                 }
             }
 
-        } else { // i로 감
+        } else {
 
             if (!cList[page] && isLogin) {
                 if (!mode) {
