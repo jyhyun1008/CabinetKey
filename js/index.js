@@ -140,6 +140,8 @@ function parseMd(md){
     md = "\n"+md+"\n\n"
     var md0 = md;
 
+    md = md.replace(/\/g, '')
+
     //checkbox
     md = md.replace(/\-\s\[x\]([^\[].+)/gm, '<div class="checkbox-container"><i class="bx bx-checkbox-square" ></i>$1</div>')
     md = md.replace(/\-\s\[\s\]([^\[].+)/gm, '<div class="checkbox-container"><i class="bx bx-checkbox" ></i>$1</div>')
@@ -2048,13 +2050,15 @@ async function parseYourJSON(json) {
             } else {
 
                 if (notesRes.cw) document.querySelector('.collectiontitle').innerText = notesRes.cw
-                if (notesRes.files.length > 0) {
-                    for (var i = 0; i<notesRes.files.length; i++) {
-                        document.querySelector('.collectionnote').innerHTML += '<img src="'+notesRes.files[i].url+'">'
-                    }
-                }
+
                 document.querySelector('.collectionnote').innerHTML = '<div class="createdAt">'+notesRes.createdAt+'</div>'
                 document.querySelector('.collectionnote').innerHTML += '<div class="createdAt"><span class="bold"><a href="https://'+MISSKEYHOST+'/notes/'+notesRes.id+'">리모트에서 보기</a></span></div>'
+
+                if (notesRes.files.length > 0) {
+                    for (var i = 0; i<notesRes.files.length; i++) {
+                        document.querySelector('.collectionnote').innerHTML += '<div><img src="'+notesRes.files[i].url+'"></div>'
+                    }
+                }
                 document.querySelector('.collectionnote').innerHTML += '<div class="noteContent">'+parseMd(notesRes.text)+'</div><hr>'
                 document.querySelector('.collectionnote').innerHTML += '<div class="reactionList"></div>'
                 for (var i = 0; i<Object.keys(notesRes.reactions).length; i++) {
