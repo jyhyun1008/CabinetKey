@@ -877,7 +877,7 @@ async function parseYourJSON(json) {
                     .then((imgData) => {return imgData.json()})
                     .then((imgRes) => {
                         document.querySelector('#imgUpload').innerText = imgRes.id
-                        document.querySelector('#imgUpload').className.add('imgUploaded')
+                        document.querySelector('#imgUpload').classList.add('imgUploaded')
                         document.querySelector('#imgUpload').id = 'imgUploaded'+fileCount
                         fileCount += 1
                         document.querySelector('#imgUploader').innerHTML += '<div><span class="bold">파일 첨부</span> <span id="imgUpload">클릭</span></div>'
