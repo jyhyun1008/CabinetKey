@@ -758,7 +758,7 @@ async function parseYourJSON(json) {
                     location.href = './'
                 })
             })
-            
+
             document.querySelector('#cancel').addEventListener("click", (e) => {
                 location.href = './?page='+page
             })
@@ -879,47 +879,60 @@ async function parseYourJSON(json) {
         } else if (page.includes(',') && year) {
             var worldPage = nowHere(page, year)
 
-            if (!worldPage) {
+            if (!worldPage && !mode) {
                 location.href = location.href + '&mode=edit'
             }
 
-            document.querySelector('#popup-content').innerHTML = '<div class="worldlocation"></div>'
-            document.querySelector('#popup-content').innerHTML += '<div class="relatedcharacterlist"></div>'
-
-            document.querySelector('.worldlocation').innerHTML = '<h1 class="wlocationname">'+worldPage.name+'</h1>'
-            document.querySelector('.worldlocation').innerHTML += '<div class="wlocationimage"><img src="'+worldPage.image+'"><div>'
-            document.querySelector('.worldlocation').innerHTML += '<div class="cprofiletable"><div><span class="bold">연표</span></div><table class="chronology"><tr><th>연도</th><th>사건</th></tr></table><div>'
-
-            for (var i=0; i<Object.keys(worldPage.eventChronology).length; i++) {
-                var key = Object.keys(worldPage.eventChronology)[i]
-                var event1 = worldPage.eventChronology[key]
-                document.querySelector('.chronology').innerHTML += '<tr><td>'+key+'</td><td>'+event1+'</td></tr>'
-            }
-
-            document.querySelector('.worldlocation').innerHTML += '<h1>요약</h1>'
-            document.querySelector('.worldlocation').innerHTML += '<div class="cprofilesummary">'+worldPage.summary+'<div>'
-            document.querySelector('.worldlocation').innerHTML += '<h1>상세 정보</h1>'
-            document.querySelector('.worldlocation').innerHTML += '<div class="cprofiledescription">'+parseMd(worldPage.description)+'<div>'
-
-            document.querySelector('.worldlocation').innerHTML += '<h1>연관 정보</h1>'
-
-            var relatedCategory = Object.keys(worldPage.relatedTo)
-            for (var i = 0; i < relatedCategory.length; i++) {
-                document.querySelector('.relatedcharacterlist').innerHTML += '<div class="relatedcharactercategory" id="relatedcategory'+i+'">'+relatedCategory[i]+'</div>'
-                document.querySelector('.relatedcharacterlist').innerHTML += '<div class="relatedcharactercategorylist" id="relatedlist'+i+'"></div>'
-                var relatedCategorylist = worldPage.relatedTo[relatedCategory[i]]
-                for (var j = 0; j < relatedCategorylist.length; j++) {
-                    document.querySelector('#relatedlist'+i).innerHTML += '<a href="./?page='+relatedCategorylist[j]+'"><div class="characteritem" onmouseover="hoverCharacter('+relatedCategorylist[j]+')"><div><img src="'+cList[relatedCategorylist[j]].avatar+'" class="cavatar"></div><div class="cname">'+cList[relatedCategorylist[j]].name+'</div><div class="csummary">'+cList[relatedCategorylist[j]].summary+'</div></div></a>'
-                }
-            }
-
             if (mode == 'edit' && isLogin) {
-                //TODO
+                
+                var isSaved = false
+                window.onbeforeunload = function(){
+                    if (!isSaved) {
+                        return '페이지를 나가시겠습니까? 편집한 내용은 저장되지 않습니다.'
+                    }
+                }
+
+                //제목, 틀 생성
+                document.querySelector('#popup-content').innerHTML = '<div class="edit"><form class="editform" action="/confirm.html" method="get"><div class="editordiv"><h1>좌표 ('+page+') 수정</h1></div></form></div>'
+
+                //이름
+                document.querySelector('.editform').innerHTML += '<div class="editordiv"><label for="cName"><span class="bold">이름</span></label> <input type="text" id="cName" name="cName" value="'+cList[page].name+'"></div>'
+
+            } else {
+                document.querySelector('#popup-content').innerHTML = '<div class="worldlocation"></div>'
+                document.querySelector('#popup-content').innerHTML += '<div class="relatedcharacterlist"></div>'
+    
+                document.querySelector('.worldlocation').innerHTML = '<h1 class="wlocationname">'+worldPage.name+'</h1>'
+                document.querySelector('.worldlocation').innerHTML += '<div class="wlocationimage"><img src="'+worldPage.image+'"><div>'
+                document.querySelector('.worldlocation').innerHTML += '<div class="cprofiletable"><div><span class="bold">연표</span></div><table class="chronology"><tr><th>연도</th><th>사건</th></tr></table><div>'
+    
+                for (var i=0; i<Object.keys(worldPage.eventChronology).length; i++) {
+                    var key = Object.keys(worldPage.eventChronology)[i]
+                    var event1 = worldPage.eventChronology[key]
+                    document.querySelector('.chronology').innerHTML += '<tr><td>'+key+'</td><td>'+event1+'</td></tr>'
+                }
+    
+                document.querySelector('.worldlocation').innerHTML += '<h1>요약</h1>'
+                document.querySelector('.worldlocation').innerHTML += '<div class="cprofilesummary">'+worldPage.summary+'<div>'
+                document.querySelector('.worldlocation').innerHTML += '<h1>상세 정보</h1>'
+                document.querySelector('.worldlocation').innerHTML += '<div class="cprofiledescription">'+parseMd(worldPage.description)+'<div>'
+    
+                document.querySelector('.worldlocation').innerHTML += '<h1>연관 정보</h1>'
+    
+                var relatedCategory = Object.keys(worldPage.relatedTo)
+                for (var i = 0; i < relatedCategory.length; i++) {
+                    document.querySelector('.relatedcharacterlist').innerHTML += '<div class="relatedcharactercategory" id="relatedcategory'+i+'">'+relatedCategory[i]+'</div>'
+                    document.querySelector('.relatedcharacterlist').innerHTML += '<div class="relatedcharactercategorylist" id="relatedlist'+i+'"></div>'
+                    var relatedCategorylist = worldPage.relatedTo[relatedCategory[i]]
+                    for (var j = 0; j < relatedCategorylist.length; j++) {
+                        document.querySelector('#relatedlist'+i).innerHTML += '<a href="./?page='+relatedCategorylist[j]+'"><div class="characteritem" onmouseover="hoverCharacter('+relatedCategorylist[j]+')"><div><img src="'+cList[relatedCategorylist[j]].avatar+'" class="cavatar"></div><div class="cname">'+cList[relatedCategorylist[j]].name+'</div><div class="csummary">'+cList[relatedCategorylist[j]].summary+'</div></div></a>'
+                    }
+                }
             }
 
         } else { // i로 감
 
-            if (!cList[page]) {
+            if (!cList[page] && !mode) {
                 location.href = location.href + '&mode=edit'
             }
 
