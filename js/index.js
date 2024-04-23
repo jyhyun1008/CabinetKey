@@ -665,6 +665,13 @@ async function parseYourJSON(json) {
 
         if (mode == 'edit' && isLogin) {
             
+            var isSaved = false
+            window.onbeforeunload = function(){
+                if (!isSaved) {
+                    return '페이지를 나가시겠습니까? 편집한 내용은 저장되지 않습니다.'
+                }
+            }
+
             //제목, 틀 생성
             document.querySelector('#popup-content').innerHTML = '<div class="edit"><form class="editform" method="get"><div class="editordiv"><h1>기본정보 편집</h1></div></form></div>'
 
