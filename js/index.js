@@ -978,7 +978,7 @@ async function parseYourJSON(json) {
                         },
                         body: JSON.stringify({
                             i: token,
-                            query: json.info.mainHashtag+' #'+LANG.WORK,
+                            query: json.info.mainHashtag+' #'+LANG.FINISHEDWORK,
                             userId: MISSKEYID,
                             limit: 100
                         })
@@ -990,7 +990,7 @@ async function parseYourJSON(json) {
                             'content-type': 'application/json',
                         },
                         body: JSON.stringify({
-                            query: json.info.mainHashtag+' #'+LANG.WORK,
+                            query: json.info.mainHashtag+' #'+LANG.FINISHEDWORK,
                             userId: MISSKEYID,
                             limit: 100
                         })
@@ -1006,7 +1006,7 @@ async function parseYourJSON(json) {
                         },
                         body: JSON.stringify({
                             i: token,
-                            query: json.info.mainHashtag+' #'+LANG.WORK,
+                            query: json.info.mainHashtag+' #'+LANG.FINISHEDWORK,
                             userId: MISSKEYID,
                             limit: 100,
                             untilId: fetchAgain(qid, hashTagQuery, MISSKEYID)
@@ -1019,7 +1019,7 @@ async function parseYourJSON(json) {
                             'content-type': 'application/json',
                         },
                         body: JSON.stringify({
-                            query: json.info.mainHashtag+' #'+LANG.WORK,
+                            query: json.info.mainHashtag+' #'+LANG.FINISHEDWORK,
                             userId: MISSKEYID,
                             limit: 100,
                             untilId: fetchAgain(qid, hashTagQuery, MISSKEYID)
@@ -1042,7 +1042,9 @@ async function parseYourJSON(json) {
                     }
                 }
     
-                document.querySelector('.collectionlist').innerHTML += '<div class="collectionel"><div class="new"><a href="./?page=collection&mode=edit"><i class="bx bx-add-to-queue"></i></a></div></div>'
+                if (isLogin) {
+                    document.querySelector('.collectionlist').innerHTML += '<div class="collectionel"><div class="new"><a href="./?page=collection&mode=edit"><i class="bx bx-add-to-queue"></i></a></div></div>'
+                }
             })
         }
 
@@ -1897,7 +1899,7 @@ async function parseYourJSON(json) {
                                 'content-type': 'application/json',
                             },
                             body: JSON.stringify({
-                                query: hashTagQuery+' #'+json.info.mainHashtag+' #'+LANG.WORK,
+                                query: hashTagQuery+' #'+json.info.mainHashtag+' #'+LANG.FINISHEDWORK,
                                 userId: MISSKEYID,
                                 limit: 9
                             })
@@ -1910,7 +1912,7 @@ async function parseYourJSON(json) {
                                 'content-type': 'application/json',
                             },
                             body: JSON.stringify({
-                                query: hashTagQuery+' #'+json.info.mainHashtag+' #'+LANG.WORK,
+                                query: hashTagQuery+' #'+json.info.mainHashtag+' #'+LANG.FINISHEDWORK,
                                 userId: MISSKEYID,
                                 limit: 9,
                                 untilId: await fetchAgain(workqid, hashTagQuery, MISSKEYID)
@@ -2056,7 +2058,7 @@ async function parseYourJSON(json) {
                 document.querySelector('.editform').innerHTML += '<div class="editordiv"><label for="cTitle"><span class="bold">'+LANG.TITLE+'</span></label> <input type="text" id="cTitle" name="cTitle" value="'+notesRes.cw+'"></div>'
     
                 //완성작 및 초안 선택
-                if (notesRes.tags.includes(LANG.WORK)) {
+                if (notesRes.tags.includes(LANG.FINISHEDWORK)) {
                     document.querySelector('.editform').innerHTML += '<div class="editordiv"><span class="bold">'+LANG.WORKTYPE+'</span> <select name="cType" id="cType"><option value=" #'+LANG.FINISHEDWORK+'" selected>'+LANG.FINISHEDWORK+'</option><option value=" #'+LANG.DRAFT+'">'+LANG.DRAFT+'</option></select></div>'
                 } else if (notesRes.tags.includes(LANG.DRAFT)) {
                     document.querySelector('.editform').innerHTML += '<div class="editordiv"><span class="bold">'+LANG.WORKTYPE+'</span> <select name="cType" id="cType"><option value=" #'+LANG.FINISHEDWORK+'">'+LANG.FINISHEDWORK+'</option><option value=" #'+LANG.DRAFT+'" selected>'+LANG.DRAFT+'</option></select></div>'
