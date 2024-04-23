@@ -913,19 +913,36 @@ async function parseYourJSON(json) {
                 }
                 
                 var createNoteUrl = 'https://'+MISSKEYHOST+'/api/notes/create'
-                var createNoteParam = {
-                    method: 'POST',
-                    headers: {
-                        'content-type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        i: token,
-                        cw: cTitle,
-                        text: cContent+'\n\n#'+cRelatedText+' #'+json.info.mainHashtag+cType,
-                        visibility: cVisibility,
-                        localOnly: cLocalOnly,
-                        fileIds: cFile
-                    })
+                var createNoteParam
+                if (cFile.length > 0) {
+                    createNoteParam = {
+                        method: 'POST',
+                        headers: {
+                            'content-type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            i: token,
+                            cw: cTitle,
+                            text: cContent+'\n\n#'+cRelatedText+' #'+json.info.mainHashtag+cType,
+                            visibility: cVisibility,
+                            localOnly: cLocalOnly,
+                            fileIds: cFile
+                        })
+                    }
+                } else {
+                    createNoteParam = {
+                        method: 'POST',
+                        headers: {
+                            'content-type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            i: token,
+                            cw: cTitle,
+                            text: cContent+'\n\n#'+cRelatedText+' #'+json.info.mainHashtag+cType,
+                            visibility: cVisibility,
+                            localOnly: cLocalOnly,
+                        })
+                    }
                 }
                 fetch(createNoteUrl, createNoteParam)
                 .then((noteData) => { noteData.json() })
