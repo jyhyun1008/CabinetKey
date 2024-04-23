@@ -422,6 +422,20 @@ a {
     border-radius: 20px;
 }
 
+.new{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    border-radius: 20px;
+}
+
+.new .bx {
+    font-size: 50px;
+    border-radius: 20px;
+}
+
 .collectionel .overflowhidden {
     overflow: hidden;
     width: 100%;

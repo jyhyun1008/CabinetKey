@@ -571,7 +571,7 @@ function loadBackground(json) {
             }
         }
         if (isLogin) {
-            document.querySelector('#list'+(cCategory.length - 1)).innerHTML += '<a href="./?page='+cList.length+'"><div class="characteritem"><div><img src="./assets/plus.png" class="cavatar"></div><div class="cname">'+LANG.ADDCHARACTER+'</div></div></a>'
+            document.querySelector('#list'+(cCategory.length - 1)).innerHTML += '<a href="./?page='+cList.length+'"><div class="characteritem"><div class="new"><i class="bx bx-add-to-queue"></i></div><div class="cname">'+LANG.ADDCHARACTER+'</div></div></a>'
         }
     } else {
         for (var i = 0; i < cList.length; i++) {
@@ -1042,7 +1042,7 @@ async function parseYourJSON(json) {
                     }
                 }
     
-                document.querySelector('.collectionlist').innerHTML += '<div class="collectionel"><a href="./?page=collection&mode=edit"><img src="./assets/plus.png"></a></div>'
+                document.querySelector('.collectionlist').innerHTML += '<div class="collectionel"><div class="new"><a href="./?page=collection&mode=edit"><i class="bx bx-add-to-queue"></i></a></div></div>'
             })
         }
 
