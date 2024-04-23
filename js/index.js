@@ -1004,8 +1004,8 @@ async function parseYourJSON(json) {
                 document.querySelector('#popup-content').innerHTML += '<div class="relatedcharacterlist"></div>'
                 
                 document.querySelector('.songinfo').innerHTML = '<h1>'+songInfo.title+'</h1>'
-                document.querySelector('.songinfo').innerHTML = '<div>'+songInfo.artist+'<div>'
-                document.querySelector('.songinfo').innerHTML = '<div>'+songInfo.embed+'<div>'
+                document.querySelector('.songinfo').innerHTML += '<div>'+songInfo.artist+'<div>'
+                document.querySelector('.songinfo').innerHTML += '<div>'+songInfo.embed+'<div>'
     
                 document.querySelector('.songinfo').innerHTML += '<h1>요약</h1>'
                 document.querySelector('.songinfo').innerHTML += '<div >'+songInfo.summary+'<div>'
