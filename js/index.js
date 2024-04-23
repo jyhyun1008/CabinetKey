@@ -327,72 +327,73 @@ if (page == 'signin') {
                 alert('해당 아이디로 로그인하실 수 없습니다.')
                 localStorage.clear()
                 location.href = './'
-            }
-            localStorage.setItem("token", tokenRes.token)
-            var findInfoUrl = 'https://'+MISSKEYHOST+'/api/notes/search'
-            var findInfoParam = {
-                method: 'POST',
-                headers: {
-                    'content-type': 'application/json',
-                },
-                body: JSON.stringify({
-                    query: 'CabinetKey_Setup',
-                    userId: tokenRes.user.id,
-                })
-            }
-            fetch(findInfoUrl, findInfoParam)
-            .then((infoData) => {return infoData.json()})
-            .then((infoRes) => {
-                if (infoRes.length == 0) {
-                    var jsonInitial = JSON.stringify(example)
-                    var createPageUrl = 'https://'+MISSKEYHOST+'/api/pages/create'
-                    var createPageParam = {
-                        method: 'POST',
-                        headers: {
-                            'content-type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            i: tokenRes.token,
-                            title: 'CabinetKey.json',
-                            name: 'CabinetKey.json',
-                            summary: 'CabinetKey.json',
-                            variables: [],
-                            script: '',
-                            content: [{
-                                text: '```\n'+jsonInitial+'\n```',
-                                type: 'text'
-                            }]
-                        })
-                    }
-                    fetch(createPageUrl, createPageParam)
-                    .then((pageData) => {return pageData.json()})
-                    .then((pageRes) => {
-                        jsonPageId = pageRes.id
-                        localStorage.setItem('json', jsonInitial)
-                        localStorage.setItem('jsonPageId', jsonPageId)
-                        var createNoteUrl = 'https://'+MISSKEYHOST+'/api/notes/create'
-                        var createNoteParam = {
+            } else {
+                localStorage.setItem("token", tokenRes.token)
+                var findInfoUrl = 'https://'+MISSKEYHOST+'/api/notes/search'
+                var findInfoParam = {
+                    method: 'POST',
+                    headers: {
+                        'content-type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        query: 'CabinetKey_Setup',
+                        userId: tokenRes.user.id,
+                    })
+                }
+                fetch(findInfoUrl, findInfoParam)
+                .then((infoData) => {return infoData.json()})
+                .then((infoRes) => {
+                    if (infoRes.length == 0) {
+                        var jsonInitial = JSON.stringify(example)
+                        var createPageUrl = 'https://'+MISSKEYHOST+'/api/pages/create'
+                        var createPageParam = {
                             method: 'POST',
                             headers: {
                                 'content-type': 'application/json',
                             },
                             body: JSON.stringify({
                                 i: tokenRes.token,
-                                visibility: 'home',
-                                text: '`' + pageRes.id + '` #CabinetKey_Setup'
+                                title: 'CabinetKey.json',
+                                name: 'CabinetKey.json',
+                                summary: 'CabinetKey.json',
+                                variables: [],
+                                script: '',
+                                content: [{
+                                    text: '```\n'+jsonInitial+'\n```',
+                                    type: 'text'
+                                }]
                             })
                         }
-                        fetch(createNoteUrl, createNoteParam)
-                        .then((noteData) => {return noteData.json()})
-                        .then((noteRes) => {
-                            location.href = './'
+                        fetch(createPageUrl, createPageParam)
+                        .then((pageData) => {return pageData.json()})
+                        .then((pageRes) => {
+                            jsonPageId = pageRes.id
+                            localStorage.setItem('json', jsonInitial)
+                            localStorage.setItem('jsonPageId', jsonPageId)
+                            var createNoteUrl = 'https://'+MISSKEYHOST+'/api/notes/create'
+                            var createNoteParam = {
+                                method: 'POST',
+                                headers: {
+                                    'content-type': 'application/json',
+                                },
+                                body: JSON.stringify({
+                                    i: tokenRes.token,
+                                    visibility: 'home',
+                                    text: '`' + pageRes.id + '` #CabinetKey_Setup'
+                                })
+                            }
+                            fetch(createNoteUrl, createNoteParam)
+                            .then((noteData) => {return noteData.json()})
+                            .then((noteRes) => {
+                                location.href = './'
+                            })
                         })
-                    })
-                } else if (infoRes.length > 0) {
-                    isLogin = true
-                    location.href = './'
-                }
-            })
+                    } else if (infoRes.length > 0) {
+                        isLogin = true
+                        location.href = './'
+                    }
+                })
+            }
         })
     } else {
         alert('잘못된 접근입니다.')
@@ -808,7 +809,6 @@ async function parseYourJSON(json) {
         document.querySelector('#popup-content').style.display = 'block'
 
         if (mode == 'edit' && isLogin) {
-        //if (mode == 'edit' && isLogin) {
 
             document.querySelector('#popup-content').innerHTML = '<div class="editform"></div>'
             document.querySelector('.editform').innerHTML = '<h1>새 글 작성</h1>'
@@ -2041,8 +2041,7 @@ async function parseYourJSON(json) {
         .then((notesData) => {return notesData.json()})
         .then((notesRes) => {
 
-            if (mode == 'edit') {
-            //if (mode == 'edit' && isLogin) {
+            if (mode == 'edit' && isLogin) {
 
                 document.querySelector('#popup-content').innerHTML = '<div class="editform"></div>'
                 document.querySelector('.editform').innerHTML = '<h1>글 편집</h1>'
