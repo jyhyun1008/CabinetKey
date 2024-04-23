@@ -945,30 +945,61 @@ async function parseYourJSON(json) {
             var findArtsUrl = 'https://'+MISSKEYHOST+'/api/notes/search'
             var findArtsParam
             if (!qid || qid == 0 ) {
-                findArtsParam = {
-                    method: 'POST',
-                    headers: {
-                        'content-type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        query: json.info.mainHashtag+' #창작',
-                        userId: MISSKEYID,
-                        limit: 100
-                    })
+                if (isLogin) {
+                    findArtsParam = {
+                        method: 'POST',
+                        headers: {
+                            'content-type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            i: token,
+                            query: json.info.mainHashtag+' #창작',
+                            userId: MISSKEYID,
+                            limit: 100
+                        })
+                    }
+                } else {
+                    findArtsParam = {
+                        method: 'POST',
+                        headers: {
+                            'content-type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            query: json.info.mainHashtag+' #창작',
+                            userId: MISSKEYID,
+                            limit: 100
+                        })
+                    }
                 }
                 document.querySelector('.collectionqid').innerHTML = '0 · <a href="./?page='+page+'&qid='+1+'">다음</a>'
             } else {
-                findArtsParam = {
-                    method: 'POST',
-                    headers: {
-                        'content-type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        query: json.info.mainHashtag+' #창작',
-                        userId: MISSKEYID,
-                        limit: 100,
-                        untilId: fetchAgain(qid, hashTagQuery, MISSKEYID)
-                    })
+                if (isLogin) {
+                    findArtsParam = {
+                        method: 'POST',
+                        headers: {
+                            'content-type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            i: token,
+                            query: json.info.mainHashtag+' #창작',
+                            userId: MISSKEYID,
+                            limit: 100,
+                            untilId: fetchAgain(qid, hashTagQuery, MISSKEYID)
+                        })
+                    }
+                } else {
+                    findArtsParam = {
+                        method: 'POST',
+                        headers: {
+                            'content-type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            query: json.info.mainHashtag+' #창작',
+                            userId: MISSKEYID,
+                            limit: 100,
+                            untilId: fetchAgain(qid, hashTagQuery, MISSKEYID)
+                        })
+                    }
                 }
                 document.querySelector('.collectionqid').innerHTML = '<a href="./?page='+page+'&qid='+(qid-1)+'">이전</a> · '+qid+' · <a href="./?page='+page+'&qid='+(qid+1)+'">다음</a>'
             }
