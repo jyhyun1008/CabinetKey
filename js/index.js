@@ -1027,16 +1027,12 @@ async function parseYourJSON(json) {
             .then((notesRes) => {
                 for (var i = 0; i<notesRes.length; i++){
     
-                    if (mode == 'edit' && isLogin) {
-                        //TODO
+                    if (notesRes[i].files.length == 0) {
+                        document.querySelector('.collectionlist').innerHTML += '<div class="collectionel"><a href="./?note='+notesRes[i].id+'"><div class="overflowhidden" id="collection'+i+'"></div></a></div>'
+                        if (notesRes[i].cw) document.querySelector('#collection'+i).innerHTML = '</h1>'+notesRes[i].cw+'</h1>'
+                        document.querySelector('#collection'+i).innerHTML += parseMd(notesRes[i].text)
                     } else {
-                        if (notesRes[i].files.length == 0) {
-                            document.querySelector('.collectionlist').innerHTML += '<div class="collectionel"><a href="./?note='+notesRes[i].id+'"><div class="overflowhidden" id="collection'+i+'"></div></a></div>'
-                            if (notesRes[i].cw) document.querySelector('#collection'+i).innerHTML = '</h1>'+notesRes[i].cw+'</h1>'
-                            document.querySelector('#collection'+i).innerHTML += parseMd(notesRes[i].text)
-                        } else {
-                            document.querySelector('.collectionlist').innerHTML += '<div class="collectionel"><a href="./?note='+notesRes[i].id+'"><img src="'+notesRes[i].files[0].url+'"></a></div>'
-                        }
+                        document.querySelector('.collectionlist').innerHTML += '<div class="collectionel"><a href="./?note='+notesRes[i].id+'"><img src="'+notesRes[i].files[0].url+'"></a></div>'
                     }
                 }
     
