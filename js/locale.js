@@ -70,6 +70,7 @@ const koKR = {
 	"WORKTYPE": "작품 유형",
 	"YEAR": "연도",
 	"cCHRONOLOGY": "순서대로 적으실 필요 없습니다.",
+	"cDELETEFILE": "해당 파일을 삭제합니다.",
 	"cDUPLICATEDSETUPNOTES": "셋업 노트가 2개 이상 감지되었습니다. 확인 후 유효하지 않은 노트를 삭제해 주세요.",
 	"cHASHTAGS": "해시태그는 콤마(,)로 구분해주세요.",
 	"cINVALIDID": "해당 아이디로 로그인하실 수 없습니다.",
