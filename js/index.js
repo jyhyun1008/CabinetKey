@@ -889,13 +889,16 @@ async function parseYourJSON(json) {
                         document.querySelector('#imgUpload').id = 'imgUploaded'+fileCount
 
                         document.querySelector('#imgUploader').innerHTML += '<div><span class="bold">'+LANG.ADDFILE+'</span> <span id="imgUpload">'+LANG.CLICK+'</span></div>'
-                        document.querySelector('#imgUploaded'+fileCount).addEventListener("click", (e) => {
-                            var isDeleting = confirm(LANG.cDELETEFILE)
-                            if (isDeleting) {
-                                e.currentTarget.remove()
-                            }
-                        })
                         fileCount += 1
+
+                        for (var i=0; i<fileCount; i++) {
+                            document.querySelector('#imgUploaded'+i).addEventListener("click", (e) => {
+                                var isDeleting = confirm(LANG.cDELETEFILE)
+                                if (isDeleting) {
+                                    e.currentTarget.remove()
+                                }
+                            })
+                        }
                     })
                     .catch(err => {throw err});
                     
