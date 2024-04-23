@@ -947,7 +947,7 @@ async function parseYourJSON(json) {
                 document.querySelector('#confirm').addEventListener("click", (e) => {
 
                     var cTitle = document.querySelector('#cTitle').value
-                    var cEmbed = document.querySelector('#cEmbed').value
+                    var cEmbed = document.querySelector('#cEmbed').value.replace(/\"/g, "'")
                     var cRelatedTo = []
                     for (var j=0; j < document.querySelectorAll('#relatedTo'+i).length; j++) {
                         cRelatedTo[j] = document.querySelector('#cRelatedTo'+j).value
@@ -1238,7 +1238,9 @@ async function parseYourJSON(json) {
                 document.querySelector('.worldlocation').innerHTML += '<div class="cprofilesummary">'+worldPage.data.summary+'<div>'
                 document.querySelector('.worldlocation').innerHTML += '<h1>상세 정보</h1>'
                 document.querySelector('.worldlocation').innerHTML += '<div class="cprofiledescription">'+parseMd(worldPage.data.description)+'<div>'
+                var hideandsecret = true
                 document.querySelector('.worldlocation').innerHTML += '<h1>비밀 설정</h1>'
+                document.querySelector('.worldlocation').innerHTML += '<div><span id="hideSecret">펼치기/접기</span>'
                 document.querySelector('.worldlocation').innerHTML += '<div class="cprofilesecret">'+parseMd(worldPage.data.secret)+'<div>'
     
                 document.querySelector('.worldlocation').innerHTML += '<h1>연관 정보</h1>'
@@ -1252,6 +1254,16 @@ async function parseYourJSON(json) {
                         document.querySelector('#relatedlist'+i).innerHTML += '<a href="./?page='+relatedCategorylist[j]+'"><div class="characteritem" onmouseover="hoverCharacter('+relatedCategorylist[j]+')"><div><img src="'+cList[relatedCategorylist[j]].avatar+'" class="cavatar"></div><div class="cname">'+cList[relatedCategorylist[j]].name+'</div><div class="csummary">'+cList[relatedCategorylist[j]].summary+'</div></div></a>'
                     }
                 }
+
+                document.querySelector('#hideSecret').addEventListener("click", (e) => {
+                    if (hideandsecret) {
+                        document.querySelector('.cprofilesecret').style.display = 'block'
+                        hideandsecret = false
+                    } else {
+                        document.querySelector('.cprofilesecret').style.display = 'none'
+                        hideandsecret = true
+                    }
+                })
             }
 
         } else {
@@ -1654,6 +1666,10 @@ async function parseYourJSON(json) {
                 document.querySelector('.characterprofile').innerHTML += '<div class="cprofilesummary">'+cList[page].summary+'<div>'
                 document.querySelector('.characterprofile').innerHTML += '<h1>상세 정보</h1>'
                 document.querySelector('.characterprofile').innerHTML += '<div class="cprofiledescription">'+parseMd(cList[page].description)+'<div>'
+                var hideandsecret = true
+                document.querySelector('.characterprofile').innerHTML += '<h1>비밀 설정</h1>'
+                document.querySelector('.characterprofile').innerHTML += '<div><span id="hideSecret">펼치기/접기</span>'
+                document.querySelector('.characterprofile').innerHTML += '<div class="cprofilesecret">'+parseMd(cList[page].secret)+'<div>'
     
                 document.querySelector('.characterprofile').innerHTML += '<h1>인간관계</h1>'
     
@@ -1774,6 +1790,16 @@ async function parseYourJSON(json) {
                             els[el].style.display = "none";
                         }
                         hideandseek = true
+                    }
+                })
+
+                document.querySelector('#hideSecret').addEventListener("click", (e) => {
+                    if (hideandsecret) {
+                        document.querySelector('.cprofilesecret').style.display = 'block'
+                        hideandsecret = false
+                    } else {
+                        document.querySelector('.cprofilesecret').style.display = 'none'
+                        hideandsecret = true
                     }
                 })
             }
