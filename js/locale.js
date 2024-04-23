@@ -20,7 +20,7 @@ const koKR = {
 	"CRONOLOGY": "연표",
 	"DEATHYEAR": "몰년",
 	"DEFAULTYEAR": "기본 연도",
-	"DELCATEGORY": "분류 추가",
+	"DELCATEGORY": "분류 하나 제거",
 	"DELLINE": "한 줄 제거",
 	"DESCRIPTION": "상세 정보",
 	"DRAFT": "초안",
