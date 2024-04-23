@@ -571,7 +571,7 @@ function loadBackground(json) {
             }
         }
         if (isLogin) {
-            document.querySelector('#list'+(cCategory.length - 1)).innerHTML += '<a href="./?page='+cList.length+'"><div class="characteritem"><div><img src="https://peachtart2.s3.ap-northeast-1.amazonaws.com/tart/99cb88ef-a5f4-4e95-a8eb-183c5914d570.webp" class="cavatar"></div><div class="cname">'+LANG.ADDCHARACTER+'</div></div></a>'
+            document.querySelector('#list'+(cCategory.length - 1)).innerHTML += '<a href="./?page='+cList.length+'"><div class="characteritem"><div><img src="./assets/plus.png" class="cavatar"></div><div class="cname">'+LANG.ADDCHARACTER+'</div></div></a>'
         }
     } else {
         for (var i = 0; i < cList.length; i++) {
@@ -1042,7 +1042,7 @@ async function parseYourJSON(json) {
                     }
                 }
     
-                document.querySelector('.collectionlist').innerHTML += '<div class="collectionel"><a href="./?page=collection&mode=edit"><img src="https://peachtart2.s3.ap-northeast-1.amazonaws.com/tart/99cb88ef-a5f4-4e95-a8eb-183c5914d570.webp"></a></div>'
+                document.querySelector('.collectionlist').innerHTML += '<div class="collectionel"><a href="./?page=collection&mode=edit"><img src="./assets/plus.png"></a></div>'
             })
         }
 
