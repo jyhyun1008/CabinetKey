@@ -931,7 +931,7 @@ async function parseYourJSON(json) {
                 .then((noteData) => { noteData.json() })
                 .then((noteRes) => {
                     isSaved = true
-                    location.href = './?note='+noteRes.id
+                    location.href = './?note='+noteRes.createdNote.id
                 })
             })
         } else {
