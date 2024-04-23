@@ -949,7 +949,7 @@ async function parseYourJSON(json) {
                     var cTitle = document.querySelector('#cTitle').value
                     var cEmbed = document.querySelector('#cEmbed').value.replace(/\"/g, "'")
                     var cRelatedTo = []
-                    for (var j=0; j < document.querySelectorAll('#relatedTo'+i).length; j++) {
+                    for (var j=0; j < document.querySelectorAll('#relatedTo').length; j++) {
                         cRelatedTo[j] = document.querySelector('#cRelatedTo'+j).value
                     }
                     var cSummary = document.querySelector('#cSummary').value
