@@ -964,8 +964,8 @@ async function parseYourJSON(json) {
             document.querySelector('#popup-content').innerHTML = '<div class="collection"></div>'
         
             document.querySelector('.collection').innerHTML += '<h1 class="collectiontitle">작품모음</h1>'
-            document.querySelector('.collection').innerHTML += '<div class="collectionlist"><div>'
-            document.querySelector('.collection').innerHTML += '<div class="collectionqid"><div>'
+            document.querySelector('.collection').innerHTML += '<div class="collectionlist"></div>'
+            document.querySelector('.collection').innerHTML += '<div class="collectionqid"></div>'
     
             var findArtsUrl = 'https://'+MISSKEYHOST+'/api/notes/search'
             var findArtsParam
