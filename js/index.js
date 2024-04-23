@@ -573,7 +573,7 @@ function loadBackground(json) {
     }
 
     document.querySelector("#yearChange").addEventListener("click", (e) => {
-        var yearValue = document.querySelector("#yearTextInput").value
+        var yearValue = document.querySelector("#yearTextInput").value.replace(/\/g, '')
         if (yearValue > json.info.yearRange[1]) {
             yearValue = json.info.yearRange[1]
         } else if (yearValue < json.info.yearRange[0]) {
@@ -624,7 +624,7 @@ async function parseYourJSON(json) {
             document.querySelector('.editwrapper').innerHTML += '<form><label for="editrawjson">Raw JSON Data:</label><textarea id="editrawjson" name="editrawjson">'+JSON.stringify(json, null, 4)+'</textarea><div class="bold" id="editconfirm">수정</div></form>'
 
             document.querySelector('#editconfirm').addEventListener("click", (e) => {
-                json = JSON.parse(document.querySelector('#editrawjson').value)
+                json = JSON.parse(document.querySelector('#editrawjson').value.replace(/\/g, ''))
                 localStorage.setItem('json', JSON.stringify(json))
                 var updatePageUrl = 'https://'+MISSKEYHOST+'/api/pages/update'
                 var updatePageParam = {
@@ -720,26 +720,26 @@ async function parseYourJSON(json) {
 
             //이벤트 리스너들
             document.querySelector('#cAvatar').addEventListener("input", (e) => {
-                document.querySelector('.cprofileavatar').innerHTML = '<img src="'+document.querySelector('#cAvatar').value+'">'
+                document.querySelector('.cprofileavatar').innerHTML = '<img src="'+document.querySelector('#cAvatar').value.replace(/\/g, '')+'">'
             })
 
             //확인 버튼 이벤트리스너
             document.querySelector('#confirm').addEventListener("click", (e) => {
 
                 //변수에 저장
-                var cTitle = document.querySelector('#cTitle').value
-                var cSubTitle = document.querySelector('#cSubTitle').value
-                var cMainHashtag = document.querySelector('#cMainHashtag').value
-                var cHashtag = document.querySelector('#cHashtag').value.replace(/\s/g, '').split(',')
-                var cStartYear = parseInt(document.querySelector('#cStartYear').value)
-                var cMainYearArray = document.querySelector('#cMainYear').value.replace(/\s/g, '').split(',')
+                var cTitle = document.querySelector('#cTitle').value.replace(/\/g, '')
+                var cSubTitle = document.querySelector('#cSubTitle').value.replace(/\/g, '')
+                var cMainHashtag = document.querySelector('#cMainHashtag').value.replace(/\/g, '')
+                var cHashtag = document.querySelector('#cHashtag').value.replace(/\/g, '').replace(/\s/g, '').split(',')
+                var cStartYear = parseInt(document.querySelector('#cStartYear').value.replace(/\/g, ''))
+                var cMainYearArray = document.querySelector('#cMainYear').value.replace(/\/g, '').replace(/\s/g, '').split(',')
                 var cMainYear = cMainYearArray.map(function (x) { 
                     return parseInt(x, cStartYear); 
                 })
-                var cYearRange = [parseInt(document.querySelector('#cYearFrom').value), parseInt(document.querySelector('#cYearTo').value)]
-                var cAvatar = document.querySelector('#cAvatar').value
-                var cSummary = document.querySelector('#cSummary').value
-                var cDescription = document.querySelector('#cDescription').value
+                var cYearRange = [parseInt(document.querySelector('#cYearFrom').value.replace(/\/g, '')), parseInt(document.querySelector('#cYearTo').value.replace(/\/g, ''))]
+                var cAvatar = document.querySelector('#cAvatar').value.replace(/\/g, '')
+                var cSummary = document.querySelector('#cSummary').value.replace(/\/g, '')
+                var cDescription = document.querySelector('#cDescription').value.replace(/\/g, '')
                 
                 var updatedJsonInfo = {
                     "title": cTitle,
@@ -891,22 +891,22 @@ async function parseYourJSON(json) {
             //확인버튼 이벤트리스너
             document.querySelector('#confirm').addEventListener("click", (e) => {
 
-                var cTitle = document.querySelector('#cTitle').value
-                var cType = document.querySelector('#cType').value
+                var cTitle = document.querySelector('#cTitle').value.replace(/\/g, '')
+                var cType = document.querySelector('#cType').value.replace(/\/g, '')
                 var cRelatedTo = []
                 for (var j=0; j < document.querySelectorAll('#relatedTo').length; j++) {
-                    var cIndex = parseInt(document.querySelector('#cRelatedTo'+j).value)
+                    var cIndex = parseInt(document.querySelector('#cRelatedTo'+j).value.replace(/\/g, ''))
                     cRelatedTo[j] = json.character.list[cIndex].hashtag
                 }
                 var cRelatedText = cRelatedTo.join(' #')
-                var cVisibility = document.querySelector('#cVisibility').value
+                var cVisibility = document.querySelector('#cVisibility').value.replace(/\/g, '')
                 if (cVisibility == 'home' || cVisibility == 'specified') {
                     cLocalOnly = false
                 } else {
                     cLocalOnly = true
                     cVisibility = 'home'
                 }
-                var cContent = document.querySelector('#cContent').value
+                var cContent = document.querySelector('#cContent').value.replace(/\/g, '')
                 var cFile = []
                 for (var i=0; i < Math.min(document.querySelectorAll('.imgUploaded').length, 16); i++) {
                     cFile.push(document.querySelector('#imgUploaded'+i).innerText)
@@ -948,8 +948,7 @@ async function parseYourJSON(json) {
                 .then((noteData) => { return noteData.json() })
                 .then((noteRes) => {
                     isSaved = true
-                    console.log(noteRes)
-                    //location.href = './?note='+noteRes.id
+                    location.href = './?note='+noteRes.createdNote.id
                 })
             })
         } else {
@@ -1121,7 +1120,7 @@ async function parseYourJSON(json) {
 
                 //이벤트 리스너들
                 document.querySelector('#cEmbed').addEventListener("input", (e) => {
-                    document.querySelector('.cEmbedclass').innerHTML = document.querySelector('#cEmbed').value
+                    document.querySelector('.cEmbedclass').innerHTML = document.querySelector('#cEmbed').value.replace(/\/g, '')
                 })
 
                 //연관 캐릭터 이벤트 리스너
@@ -1142,15 +1141,15 @@ async function parseYourJSON(json) {
                 //확인 버튼 이벤트리스너
                 document.querySelector('#confirm').addEventListener("click", (e) => {
 
-                    var cTitle = document.querySelector('#cTitle').value
-                    var cEmbed = document.querySelector('#cEmbed').value.replace(/\"/g, "'")
+                    var cTitle = document.querySelector('#cTitle').value.replace(/\/g, '')
+                    var cEmbed = document.querySelector('#cEmbed').value.replace(/\/g, '').replace(/\"/g, "'")
                     var cRelatedTo = []
                     for (var j=0; j < document.querySelectorAll('#relatedTo').length; j++) {
-                        cRelatedTo[j] = document.querySelector('#cRelatedTo'+j).value
+                        cRelatedTo[j] = document.querySelector('#cRelatedTo'+j).value.replace(/\/g, '')
                     }
-                    var cSummary = document.querySelector('#cSummary').value
-                    var cDescription = document.querySelector('#cDescription').value
-                    var cLyrics = document.querySelector('#cLyrics').value
+                    var cSummary = document.querySelector('#cSummary').value.replace(/\/g, '')
+                    var cDescription = document.querySelector('#cDescription').value.replace(/\/g, '')
+                    var cLyrics = document.querySelector('#cLyrics').value.replace(/\/g, '')
                     
                     var updatedJsonSongInfo = {
                         "title": cTitle,
@@ -1311,7 +1310,7 @@ async function parseYourJSON(json) {
 
                 //이벤트 리스너들
                 document.querySelector('#cAvatar').addEventListener("input", (e) => {
-                    document.querySelector('.cprofileavatar').innerHTML = '<img src="'+document.querySelector('#cAvatar').value+'">'
+                    document.querySelector('.cprofileavatar').innerHTML = '<img src="'+document.querySelector('#cAvatar').value.replace(/\/g, '')+'">'
                 })
 
                 //사건 이벤트리스너
@@ -1345,25 +1344,25 @@ async function parseYourJSON(json) {
                 //확인 버튼 이벤트리스너
                 document.querySelector('#confirm').addEventListener("click", (e) => {
 
-                    var cName = document.querySelector('#cName').value
-                    var cAvatar = document.querySelector('#cAvatar').value
-                    var cLived = document.querySelector('#cBirthYear').value + ',' + document.querySelector('#cDeathYear').value
+                    var cName = document.querySelector('#cName').value.replace(/\/g, '')
+                    var cAvatar = document.querySelector('#cAvatar').value.replace(/\/g, '')
+                    var cLived = document.querySelector('#cBirthYear').value.replace(/\/g, '') + ',' + document.querySelector('#cDeathYear').value.replace(/\/g, '')
                     var cEvent = {}
                     for (var i=0; i < document.querySelectorAll('.key.event').length; i++) {
-                        var key = document.querySelector('#cEventLabel'+i).value
-                        cEvent[key] = document.querySelector('#cEvent'+i).value
+                        var key = document.querySelector('#cEventLabel'+i).value.replace(/\/g, '')
+                        cEvent[key] = document.querySelector('#cEvent'+i).value.replace(/\/g, '')
                     }
                     var cRelatedTo = {}
                     for (var i=0; i < document.querySelectorAll('.key.relatedTo').length; i++) {
-                        var key = document.querySelector('#cRelatedToKey'+i).value
+                        var key = document.querySelector('#cRelatedToKey'+i).value.replace(/\/g, '')
                         cRelatedTo[key] = []
                         for (var j=0; j < document.querySelectorAll('#relatedTo'+i).length; j++) {
-                            cRelatedTo[key][j] = document.querySelector('#cRelatedTo'+i+'-'+j).value
+                            cRelatedTo[key][j] = document.querySelector('#cRelatedTo'+i+'-'+j).value.replace(/\/g, '')
                         }
                     }
-                    var cSummary = document.querySelector('#cSummary').value
-                    var cDescription = document.querySelector('#cDescription').value
-                    var cSecret = document.querySelector('#cSecret').value
+                    var cSummary = document.querySelector('#cSummary').value.replace(/\/g, '')
+                    var cDescription = document.querySelector('#cDescription').value.replace(/\/g, '')
+                    var cSecret = document.querySelector('#cSecret').value.replace(/\/g, '')
                     
                     var updatedKey = cLived
                     var updatedJsonworldInfo = {
@@ -1627,7 +1626,7 @@ async function parseYourJSON(json) {
 
                 //이벤트 리스너들
                 document.querySelector('#cAvatar').addEventListener("input", (e) => {
-                    document.querySelector('.cprofileavatar').innerHTML = '<img src="'+document.querySelector('#cAvatar').value+'">'
+                    document.querySelector('.cprofileavatar').innerHTML = '<img src="'+document.querySelector('#cAvatar').value.replace(/\/g, '')+'">'
                 })
 
                 //테마송 이벤트리스너
@@ -1714,48 +1713,48 @@ async function parseYourJSON(json) {
                 document.querySelector('#confirm').addEventListener("click", (e) => {
 
                     //변수에 저장
-                    var cAvatar = document.querySelector('#cAvatar').value
-                    var cName = document.querySelector('#cName').value
-                    var cMeaning = document.querySelector('#cMeaning').value
+                    var cAvatar = document.querySelector('#cAvatar').value.replace(/\/g, '')
+                    var cName = document.querySelector('#cName').value.replace(/\/g, '')
+                    var cMeaning = document.querySelector('#cMeaning').value.replace(/\/g, '')
                     var cNicknames = {}
                     for (var i=0; i < document.querySelectorAll('.key.nicknames').length; i++) {
-                        var key = document.querySelector('#cNicknamesLabel'+i).value
-                        cNicknames[key] = document.querySelector('#cNicknames'+i).value
+                        var key = document.querySelector('#cNicknamesLabel'+i).value.replace(/\/g, '')
+                        cNicknames[key] = document.querySelector('#cNicknames'+i).value.replace(/\/g, '')
                     }
-                    var cBirthday = document.querySelector('#cBirthday').value
-                    var cLived = [parseInt(document.querySelector('#cBirthYear').value), parseInt(document.querySelector('#cDeathYear').value)]
-                    var cCategory = document.querySelector('#cCategory').value
-                    var cSubcateogory = document.querySelector('#cSubcateogory').value
+                    var cBirthday = document.querySelector('#cBirthday').value.replace(/\/g, '')
+                    var cLived = [parseInt(document.querySelector('#cBirthYear').value.replace(/\/g, '')), parseInt(document.querySelector('#cDeathYear').value.replace(/\/g, ''))]
+                    var cCategory = document.querySelector('#cCategory').value.replace(/\/g, '')
+                    var cSubcateogory = document.querySelector('#cSubcateogory').value.replace(/\/g, '')
                     var cEvent = {}
                     for (var i=0; i < document.querySelectorAll('.key.event').length; i++) {
-                        var key = document.querySelector('#cEventLabel'+i).value
-                        cEvent[key] = document.querySelector('#cEvent'+i).value
+                        var key = document.querySelector('#cEventLabel'+i).value.replace(/\/g, '')
+                        cEvent[key] = document.querySelector('#cEvent'+i).value.replace(/\/g, '')
                     }
                     var cPosition = {}
                     for (var i=0; i < document.querySelectorAll('.key.position').length; i++) {
-                        var key = document.querySelector('#cPositionLabel'+i).value
-                        cPosition[key] = document.querySelector('#cPosition'+i).value
+                        var key = document.querySelector('#cPositionLabel'+i).value.replace(/\/g, '')
+                        cPosition[key] = document.querySelector('#cPosition'+i).value.replace(/\/g, '')
                     }
                     var cRelatedTo = {}
                     for (var i=0; i < document.querySelectorAll('.key.relatedTo').length; i++) {
-                        var key = document.querySelector('#cRelatedToKey'+i).value
+                        var key = document.querySelector('#cRelatedToKey'+i).value.replace(/\/g, '')
                         cRelatedTo[key] = []
                         for (var j=0; j < document.querySelectorAll('#relatedTo'+i).length; j++) {
-                            cRelatedTo[key][j] = document.querySelector('#cRelatedTo'+i+'-'+j).value
+                            cRelatedTo[key][j] = document.querySelector('#cRelatedTo'+i+'-'+j).value.replace(/\/g, '')
                         }
                     }
                     var cGoal = []
                     for (var i=0; i < document.querySelectorAll('.goal').length; i++) {
-                        cGoal[i] = document.querySelector('#cGoal'+i).value
+                        cGoal[i] = document.querySelector('#cGoal'+i).value.replace(/\/g, '')
                     }
                     var cThemesong = []
                     for (var i=0; i < document.querySelectorAll('.themeSong').length; i++) {
-                        cThemesong[i] = document.querySelector('#cThemesong'+i).value
+                        cThemesong[i] = document.querySelector('#cThemesong'+i).value.replace(/\/g, '')
                     }
-                    var cSummary = document.querySelector('#cSummary').value
-                    var cDescription = document.querySelector('#cDescription').value
-                    var cSecret = document.querySelector('#cSecret').value
-                    var cHashtag = document.querySelector('#cHashtag').value
+                    var cSummary = document.querySelector('#cSummary').value.replace(/\/g, '')
+                    var cDescription = document.querySelector('#cDescription').value.replace(/\/g, '')
+                    var cSecret = document.querySelector('#cSecret').value.replace(/\/g, '')
+                    var cHashtag = document.querySelector('#cHashtag').value.replace(/\/g, '')
                     
                     var updatedJsonCharacterProfile = {
                         "avatar": cAvatar,
