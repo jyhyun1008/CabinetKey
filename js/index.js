@@ -660,7 +660,7 @@ async function parseYourJSON(json) {
         })
         document.querySelector('#popup-content').style.display = 'block'
 
-        if (mode == 'edit') {
+        if (mode == 'edit' && isLogin) {
             
             //제목, 틀 생성
             document.querySelector('#popup-content').innerHTML = '<div class="edit"><form class="editform" method="get"><div class="editordiv"><h1>기본정보 편집</h1></div></form></div>'
@@ -729,7 +729,7 @@ async function parseYourJSON(json) {
                     "summary": cSummary,
                     "description": cDescription,
                 }
-                
+
                 json.info = updatedJsonInfo
                 localStorage.setItem('json', JSON.stringify(json))
                 var updatePageUrl = 'https://'+MISSKEYHOST+'/api/pages/update'
