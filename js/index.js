@@ -435,11 +435,11 @@ function hoverCharacter(i) {
     document.querySelector('.charactername').innerHTML = '[' + i + ']' + json.character.list[i].name
 }
 
-function deleteFile(this) {
-    if ('imgUploadFrame'+fileCount != this.id) {
+function deleteFile(e) {
+    if ('imgUploadFrame'+fileCount != e.id) {
         var isDeleting = confirm(LANG.cDELETEFILE)
         if (isDeleting) {
-            this.remove()
+            e.remove()
         }
     }
 }
