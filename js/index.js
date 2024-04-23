@@ -758,6 +758,10 @@ async function parseYourJSON(json) {
                     location.href = './'
                 })
             })
+            
+            document.querySelector('#cancel').addEventListener("click", (e) => {
+                location.href = './?page='+page
+            })
 
         } else {
             document.querySelector('#popup-content').innerHTML = '<div class="worldinfo"></div>'
@@ -1236,7 +1240,7 @@ async function parseYourJSON(json) {
 
                 })
 
-                document.querySelector('#confirm').addEventListener("click", (e) => {
+                document.querySelector('#cancel').addEventListener("click", (e) => {
                     location.href = './?page='+page
                 })
             } else {
