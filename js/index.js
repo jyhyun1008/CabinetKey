@@ -493,11 +493,11 @@ async function fetchAgain(qid, hashtag, MISSKEYID) {
     var remainder = 0
     if (!qid || qid == 0) {
         return ''
-    } else if (qid > 11) {
-        fetchCount = Math.floor((qid * 9 + 1)/100)
-        remainder = (qid * 9 + 1) % 100
+    } else if (qid > 20) {
+        fetchCount = Math.floor((qid * 5)/100)
+        remainder = (qid * 5) % 100
     } else {
-        remainder = qid * 9
+        remainder = qid * 5
     }
 
     var fetchParam = await changeParam(MISSKEYID, hashtag, remainder)
@@ -1901,7 +1901,7 @@ async function parseYourJSON(json) {
                             body: JSON.stringify({
                                 query: hashTagQuery+' #'+json.info.mainHashtag+' #'+LANG.FINISHEDWORK,
                                 userId: MISSKEYID,
-                                limit: 9
+                                limit: 5
                             })
                         }
                         document.querySelector('#workqid').innerHTML = '0 · <a href="./?page='+page+'&qid='+1+','+draftqid+'">'+LANG.NEXT+'</a>'
@@ -1914,7 +1914,7 @@ async function parseYourJSON(json) {
                             body: JSON.stringify({
                                 query: hashTagQuery+' #'+json.info.mainHashtag+' #'+LANG.FINISHEDWORK,
                                 userId: MISSKEYID,
-                                limit: 9,
+                                limit: 5,
                                 untilId: await fetchAgain(workqid, hashTagQuery, MISSKEYID)
                             })
                         }
@@ -1945,7 +1945,7 @@ async function parseYourJSON(json) {
                             body: JSON.stringify({
                                 query: hashTagQuery+' #'+json.info.mainHashtag+' #'+LANG.DRAFT,
                                 userId: MISSKEYID,
-                                limit: 9
+                                limit: 5
                             })
                         }
                         document.querySelector('#draftqid').innerHTML = '0 · <a href="./?page='+page+'&qid='+(workqid)+','+(draftqid+1)+'">'+LANG.NEXT+'</a>'
@@ -1958,7 +1958,7 @@ async function parseYourJSON(json) {
                             body: JSON.stringify({
                                 query: hashTagQuery+' #'+json.info.mainHashtag+' #'+LANG.DRAFT,
                                 userId: MISSKEYID,
-                                limit: 9,
+                                limit: 5,
                                 untilId: await fetchAgain(draftqid, hashTagQuery, MISSKEYID)
                             })
                         }
