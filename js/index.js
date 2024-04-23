@@ -400,7 +400,7 @@ if (page == 'signin') {
 
 function hoverWorld(coord, year) {
     var location = nowHere(coord, year)
-    if (location) document.querySelector('.worldname').innerHTML = '[' + coord + ']' + location.name
+    if (location) document.querySelector('.worldname').innerHTML = '[' + coord + ']' + location.data.name
 }
 
 function hoverCharacter(i) {
@@ -990,7 +990,7 @@ async function parseYourJSON(json) {
                 document.querySelector('#cancel').addEventListener("click", (e) => {
                     location.href = './?page='+page
                 })
-                
+
             } else {
 
                 document.querySelector('#popup-content').innerHTML = '<div class="songinfo"></div>'
