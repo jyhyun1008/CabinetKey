@@ -25,7 +25,9 @@ document.querySelector('#collectionnav').innerText = LANG.COLLECTION
 var background = document.querySelector('#background');
 background.style.backgroundImage = 'url('+BACKIMGURL+')'
 
-var fileCount = 0
+var fileCount = {
+    l: 0
+}
 
 var isLogin = false;
 if (sessionId) {
@@ -435,9 +437,9 @@ function hoverCharacter(i) {
     document.querySelector('.charactername').innerHTML = '[' + i + ']' + json.character.list[i].name
 }
 
-function deleteFile(e, file) {
-    console.log('imgUploadFrame'+file, e.id)
-    if ('imgUploadFrame'+file != e.id) {
+function deleteFile(e) {
+    console.log('imgUploadFrame'+fileCount.l, e.id)
+    if ('imgUploadFrame'+fileCount.l != e.id) {
         var isDeleting = confirm(LANG.cDELETEFILE)
         if (isDeleting) {
             e.remove()
@@ -897,10 +899,10 @@ async function parseYourJSON(json) {
                     .then((imgRes) => {
                         document.querySelector('#imgUpload').innerText = imgRes.id
                         document.querySelector('#imgUpload').classList.add('imgUploaded')
-                        document.querySelector('#imgUpload').id = 'imgUploaded'+fileCount
-                        fileCount ++
+                        document.querySelector('#imgUpload').id = 'imgUploaded'+fileCount.l
+                        fileCount.l += 1
 
-                        document.querySelector('#imgUploader').innerHTML += '<div id="imgUploadFrame'+fileCount+'" onclick="deleteFile(this, '+fileCount+');" ><span class="bold">'+LANG.ADDFILE+'</span> <span id="imgUpload">'+LANG.CLICK+'</span></div>'
+                        document.querySelector('#imgUploader').innerHTML += '<div id="imgUploadFrame'+fileCount.l;+'" onclick="deleteFile(this);" ><span class="bold">'+LANG.ADDFILE+'</span> <span id="imgUpload">'+LANG.CLICK+'</span></div>'
                     })
                     .catch(err => {throw err});
                     
@@ -2118,12 +2120,12 @@ async function parseYourJSON(json) {
                 //파일첨부
                 document.querySelector('.editform').innerHTML += '<div class="editordiv" id="imgUploader"></div><input type="file" id="imgRealUpload" accept="image/*" style="display: none;">'
                 
-                fileCount = notesRes.fileIds.length
+                fileCount.l = notesRes.fileIds.length
                 for (var i=0; i<notesRes.fileIds.length; i++) {
-                    document.querySelector('#imgUploader').innerHTML += '<div id="imgUploadFrame'+i+'" onclick="deleteFile(this, '+fileCount+');"><span class="bold">'+LANG.ADDFILE+'</span> <span class="imgUploaded" id="imgUploaded'+i+'">'+notesRes.fileIds[i]+'</span></div>'
+                    document.querySelector('#imgUploader').innerHTML += '<div id="imgUploadFrame'+i+'" onclick="deleteFile(this);"><span class="bold">'+LANG.ADDFILE+'</span> <span class="imgUploaded" id="imgUploaded'+i+'">'+notesRes.fileIds[i]+'</span></div>'
                 }
 
-                document.querySelector('#imgUploader').innerHTML += '<div id="imgUploadFrame' +fileCount+'" onclick="deleteFile(this, '+fileCount+');"><span class="bold">'+LANG.ADDFILE+'</span> <span id="imgUpload">'+LANG.CLICK+'</span></div>'
+                document.querySelector('#imgUploader').innerHTML += '<div id="imgUploadFrame' +fileCount.l+'" onclick="deleteFile(this);"><span class="bold">'+LANG.ADDFILE+'</span> <span id="imgUpload">'+LANG.CLICK+'</span></div>'
     
                 //확인 버튼
                 document.querySelector('.editform').innerHTML += '<div class="editordiv"><span class="bold" id="confirm">'+LANG.CONFIRM+'</span> <span class="bold" id="cancel">취소</span>'
@@ -2170,10 +2172,10 @@ async function parseYourJSON(json) {
                         .then((imgRes) => {
                             document.querySelector('#imgUpload').innerText = imgRes.id
                             document.querySelector('#imgUpload').classList.add('imgUploaded')
-                            document.querySelector('#imgUpload').id = 'imgUploaded'+fileCount
-                            fileCount += 1
+                            document.querySelector('#imgUpload').id = 'imgUploaded'+fileCount.l
+                            fileCount.l += 1
 
-                            document.querySelector('#imgUploader').innerHTML += '<div id="imgUploadFrame'+fileCount+'" onclick="deleteFile(this, '+fileCount+');"><span class="bold">'+LANG.ADDFILE+'</span> <span id="imgUpload">'+LANG.CLICK+'</span></div>'
+                            document.querySelector('#imgUploader').innerHTML += '<div id="imgUploadFrame'+fileCount.l+'" onclick="deleteFile(this);"><span class="bold">'+LANG.ADDFILE+'</span> <span id="imgUpload">'+LANG.CLICK+'</span></div>'
                         })
                         .catch(err => {throw err});
                         
