@@ -2066,6 +2066,13 @@ async function parseYourJSON(json) {
 
             if (mode == 'edit' && isLogin) {
 
+                var isSaved = false
+                window.onbeforeunload = function(){
+                    if (!isSaved) {
+                        return ' '
+                    }
+                }
+
                 document.querySelector('#popup-content').innerHTML = '<div class="editform"></div>'
                 document.querySelector('.editform').innerHTML = '<h1>'+LANG.EDITWORK+'</h1>'
     
@@ -2260,6 +2267,10 @@ async function parseYourJSON(json) {
                             location.href = './?note='+noteRes.createdNote.id
                         })
                     })
+                })
+
+                document.querySelector('#cancel').addEventListener("click", (e) => {
+                    location.href = './?page='+page
                 })
             } else {
 
