@@ -438,11 +438,11 @@ function hoverCharacter(i) {
 }
 
 function deleteFile(e) {
-    console.log('imgUploadFrame'+fileCount.l, e.id)
     if ('imgUploadFrame'+fileCount.l != e.id) {
         var isDeleting = confirm(LANG.cDELETEFILE)
         if (isDeleting) {
             e.remove()
+            fileCount.l -= 1
         }
     }
 }
