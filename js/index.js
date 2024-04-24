@@ -871,7 +871,6 @@ async function parseYourJSON(json) {
             })
 
             //이미지 업로드버튼
-            var fileCount = 0
             var imgUpload = document.querySelector('#imgUpload')
             var imgRealUpload = document.querySelector('#imgRealUpload')
             imgUpload.addEventListener('click', () => imgRealUpload.click())
@@ -899,7 +898,7 @@ async function parseYourJSON(json) {
                         document.querySelector('#imgUpload').innerText = imgRes.id
                         document.querySelector('#imgUpload').classList.add('imgUploaded')
                         document.querySelector('#imgUpload').id = 'imgUploaded'+fileCount
-                        fileCount += 1
+                        fileCount ++
 
                         document.querySelector('#imgUploader').innerHTML += '<div id="imgUploadFrame'+fileCount+'" onclick="deleteFile(this, '+fileCount+');" ><span class="bold">'+LANG.ADDFILE+'</span> <span id="imgUpload">'+LANG.CLICK+'</span></div>'
                     })
