@@ -436,6 +436,7 @@ function hoverCharacter(i) {
 }
 
 function deleteFile(e, fileCount) {
+    console.log('imgUploadFrame'+fileCount, e.id)
     if ('imgUploadFrame'+fileCount != e.id) {
         var isDeleting = confirm(LANG.cDELETEFILE)
         if (isDeleting) {
