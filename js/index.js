@@ -2119,10 +2119,10 @@ async function parseYourJSON(json) {
                 //파일첨부
                 document.querySelector('.editform').innerHTML += '<div class="editordiv" id="imgUploader"></div><input type="file" id="imgRealUpload" accept="image/*" style="display: none;">'
                 
+                fileCount = notesRes.fileIds.length
                 for (var i=0; i<notesRes.fileIds.length; i++) {
                     document.querySelector('#imgUploader').innerHTML += '<div id="imgUploadFrame'+i+'" onclick="deleteFile(this, '+fileCount+');"><span class="bold">'+LANG.ADDFILE+'</span> <span class="imgUploaded" id="imgUploaded'+i+'">'+notesRes.fileIds[i]+'</span></div>'
                 }
-                fileCount = notesRes.fileIds.length
 
                 document.querySelector('#imgUploader').innerHTML += '<div id="imgUploadFrame' +fileCount+'" onclick="deleteFile(this, '+fileCount+');"><span class="bold">'+LANG.ADDFILE+'</span> <span id="imgUpload">'+LANG.CLICK+'</span></div>'
     
