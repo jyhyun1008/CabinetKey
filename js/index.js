@@ -435,9 +435,9 @@ function hoverCharacter(i) {
     document.querySelector('.charactername').innerHTML = '[' + i + ']' + json.character.list[i].name
 }
 
-function deleteFile(e, fileCount) {
-    console.log('imgUploadFrame'+fileCount, e.id)
-    if ('imgUploadFrame'+fileCount != e.id) {
+function deleteFile(e, file) {
+    console.log('imgUploadFrame'+file, e.id)
+    if ('imgUploadFrame'+file != e.id) {
         var isDeleting = confirm(LANG.cDELETEFILE)
         if (isDeleting) {
             e.remove()
