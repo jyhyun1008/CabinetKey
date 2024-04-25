@@ -772,7 +772,7 @@ async function parseYourJSON(json) {
                     "mainHashtag": cMainHashtag,
                     "hashtags": cHashtag,
                     "defaultYear": cDefaultYear,
-                    "MainYear": cMainYear,
+                    "mainYear": cMainYear,
                     "yearRange": cYearRange,
                     "map": cAvatar,
                     "summary": cSummary,
