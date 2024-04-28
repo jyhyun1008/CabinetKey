@@ -5,6 +5,7 @@ if (LANGUAGE == 'ko-KR') {
     LANG = koKR // Default Language
 }
 
+const stackedit = new Stackedit();
 var MISSKEYID = localStorage.getItem('misskeyId')
 
 const token = localStorage.getItem("token")
@@ -19,8 +20,9 @@ cssRoot.style.setProperty('--lightaccent', 'color-mix(in srgb, var(--accent) 70%
 cssRoot.style.setProperty('--opacityaccent', 'color-mix(in srgb, var(--darkaccent), transparent 40%)')
 cssRoot.style.setProperty('--bgaccent', 'color-mix(in srgb, var(--darkaccent), transparent 20%)')
 
-document.querySelector('#infonav').innerText = LANG.INFO
-document.querySelector('#collectionnav').innerText = LANG.COLLECTION
+document.querySelector('#infonav').innerHTML += '<span>'+ LANG.INFO +'</span>'
+document.querySelector('#refernav').innerHTML += '<span>'+ LANG.REFERENCE +'</span>'
+document.querySelector('#collectionnav').innerHTML += '<span>'+ LANG.COLLECTION +'</span>'
 
 var background = document.querySelector('#background');
 background.style.backgroundImage = 'url('+BACKIMGURL+')'
@@ -29,13 +31,17 @@ var fileCount = {
     l: 0
 }
 
+var untilId = {
+    i: ''
+}
+
 var isLogin = false;
 if (sessionId) {
     isLogin = true;
     if (location.href.includes('?')) {
-        document.querySelector('.nav-box').innerHTML += '<div class="nav-list"><a href="'+location.href+'&mode=edit">'+LANG.EDIT+'</a></div>'
+        document.querySelector('.nav-box').innerHTML += '<div class="nav-list"><a href="'+location.href+'&mode=edit"><i class="bx bx-edit" ></i><span>'+LANG.EDIT+'</span></a></div>'
     } else {
-        document.querySelector('.nav-box').innerHTML += '<div class="nav-list"><a href="./?mode=edit">'+LANG.EDIT+'</a></div>'
+        document.querySelector('.nav-box').innerHTML += '<div class="nav-list"><a href="./?mode=edit"><i class="bx bx-edit" ></i><span>'+LANG.EDIT+'</span></a></div>'
     }
 }
 
@@ -141,141 +147,151 @@ var example = {
             "description": "마크다운과 개행을 지원하는 긴 소개글",
             "lyrics": "마크다운과 개행을 지원하는 가사란"
         }
+    ],
+    "reference": [
+        {
+            "image": "https://peachtart2.s3.ap-northeast-1.amazonaws.com/tart/c709d3b0-e5db-4d60-abb7-a1387e6f7500.webp",
+            "title": "문헌 제목",
+            "author": "미상",
+            "hashtag": "Cabinetkey",
+            "summary": "간단 요약",
+            "description": "마크다운과 개행을 지원하는 긴 소개글"
+        }
     ]
 }
 
 var json
 if (localStorage.getItem('json')) json = JSON.parse(localStorage.getItem('json'))
 
-//마크다운 파싱
-function parseMd(md){
+// //마크다운 파싱
+// function parseMd(md){
 
-    md = "\n"+md+"\n\n"
-    var md0 = md;
+//     md = "\n"+md+"\n\n"
+//     var md0 = md;
 
-    md = md.replace(/\/g, '')
+//     md = md.replace(/\/g, '')
 
-    //checkbox
-    md = md.replace(/\-\s\[x\]([^\[].+)/gm, '<div class="checkbox-container"><i class="bx bx-checkbox-square" ></i>$1</div>')
-    md = md.replace(/\-\s\[\s\]([^\[].+)/gm, '<div class="checkbox-container"><i class="bx bx-checkbox" ></i>$1</div>')
-  
-    //ul
-    md = md.replace(/^\s*\n\*\s/gm, '<ul>\n* ');
-    md = md.replace(/\*\s([^\*]+)\n\n/gm, '* $1\n</ul>\n\n');
-    md = md.replace(/^\*\s(.+)/gm, '<li>$1</li>');
-    while (md.includes('  * ')) {
-        md = md.replace(/\<\/li\>\n\s\s\*\s/gm, '</li>\n<ul>\n  * ')
-        md = md.replace(/\s\s\*\s(.+)\n\<\/ul\>/gm, '  \* $1\n</ul>\n</ul>')
-        md = md.replace(/\s\s\*\s(.+)\n\<li\>/gm, '  \* $1\n</ul>\n<li>')
-        md = md.replace(/\n\s\s\*\s(.+)/gm, '<li>$1</li>');
-        md = md.replace(/\s\s\*\s/gm, '* ')
-    }
+//     md = md.replace(/\-\-\-/gm, 'ーーー')
 
-    //ul
-    md = md.replace(/^\s*\n\-\s/gm, '<ul>\n- ');
-    md = md.replace(/\-\s([^\-]+)\n\n/gm, '* $1\n</ul>\n\n');
-    md = md.replace(/^\-\s(.+)/gm, '<li>$1</li>');
-    while (md.includes('  - ')) {
-        md = md.replace(/\<\/li\>\n\s\s\-\s/gm, '</li>\n<ul>\n  - ')
-        md = md.replace(/\s\s\-\s(.+)\n\<\/ul\>/gm, '  \- $1\n</ul>\n</ul>')
-        md = md.replace(/\s\s\-\s(.+)\n\<li\>/gm, '  \- $1\n</ul>\n<li>')
-        md = md.replace(/\n\s\s\-\s(.+)/gm, '<li>$1</li>');
-        md = md.replace(/\s\s\-\s/gm, '- ')
-    }
-    md = md.replace(/([^\>]+)\n\<li\>/gm, '$1\n<ul>\n<li>')
+//     //checkbox
+//     md = md.replace(/\-\s\[x\]([^\[].+)/gm, '<div class="checkbox-container"><i class="bx bx-checkbox-square" ></i>$1</div>')
+//     md = md.replace(/\-\s\[\s\]([^\[].+)/gm, '<div class="checkbox-container"><i class="bx bx-checkbox" ></i>$1</div>')
+
+//     //ul
+//     md = md.replace(/^\s*\n\*\s/gm, '<ul>\n* ');
+//     md = md.replace(/\n\*\s(.+)\n\n/gm, '\n* $1\n</ul>\n\n');
+//     md = md.replace(/^\*\s(.+)/gm, '<li>$1</li>');
+//     while (md.includes('  * ')) {
+//         md = md.replace(/\<\/li\>\n\s\s\*\s/gm, '</li>\n<ul>\n  * ')
+//         md = md.replace(/\s\s\*\s(.+)\n\<\/ul\>/gm, '  \* $1\n</ul>\n</ul>')
+//         md = md.replace(/\s\s\*\s(.+)\n\<li\>/gm, '  \* $1\n</ul>\n<li>')
+//         md = md.replace(/\n\s\s\*\s(.+)/gm, '<li>$1</li>');
+//         md = md.replace(/\s\s\*\s/gm, '* ')
+//     }
+
+//     //ul
+//     md = md.replace(/^\s*\n\-\s/gm, '<ul>\n- ');
+//     md = md.replace(/\-\s([^\-]+)\n\n/gm, '* $1\n</ul>\n\n');
+//     md = md.replace(/^\-\s(.+)/gm, '<li>$1</li>');
+//     while (md.includes('  - ')) {
+//         md = md.replace(/\<\/li\>\n\s\s\-\s/gm, '</li>\n<ul>\n  - ')
+//         md = md.replace(/\s\s\-\s(.+)\n\<\/ul\>/gm, '  \- $1\n</ul>\n</ul>')
+//         md = md.replace(/\s\s\-\s(.+)\n\<li\>/gm, '  \- $1\n</ul>\n<li>')
+//         md = md.replace(/\n\s\s\-\s(.+)/gm, '<li>$1</li>');
+//         md = md.replace(/\s\s\-\s/gm, '- ')
+//     }
+//     md = md.replace(/([^\>]+)\n\<li\>/gm, '$1\n<ul>\n<li>')
     
-    //ol
-    md = md.replace(/^\s*\n\d\.\s/gm, '<ol>\n1. ');
-    md = md.replace(/^(\d\.\s.+)\s*\n([^\d\.])/gm, '$1\n</ol>\n$2');
-    md = md.replace(/^\d\.\s(.+)/gm, '<li>$1</li>');
+//     //ol
+//     md = md.replace(/^\s*\n\d\.\s/gm, '<ol>\n1. ');
+//     md = md.replace(/^(\d\.\s.+)\s*\n([^\d\.])/gm, '$1\n</ol>\n$2');
+//     md = md.replace(/^\d\.\s(.+)/gm, '<li>$1</li>');
     
-    //blockquote
-    md = md.replace(/^\>\s(.+)/gm, '<blockquote>$1</blockquote>');
-    md = md.replace(/\<\/blockquote\>\<blockquote\>/gm, '\n\n');
-    md = md.replace(/\<\/blockquote>\n<blockquote\>/gm, '\n\n');
-
-    md = md.replace(/\-\-\-/gm, 'ーーー')
+//     //blockquote
+//     md = md.replace(/^\>\s(.+)/gm, '<blockquote>$1</blockquote>');
+//     md = md.replace(/\<\/blockquote\>\<blockquote\>/gm, '\n\n');
+//     md = md.replace(/\<\/blockquote>\n<blockquote\>/gm, '\n\n');
     
-    //h
-    md = md.replace(/\n[\#]{6}\s(.+)/g, '<h6>$1</h6>');
-    md = md.replace(/\n[\#]{5}\s(.+)/g, '<h5>$1</h5>');
-    md = md.replace(/\n[\#]{4}\s(.+)/g, '<h4>$1</h4>');
-    md = md.replace(/\n[\#]{3}\s(.+)/g, '<h3>$1</h3>');
-    md = md.replace(/\n[\#]{2}\s([\s\S]+)[ー]{3}/g, '<div class="pflex">\n\#\# $1ーーー</div>');
-    md = md.replace(/\n[\#]{2}(.+)[\:]{2}(.+)\n([^ー]+)[ー]{3}/g, '<div class="pgroup $2"><h2 class="pgroup-title">$1</h2><div class="pgroup-content">$3</div></div>');
-    md = md.replace(/\n[\#]{2}(.+)\n([^ー]+)[ー]{3}/g, '<div class="pgroup"><h2 class="pgroup-title">$1</h2><div class="pgroup-content">$2</div></div>');
-    md = md.replace(/\n[\#]{2}\s(.+)/g, '<h2>$1</h2>');
-    md = md.replace(/\n[\#]{1}\s(.+)/g, '</div></div><div class="item_wrap"><div class="item"><h1 class="h1">$1</h1>');
+//     //h
+//     md = md.replace(/\n[\#]{6}\s(.+)/g, '<h6>$1</h6>');
+//     md = md.replace(/\n[\#]{5}\s(.+)/g, '<h5>$1</h5>');
+//     md = md.replace(/\n[\#]{4}\s(.+)/g, '<h4>$1</h4>');
+//     md = md.replace(/\n[\#]{3}\s(.+)/g, '<h3>$1</h3>');
+//     md = md.replace(/\n[\#]{2}\s([\s\S]+)[ー]{3}/g, '<div class="pflex">\n\#\# $1ーーー</div>');
+//     md = md.replace(/\n[\#]{2}(.+)[\:]{2}(.+)\n([^ー]+)[ー]{3}/g, '<div class="pgroup $2"><h2 class="pgroup-title">$1</h2><div class="pgroup-content">$3</div></div>');
+//     md = md.replace(/\n[\#]{2}(.+)\n([^ー]+)[ー]{3}/g, '<div class="pgroup"><h2 class="pgroup-title">$1</h2><div class="pgroup-content">$2</div></div>');
+//     md = md.replace(/\n[\#]{2}\s(.+)/g, '<h2>$1</h2>');
+//     md = md.replace(/\n[\#]{1}\s(.+)/g, '</div></div><div class="item_wrap"><div class="item"><h1 class="h1">$1</h1>');
 
-    //hr
-    md = md.replace(/[ー]{3}/g, '</div></div><div class="item_wrap"><div class="line">✿--✿--✿</div><div class="item">');
+//     //hr
+//     md = md.replace(/[ー]{3}/g, '</div></div><div class="item_wrap"><div class="line">✿--✿--✿</div><div class="item">');
     
-    //images with links
-    md = md.replace(/\!\[([^\]]+)\]\(([^\)]+)\)[\(]{1}([^\)\"]+)(\"(.+)\")?[\)]{1}/g, '<div class="gallery"><a href="$3"><img src="$2" alt="$1" width="100%" /></a></div>');
+//     //images with links
+//     md = md.replace(/\!\[([^\]]+)\]\(([^\)]+)\)[\(]{1}([^\)\"]+)(\"(.+)\")?[\)]{1}/g, '<div class="gallery"><a href="$3"><img src="$2" alt="$1" width="100%" /></a></div>');
 
-    //images with width
-    md = md.replace(/\!\[width\:([^\]]+)\]\(([^\)]+)\)/g, '<img src="$2" style="width:$1;" width="100%" />');
+//     //images with width
+//     md = md.replace(/\!\[width\:([^\]]+)\]\(([^\)]+)\)/g, '<img src="$2" style="width:$1;" width="100%" />');
     
-    //images
-    md = md.replace(/\!\[([^\]]+)\]\(([^\)]+)\)/g, '<img src="$2" alt="$1" width="100%" />');
+//     //images
+//     md = md.replace(/\!\[([^\]]+)\]\(([^\)]+)\)/g, '<img src="$2" alt="$1" width="100%" />');
     
-    //links
-    md = md.replace(/[\[]{1}([^\]]+)[\]]{1}[\(]{1}([^\)\"]+)(\"(.+)\")?[\)]{1}/g, '<a href="$2" title="$4">$1</a>');
+//     //links
+//     md = md.replace(/[\[]{1}([^\]]+)[\]]{1}[\(]{1}([^\)\"]+)(\"(.+)\")?[\)]{1}/g, '<a href="$2" title="$4">$1</a>');
     
-    //font styles
-    md = md.replace(/[\*]{2}([^\*]+)[\*]{2}/g, '<strong>$1</strong>');
-    md = md.replace(/[\*]{1}([^\*]+)[\*]{1}/g, '<i>$1</i>');
-    md = md.replace(/[\~]{2}([^\~]+)[\~]{2}/g, '<del>$1</del>');
+//     //font styles
+//     md = md.replace(/[\*]{2}([^\*]+)[\*]{2}/g, '<strong>$1</strong>');
+//     md = md.replace(/[\*]{1}([^\*]+)[\*]{1}/g, '<i>$1</i>');
+//     md = md.replace(/[\~]{2}([^\~]+)[\~]{2}/g, '<del>$1</del>');
 
-    //주석
-    md = md.replace(/\n[\/]{2}(.+)/g, '');
+//     //주석
+//     md = md.replace(/\n[\/]{2}(.+)/g, '');
     
-    //pre
-    var mdpos = [];
-    var rawpos = [];
-    let pos1 = -1;
-    let k = 0;
+//     //pre
+//     var mdpos = [];
+//     var rawpos = [];
+//     let pos1 = -1;
+//     let k = 0;
 
-    var diff = [0]
+//     var diff = [0]
 
-    while( (pos1 = md0.indexOf('\n```', pos1 + 1)) != -1 ) { 
-        if (k % 2 == 0){
-            rawpos[k] = pos1 + 4;
-        } else {
-            rawpos[k] = pos1;
-        }
-        k++;
-    }
+//     while( (pos1 = md0.indexOf('\n```', pos1 + 1)) != -1 ) { 
+//         if (k % 2 == 0){
+//             rawpos[k] = pos1 + 4;
+//         } else {
+//             rawpos[k] = pos1;
+//         }
+//         k++;
+//     }
 
-    let pos2 = -1;
-    let l = 0;
+//     let pos2 = -1;
+//     let l = 0;
 
-    while( (pos2 = md.indexOf('\n```', pos2 + 1)) != -1 ) { 
-        if (l % 2 == 0){
-            mdpos[l] = pos2 - 1;
-        } else {
-            mdpos[l] = pos2 + 5;
-        }
-        l++;
-    }
+//     while( (pos2 = md.indexOf('\n```', pos2 + 1)) != -1 ) { 
+//         if (l % 2 == 0){
+//             mdpos[l] = pos2 - 1;
+//         } else {
+//             mdpos[l] = pos2 + 5;
+//         }
+//         l++;
+//     }
 
-    for (var i = 0; i < mdpos.length; i++){
-        if (i % 2 == 0){
-            md = md.replace(md.substring(mdpos[i] - diff[i], mdpos[i+1] - diff[i]), '<pre class="code">'+md0.substring(rawpos[i], rawpos[i+1])+'</pre>');
-            var mdSubStringLength = mdpos[i+1] - mdpos[i];
-            var rawSubStringLength = rawpos[i+1] - rawpos[i] + '<pre class="code">'.length + '</pre>'.length;
-            diff[i+2] = diff[i] + mdSubStringLength - rawSubStringLength;
-        }
-    }
+//     for (var i = 0; i < mdpos.length; i++){
+//         if (i % 2 == 0){
+//             md = md.replace(md.substring(mdpos[i] - diff[i], mdpos[i+1] - diff[i]), '<pre class="code">'+md0.substring(rawpos[i], rawpos[i+1])+'</pre>');
+//             var mdSubStringLength = mdpos[i+1] - mdpos[i];
+//             var rawSubStringLength = rawpos[i+1] - rawpos[i] + '<pre class="code">'.length + '</pre>'.length;
+//             diff[i+2] = diff[i] + mdSubStringLength - rawSubStringLength;
+//         }
+//     }
 
-    //code
-    md = md.replace(/[\`]{1}([^\`]+)[\`]{1}/g, '<code>$1</code>');
+//     //code
+//     md = md.replace(/[\`]{1}([^\`]+)[\`]{1}/g, '<code>$1</code>');
     
-    //br
-    md = md.replace(/\n\n([^\n\n]+)\n\n/g, '\n<p>$1</p>');
+//     //br
+//     md = md.replace(/\n\n([^\n\n]+)\n\n/g, '\n<p>$1</p>');
 
-    return md;
-}
+//     return md;
+// }
 
 function getQueryStringObject() {
     var a = window.location.search.substr(1).split('&');
@@ -500,45 +516,111 @@ function changeParam(MISSKEYID, query, limit, untilId='') {
     });
 }
 
-async function fetchAgain(qid, hashtag, MISSKEYID) {
+async function findNoteAgain(query, until, listEl, buttonEl, MISSKEYID='') {
+    if (MISSKEYID == '') {
+        var fetchUrl = 'https://'+MISSKEYHOST+'/api/notes/search-by-tag'
+        var fetchParam
+        if (isLogin) {
+            fetchParam = {
+                method: 'POST',
+                headers: {
+                    'content-type': 'application/json',
+                },
+                body: JSON.stringify({
+                    i: token,
+                    query: query,
+                    limit: 100,
+                    untilId: until
+                })
+            }
+        } else {
+            fetchParam = {
+                method: 'POST',
+                headers: {
+                    'content-type': 'application/json',
+                },
+                body: JSON.stringify({
+                    query: query,
+                    limit: 100,
+                    untilId: until
+                })
+            }
+        }
 
-    var fetchUrl = 'https://'+MISSKEYHOST+'/api/notes/search'
-    var fetchCount = 0
-    var remainder = 0
-    if (!qid || qid == 0) {
-        return ''
-    } else if (qid > 20) {
-        fetchCount = Math.floor((qid * 5)/100)
-        remainder = (qid * 5) % 100
-    } else {
-        remainder = qid * 5
-    }
+        var data = await fetch(fetchUrl, fetchParam)
+        var result = await data.json()
+        
+        if (result.length == 100) {
+            untilId.l = result[99].id
+            buttonEl.innerHTML = '<span class="bold" onclick="findNoteAgain(`'+query+'`,`'+untilId.l+'`,'+listEl+','+ButtonEl+');">더 불러오기</span>'
+        } else {
+            buttonEl.innerHTML = '<span class="bold">마지막입니다</span>'
+        }
 
-    var fetchParam = await changeParam(MISSKEYID, hashtag, remainder)
-
-    var data = await fetch(fetchUrl, fetchParam)
-    var result = await data.json()
-    var untilId = await result[remainder - 1].id
-    if (fetchCount == 0) {
-        return await untilId
-    } else {
-        var fetchParam2 = await changeParam(MISSKEYID, hashtag, 100, untilId)
-
-        for (var i=0; i<fetchCount; i++) {
-            data = await fetch(fetchUrl, fetchParam2)
-            result = await data.json()
-            if (result.length < 100) {
-                break
-            } 
-            if (i == fetchCount - 1) {
-                return await result[99].id
+        for (var i = 0; i<result.length; i++){
+    
+            if (result[i].files.length == 0) {
+                listEl.innerHTML += '<div class="collectionel"><a href="./?note='+result[i].id+'"><div class="overflowhidden" id="collection'+i+'"></div></a></div>'
+                if (result[i].cw) document.querySelector('#collection'+i).innerHTML = '<h1>'+result[i].cw+'</h1>'
+                document.querySelector('#collection'+i).innerHTML += marked.parse(result[i].text)
             } else {
-                untilId = await result[99].id
-                fetchParam2 = await changeParam(MISSKEYID, hashtag, 100, untilId)
+                listEl.innerHTML += '<div class="collectionel"><a href="./?note='+result[i].id+'"><img src="'+result[i].files[0].url+'"></a></div>'
+            }
+        }
+
+    } else {
+        var fetchUrl = 'https://'+MISSKEYHOST+'/api/notes/search'
+        var fetchParam
+        if (isLogin) {
+            fetchParam = {
+                method: 'POST',
+                headers: {
+                    'content-type': 'application/json',
+                },
+                body: JSON.stringify({
+                    i: token,
+                    query: query,
+                    userId: MISSKEYID,
+                    limit: 100,
+                    untilId: until
+                })
+            }
+        } else {
+            fetchParam = {
+                method: 'POST',
+                headers: {
+                    'content-type': 'application/json',
+                },
+                body: JSON.stringify({
+                    query: query,
+                    userId: MISSKEYID,
+                    limit: 100,
+                    untilId: until
+                })
+            }
+        }
+
+        var data = await fetch(fetchUrl, fetchParam)
+        var result = await data.json()
+        
+        if (result.length == 100) {
+            untilId.l = result[99].id
+            buttonEl.innerHTML = '<span class="bold" onclick="findNoteAgain(`'+query+'`,`'+untilId.l+'`,'+listEl+','+ButtonEl+',`'+MISSKEYID+'`);">더 불러오기</span>'
+        } else {
+            buttonEl.innerHTML = '<span class="bold">마지막입니다</span>'
+        }
+
+        for (var i = 0; i<result.length; i++){
+    
+            if (result[i].files.length == 0) {
+                listEl.innerHTML += '<div class="collectionel"><a href="./?note='+result[i].id+'"><div class="overflowhidden" id="collection'+i+'"></div></a></div>'
+                if (result[i].cw) document.querySelector('#collection'+i).innerHTML = '<h1>'+result[i].cw+'</h1>'
+                document.querySelector('#collection'+i).innerHTML += marked.parse(result[i].text)
+            } else {
+                listEl.innerHTML += '<div class="collectionel"><a href="./?note='+result[i].id+'"><img src="'+result[i].files[0].url+'"></a></div>'
             }
         }
     }
-
 }
 
 function loadBackground(json) {
@@ -587,12 +669,30 @@ function loadBackground(json) {
         if (isLogin) {
             document.querySelector('#list'+(cCategory.length - 1)).innerHTML += '<a href="./?page='+cList.length+'"><div class="characteritem"><div class="new"><i class="bx bx-add-to-queue"></i></div><div class="cname">'+LANG.ADDCHARACTER+'</div></div></a>'
         }
+
+        for (var i = 0; i < json.character.category.length; i++) {
+            var count = document.querySelectorAll('#list'+i+' .characteritem').length
+            if (count % 3 == 1) {
+                document.querySelector('#list'+i).innerHTML += '<a href="'+location.href+'"><div class="characteritem" style="aspect-ratio: 1 / 1;"></div></a><a href="'+location.href+'"><div class="characteritem" style="aspect-ratio: 1 / 1;"></div></a>'
+            } else if (count % 3 == 2) {
+                document.querySelector('#list'+i).innerHTML += '<a href="'+location.href+'"><div class="characteritem" style="aspect-ratio: 1 / 1;"></div></a>'
+            }
+        }
     } else {
         for (var i = 0; i < cList.length; i++) {
             if (cList[i].category == category) {
                 if (year >= cList[i].lived[0] && year <= cList[i].lived[1]) {
                     document.querySelector('.characterlist').innerHTML += '<a href="./?page='+i+'"><div class="characteritem" onmouseover="hoverCharacter('+i+')"><div><img src="'+cList[i].avatar+'" class="cavatar"></div><div class="cname">'+cList[i].name+'</div><div class="csummary">'+cList[i].summary+'</div></div></a>'
                 }
+            }
+        }
+        for (var i = 0; i < json.character.category.length; i++) {
+            var count = document.querySelectorAll('#list'+i+' .characteritem').length
+            if (count % 3 == 1) {
+                document.querySelector('#list'+i).innerHTML += '<a href="'+location.href+'"><div class="characteritem" style="aspect-ratio: 1 / 1;"></div></a>'
+                document.querySelector('#list'+i).innerHTML += '<a href="'+location.href+'"><div class="characteritem" style="aspect-ratio: 1 / 1;"></div></a>'
+            } else if (count % 3 == 2) {
+                document.querySelector('#list'+i).innerHTML += '<a href="'+location.href+'"><div class="characteritem" style="aspect-ratio: 1 / 1;"></div></a>'
             }
         }
     }
@@ -608,19 +708,39 @@ function loadBackground(json) {
     })
 }
 
-var temporaryRelatedToCharacterCount = []
+function addTemporaryValues(queryText, index, targetArray) {
+    document.querySelector(queryText+index).addEventListener("input", (e) => {
+        document.querySelector(queryText+index).setAttribute("value", e.target.value)
+        targetArray[index] = e.target.value
+    })
+}
+
+var relatedItem = {
+    c: [],
+    b: []
+}
+
+var temporaryRelatedTo = {
+    count: 0,
+    characterCount: []
+}
+
+function changeRelatedToSelection(relatedToQuery) {
+    temporaryRelatedTo.count = 0
+    document.querySelector('#'+relatedToQuery).innerHTML = ''
+}
 
 function addRelatedTo(num) {
-    document.querySelector('#relatedTo'+num).innerHTML += '<div class="multiLineInput relatedTo'+num+'" id="cRelatedToEditor'+num+'-'+temporaryRelatedToCharacterCount[num]+'"><label id="cRelatedToLabel'+num+'-'+temporaryRelatedToCharacterCount[num]+'" for="cRelatedTo'+num+'-'+temporaryRelatedToCharacterCount[num]+'">'+(temporaryRelatedToCharacterCount[num]+1)+' :</label> <select name="cRelatedTo'+num+'-'+temporaryRelatedToCharacterCount[num]+'" id="cRelatedTo'+num+'-'+temporaryRelatedToCharacterCount[num]+'"></select></div>'
+    document.querySelector('#relatedTo'+num).innerHTML += '<div class="multiLineInput relatedTo'+num+'" id="cRelatedToEditor'+num+'-'+temporaryRelatedTo.characterCount[num]+'"><label id="cRelatedToLabel'+num+'-'+temporaryRelatedTo.characterCount[num]+'" for="cRelatedTo'+num+'-'+temporaryRelatedTo.characterCount[num]+'">'+(temporaryRelatedTo.characterCount[num]+1)+' :</label> <select name="cRelatedTo'+num+'-'+temporaryRelatedTo.characterCount[num]+'" id="cRelatedTo'+num+'-'+temporaryRelatedTo.characterCount[num]+'"></select></div>'
     for (var j=0; j<json.character.list.length; j++) {
-        document.querySelector('#cRelatedTo'+num+'-'+temporaryRelatedToCharacterCount[num]).innerHTML += '<option value="'+j+'">'+json.character.list[j].name+'</option>'
+        document.querySelector('#cRelatedTo'+num+'-'+temporaryRelatedTo.characterCount[num]).innerHTML += '<option value="'+j+'">'+json.character.list[j].name+'</option>'
     }
-    temporaryRelatedToCharacterCount[num] += 1
+    temporaryRelatedTo.characterCount[num] += 1
 }
 function deleteRelatedTo(num) {
-    if (temporaryRelatedToCharacterCount[num] > 0) {
-        temporaryRelatedToCharacterCount[num] -= 1
-        document.querySelector('#cRelatedToEditor'+num+'-'+temporaryRelatedToCharacterCount[num]).remove()
+    if (temporaryRelatedTo.characterCount[num] > 0) {
+        temporaryRelatedTo.characterCount[num] -= 1
+        document.querySelector('#cRelatedToEditor'+num+'-'+temporaryRelatedTo.characterCount[num]).remove()
     }
 }
 
@@ -692,7 +812,7 @@ async function parseYourJSON(json) {
         fetch(readmeUrl)
         .then(res => res.text())
         .then((out) => {
-            document.querySelector('#readme').innerHTML = parseMd(out)
+            document.querySelector('#readme').innerHTML = marked.parse(out)
         })
 
     } else if (page == 'info') {
@@ -839,10 +959,10 @@ async function parseYourJSON(json) {
             document.querySelector('.editform').innerHTML += '<div class="editordiv"><label for="cTitle"><span class="bold">'+LANG.TITLE+'</span></label> <input type="text" id="cTitle" name="cTitle""></div>'
 
             //완성작 및 초안 선택
-            document.querySelector('.editform').innerHTML += '<div class="editordiv"><span class="bold">'+LANG.WORKTYPE+'</span> <select name="cType" id="cType"><option value=" #'+LANG.FINISHEDWORK+'">'+LANG.FINISHEDWORK+'</option><option value=" #'+LANG.DRAFT+'">'+LANG.DRAFT+'</option></select></div>'
+            document.querySelector('.editform').innerHTML += '<div class="editordiv"><span class="bold">'+LANG.WORKTYPE+'</span> <select name="cType" id="cType" onchange="changeRelatedToSelection(`relatedTo`)"><option value=" #'+LANG.FINISHEDWORK+'">'+LANG.FINISHEDWORK+'</option><option value=" #'+LANG.REFERENCE+'">'+LANG.REFERENCE+'</option><option value=" #'+LANG.DRAFT+'">'+LANG.DRAFT+'</option></select></div>'
 
             //연관 캐릭터 (틀 생성)
-            var temporaryRelatedToCount = 0
+            temporaryRelatedTo.count = 0
             document.querySelector('.editform').innerHTML += '<div class="editordiv"><span class="bold">'+LANG.RELATEDTO+'</span> <span id="addRelatedTo">'+LANG.ADDLINE+'</span> · <span id="deleteRelatedTo">'+LANG.DELLINE+'</span></div><div id="relatedTo" class="editordiv"></div>'
 
             //공개 범위 (홈, 홈로컬, 비공개)
@@ -850,25 +970,31 @@ async function parseYourJSON(json) {
 
             //내용
             document.querySelector('.editform').innerHTML += '<textarea id="cContent" name="cContent"></textarea>'
-
+        
             //파일첨부
-            document.querySelector('.editform').innerHTML += '<div class="editordiv" id="imgUploader"><div id="imageUploadFrame0"><span class="bold">'+LANG.ADDFILE+'</span> <span id="imgUpload">'+LANG.CLICK+'</span></div></div><input type="file" id="imgRealUpload" accept="image/*" style="display: none;">'
+            document.querySelector('.editform').innerHTML += '<div class="editordiv" id="imgUploader"><div id="imgUploadFrame0" onclick="deleteFile(this);"><span class="bold">'+LANG.ADDFILE+'</span> <span id="imgUpload">'+LANG.CLICK+'</span></div></div><input type="file" id="imgRealUpload" accept="image/*" style="display: none;">'
 
             //확인 버튼
             document.querySelector('.editform').innerHTML += '<div class="editordiv"><span class="bold" id="confirm">'+LANG.CONFIRM+'</span> <span class="bold" id="cancel">취소</span>'
 
             //연관 캐릭터 이벤트 리스너
             document.querySelector('#addRelatedTo').addEventListener("click", (e) => {
-                document.querySelector('#relatedTo').innerHTML += '<div class="multiLineInput" id="cRelatedToEditor'+temporaryRelatedToCount+'"><label id="cRelatedToLabel'+temporaryRelatedToCount+'" for="cRelatedTo'+temporaryRelatedToCount+'">'+(temporaryRelatedToCount+1)+' :</label> <select name="cRelatedTo'+temporaryRelatedToCount+'" id="cRelatedTo'+temporaryRelatedToCount+'"></select></div>'
-                for (var j=0; j<json.character.list.length; j++) {
-                    document.querySelector('#cRelatedTo'+temporaryRelatedToCount).innerHTML += '<option value="'+j+'">'+json.character.list[j].name+'</option>'
+                document.querySelector('#relatedTo').innerHTML += '<div class="multiLineInput" id="cRelatedToEditor'+temporaryRelatedTo.count+'"><label id="cRelatedToLabel'+temporaryRelatedTo.count+'" for="relatedTo'+temporaryRelatedTo.count+'">'+(temporaryRelatedTo.count+1)+' :</label> <select name="cRelatedTo'+temporaryRelatedTo.count+'" id="relatedTo'+temporaryRelatedTo.count+'" class="relatedTo" ></select></div>'
+                if (document.querySelector('#cType').value == ' #'+LANG.REFERENCE) {
+                    for (var j=0; j<json.reference.length; j++) {
+                        document.querySelector('#relatedTo'+temporaryRelatedTo.count).innerHTML += '<option value="'+j+'">'+json.reference[j].title+'</option>'
+                    }
+                } else {
+                    for (var j=0; j<json.character.list.length; j++) {
+                        document.querySelector('#relatedTo'+temporaryRelatedTo.count).innerHTML += '<option value="'+j+'">'+json.character.list[j].name+'</option>'
+                    }
                 }
-                temporaryRelatedToCount += 1
+                temporaryRelatedTo.count += 1
             })
             document.querySelector('#deleteRelatedTo').addEventListener("click", (e) => {
-                if (temporaryRelatedToCount > 0) {
-                    temporaryRelatedToCount -= 1
-                    document.querySelector('#cRelatedToEditor'+temporaryRelatedToCount).remove()
+                if (temporaryRelatedTo.count > 0) {
+                    temporaryRelatedTo.count -= 1
+                    document.querySelector('#cRelatedToEditor'+temporaryRelatedTo.count).remove()
                 }
             })
 
@@ -902,12 +1028,30 @@ async function parseYourJSON(json) {
                         document.querySelector('#imgUpload').id = 'imgUploaded'+fileCount.l
                         fileCount.l += 1
 
-                        document.querySelector('#imgUploader').innerHTML += '<div id="imgUploadFrame'+fileCount.l;+'" onclick="deleteFile(this);" ><span class="bold">'+LANG.ADDFILE+'</span> <span id="imgUpload">'+LANG.CLICK+'</span></div>'
+                        document.querySelector('#imgUploader').innerHTML += '<div id="imgUploadFrame'+fileCount.l+'" onclick="deleteFile(this);" ><span class="bold">'+LANG.ADDFILE+'</span> <span id="imgUpload">'+LANG.CLICK+'</span></div>'
+
+                        document.querySelector('#imgUpload').addEventListener('click', () => imgRealUpload.click())
                     })
                     .catch(err => {throw err});
                     
                 }
                 reader.readAsDataURL(this.files[0])
+            })
+
+            document.querySelector('#cContent').addEventListener("click", (e) => {
+                    
+                // Open the iframe
+                stackedit.openFile({
+                    name: 'Filename', // with an optional filename
+                    content: {
+                    text: document.querySelector('#cContent').value.replace(/\n{3,}/gm, '\n\n') // and the Markdown content.
+                    }
+                })
+  
+                stackedit.on('fileChange', (file) => {
+                    document.querySelector('#cContent').value = file.content.text.replace(/\n\n/gm, '\n').replace(/\n([^\-\*\#0-9\>\|\=\s]+)/gm, '\n\n$1')
+                })
+
             })
 
             //확인버튼 이벤트리스너
@@ -916,9 +1060,13 @@ async function parseYourJSON(json) {
                 var cTitle = document.querySelector('#cTitle').value.replace(/\/g, '')
                 var cType = document.querySelector('#cType').value.replace(/\/g, '')
                 var cRelatedTo = []
-                for (var j=0; j < document.querySelectorAll('#relatedTo').length; j++) {
-                    var cIndex = parseInt(document.querySelector('#cRelatedTo'+j).value.replace(/\/g, ''))
-                    cRelatedTo[j] = json.character.list[cIndex].hashtag
+                for (var j=0; j < document.querySelectorAll('.relatedTo').length; j++) {
+                    var cIndex = parseInt(document.querySelector('#relatedTo'+j).value.replace(/\/g, ''))
+                    if (cType == ' #'+LANG.REFERENCE) {
+                        cRelatedTo[j] = json.reference[cIndex].hashtag
+                    } else {
+                        cRelatedTo[j] = json.character.list[cIndex].hashtag
+                    }
                 }
                 var cRelatedText = cRelatedTo.join(' #')
                 var cVisibility = document.querySelector('#cVisibility').value.replace(/\/g, '')
@@ -933,7 +1081,6 @@ async function parseYourJSON(json) {
                 for (var i=0; i < Math.min(document.querySelectorAll('.imgUploaded').length, 16); i++) {
                     cFile.push(document.querySelector('#imgUploaded'+i).innerText)
                 }
-                
                 
                 var createNoteUrl = 'https://'+MISSKEYHOST+'/api/notes/create'
                 var createNoteParam
@@ -984,85 +1131,90 @@ async function parseYourJSON(json) {
     
             var findArtsUrl = 'https://'+MISSKEYHOST+'/api/notes/search'
             var findArtsParam
-            if (!qid || qid == 0 ) {
-                if (isLogin) {
-                    findArtsParam = {
-                        method: 'POST',
-                        headers: {
-                            'content-type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            i: token,
-                            query: json.info.mainHashtag+' #'+LANG.FINISHEDWORK,
-                            userId: MISSKEYID,
-                            limit: 100
-                        })
-                    }
-                } else {
-                    findArtsParam = {
-                        method: 'POST',
-                        headers: {
-                            'content-type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            query: json.info.mainHashtag+' #'+LANG.FINISHEDWORK,
-                            userId: MISSKEYID,
-                            limit: 100
-                        })
-                    }
+            if (isLogin) {
+                findArtsParam = {
+                    method: 'POST',
+                    headers: {
+                        'content-type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        i: token,
+                        query: json.info.mainHashtag+' #'+LANG.FINISHEDWORK,
+                        userId: MISSKEYID,
+                        limit: 100
+                    })
                 }
-                document.querySelector('.collectionqid').innerHTML = '0 · <a href="./?page='+page+'&qid='+1+'">'+LANG.NEXT+'</a>'
             } else {
-                if (isLogin) {
-                    findArtsParam = {
-                        method: 'POST',
-                        headers: {
-                            'content-type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            i: token,
-                            query: json.info.mainHashtag+' #'+LANG.FINISHEDWORK,
-                            userId: MISSKEYID,
-                            limit: 100,
-                            untilId: fetchAgain(qid, hashTagQuery, MISSKEYID)
-                        })
-                    }
-                } else {
-                    findArtsParam = {
-                        method: 'POST',
-                        headers: {
-                            'content-type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            query: json.info.mainHashtag+' #'+LANG.FINISHEDWORK,
-                            userId: MISSKEYID,
-                            limit: 100,
-                            untilId: fetchAgain(qid, hashTagQuery, MISSKEYID)
-                        })
-                    }
+                findArtsParam = {
+                    method: 'POST',
+                    headers: {
+                        'content-type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        query: json.info.mainHashtag+' #'+LANG.FINISHEDWORK,
+                        userId: MISSKEYID,
+                        limit: 100
+                    })
                 }
-                document.querySelector('.collectionqid').innerHTML = '<a href="./?page='+page+'&qid='+(qid-1)+'">'+LANG.PREV+'</a> · '+qid+' · <a href="./?page='+page+'&qid='+(qid+1)+'">'+LANG.NEXT+'</a>'
             }
             fetch(findArtsUrl, findArtsParam)
             .then((notesData) => {return notesData.json()})
             .then((notesRes) => {
-                for (var i = 0; i<notesRes.length; i++){
-    
-                    if (notesRes[i].files.length == 0) {
-                        document.querySelector('.collectionlist').innerHTML += '<div class="collectionel"><a href="./?note='+notesRes[i].id+'"><div class="overflowhidden" id="collection'+i+'"></div></a></div>'
-                        if (notesRes[i].cw) document.querySelector('#collection'+i).innerHTML = '</h1>'+notesRes[i].cw+'</h1>'
-                        document.querySelector('#collection'+i).innerHTML += parseMd(notesRes[i].text)
-                    } else {
-                        document.querySelector('.collectionlist').innerHTML += '<div class="collectionel"><a href="./?note='+notesRes[i].id+'"><img src="'+notesRes[i].files[0].url+'"></a></div>'
-                    }
+
+                if (notesRes.length == 100) {
+                    untilId.l = notesRes[99].id
+                    document.querySelector('.collectionqid').innerHTML = '<span class="bold" onclick="findNoteAgain(`'+json.info.mainHashtag+' #'+LANG.FINISHEDWORK+'`,`'+untilId.l+'`,document.querySelector(`.collectionlist`),document.querySelector(`.collectionqid`),`'+MISSKEYID+'`);">더 불러오기</span>'
+                } else {
+                    document.querySelector('.collectionqid').innerHTML = '<span class="bold">마지막입니다</span>'
                 }
-    
+
                 if (isLogin) {
                     document.querySelector('.collectionlist').innerHTML += '<div class="collectionel"><div class="new"><a href="./?page=collection&mode=edit"><i class="bx bx-add-to-queue"></i></a></div></div>'
                 }
+
+                for (var i = 0; i<notesRes.length; i++){
+
+                    if (notesRes[i].files.length == 0) {
+                        document.querySelector('.collectionlist').innerHTML += '<div class="collectionel"><a href="./?note='+notesRes[i].id+'"><div class="overflowhidden" id="collection'+i+'"></div><div>'+notesRes[i].text.split('\n')[notesRes[i].text.split('\n').length - 1].split('@')[0]+'</div></a></div>'
+                        if (notesRes[i].cw) document.querySelector('#collection'+i).innerHTML = '<h1>'+notesRes[i].cw+'</h1>'
+                        document.querySelector('#collection'+i).innerHTML += marked.parse(notesRes[i].text)
+                    } else {
+                        document.querySelector('.collectionlist').innerHTML += '<div class="collectionel"><a href="./?note='+notesRes[i].id+'"><img src="'+notesRes[i].files[0].url+'"><div>'+notesRes[i].text.split('\n')[notesRes[i].text.split('\n').length - 1].split('@')[0]+'</div></a></div>'
+                    }
+                }
             })
         }
+    } else if (page == 'reference') {
+        loadBackground(json)
+        document.querySelector('#wrapper').addEventListener("click", (e) => {
+            location.href = './'
+        })
+        document.querySelector('#popup-content').style.display = 'block'
+    
+        if (mode == 'edit' && isLogin) {
+            document.querySelector('#popup-content').innerHTML = '<a href=""><div>책 추가</div></a><a href=""><div>테마곡 추가</div></a>'
+        } else {
+            document.querySelector('#popup-content').innerHTML += '<div class="referenceCollection"></div>'
+            document.querySelector('#popup-content').innerHTML += '<div class="themeSongCollection"></div>'
+        
+            document.querySelector('.referenceCollection').innerHTML += '<h1 class="referenceCollectionTitle">책 모음</h1>'
+            document.querySelector('.referenceCollection').innerHTML += '<div class="referenceCollectionList"></div>'
+    
+            for (var i=0; i<json.reference.length; i++) {
+                document.querySelector('.referenceCollectionList').innerHTML += '<div class="referenceItem"><div><a href="./?page=book'+i+'"><span class="bold">'+json.reference[i].title+' - '+json.reference[i].author+'</span></a></div><li>'+json.reference[i].summary+'</li></div>'
+            }
 
+            document.querySelector('.referenceCollectionList').innerHTML += '<div class="referenceItem"><div><a href="./?page=book'+json.reference.length+'"><span class="bold">책 추가</span></a></div></div>'
+    
+            document.querySelector('.themeSongCollection').innerHTML += '<h1 class="themeSongCollectionTitle">테마곡 모음</h1>'
+            document.querySelector('.themeSongCollection').innerHTML += '<div class="themeSongCollectionList"></div>'
+    
+            for (var i=0; i<json.themeSong.length; i++) {
+                document.querySelector('.themeSongCollectionList').innerHTML += '<div class="referenceItem"><div><a href="./?page=song'+i+'"><span class="bold">'+json.themeSong[i].title+' - '+json.themeSong[i].artist+'</span></a></div><li>'+json.themeSong[i].summary+'</li></div>'
+            }
+
+            document.querySelector('.themeSongCollectionList').innerHTML += '<div class="referenceItem"><div><a href="./?page=song'+json.themeSong.length+'"><span class="bold">테마곡 추가</span></a></div></div>'
+        }
     } else if (page && page != 'callback') {
         loadBackground(json)
         document.querySelector('#wrapper').addEventListener("click", (e) => {
@@ -1102,8 +1254,8 @@ async function parseYourJSON(json) {
                 //제목, 틀 생성
                 document.querySelector('#popup-content').innerHTML = '<div class="edit"><form class="editform" method="get"><div class="editordiv"><h1>'+LANG.THEMESONGEDIT.before+songNo+LANG.THEMESONGEDIT.after+'</h1></div></form></div>'
 
-                //이름
-                document.querySelector('.editform').innerHTML += '<div class="editordiv"><label for="cTitle"><span class="bold">'+LANG.NAME+'</span></label> <input type="text" id="cTitle" name="cTitle" value="'+songInfo.title+'"></div>'
+                //제목
+                document.querySelector('.editform').innerHTML += '<div class="editordiv"><label for="cTitle"><span class="bold">'+LANG.TITLE+'</span></label> <input type="text" id="cTitle" name="cTitle" value="'+songInfo.title+'"></div>'
 
                 //임베딩
                 document.querySelector('.editform').innerHTML += '<div class="editordiv"><div class="cEmbedclass">'+songInfo.embed+'</div><div class="editordiv"><label for="cEmbed"><span class="bold">'+LANG.EMBEDCODE+'</span></label> <input type="text" id="cEmbed" name="cEmbed" value="'+songInfo.embed+'"></div>'
@@ -1121,10 +1273,10 @@ async function parseYourJSON(json) {
                 document.querySelector('.editform').innerHTML += '<div class="editordiv"><h1>'+LANG.LYRICS+'</h1><textarea id="cLyrics" name="cLyrics">'+songInfo.lyrics+'</textarea>'
 
                 //연관 캐릭터 (틀 생성)
-                document.querySelector('.editform').innerHTML += '<div class="editordiv"><h1>'+LANG.RELATEDTO+'</h1><span id="addRelatedTo">'+LANG.ADDLINE+'</span> · <span id="deleteRelatedTo">'+LANG.DELLINE+'</span></div><div id="relatedTo" class="editordiv"></div>'
+                document.querySelector('.editform').innerHTML += '<div class="editordiv"><h1>'+LANG.RELATEDCHARACTER+'</h1><span id="addRelatedTo">'+LANG.ADDLINE+'</span> · <span id="deleteRelatedTo">'+LANG.DELLINE+'</span></div><div id="relatedTo" class="editordiv"></div>'
 
                 //연관 캐릭터 (드롭다운)
-                var temporaryRelatedToCount = songInfo.relatedTo.length
+                temporaryRelatedTo.count = songInfo.relatedTo.length
                 for (var i=0; i<songInfo.relatedTo.length; i++) {
                     document.querySelector('#relatedTo').innerHTML += '<div class="multiLineInput relatedTo" id="cRelatedToEditor'+i+'"><label id="cRelatedToLabel'+i+'" for="cRelatedTo'+i+'">'+(i+1)+' :</label> <select name="cRelatedTo'+i+'" id="cRelatedTo'+i+'"></select></div>'
                     for (var j=0; j<json.character.list.length; j++) {
@@ -1146,16 +1298,16 @@ async function parseYourJSON(json) {
 
                 //연관 캐릭터 이벤트 리스너
                 document.querySelector('#addRelatedTo').addEventListener("click", (e) => {
-                    document.querySelector('#relatedTo').innerHTML += '<div class="multiLineInput" id="cRelatedToEditor'+temporaryRelatedToCount+'"><label id="cRelatedToLabel'+temporaryRelatedToCount+'" for="cRelatedTo'+temporaryRelatedToCount+'">'+(temporaryRelatedToCount+1)+' :</label> <select name="cRelatedTo'+temporaryRelatedToCount+'" id="cRelatedTo'+temporaryRelatedToCount+'"></select></div>'
+                    document.querySelector('#relatedTo').innerHTML += '<div class="multiLineInput" id="cRelatedToEditor'+temporaryRelatedTo.count+'"><label id="cRelatedToLabel'+temporaryRelatedTo.count+'" for="cRelatedTo'+temporaryRelatedTo.count+'">'+(temporaryRelatedTo.count+1)+' :</label> <select name="cRelatedTo'+temporaryRelatedTo.count+'" id="cRelatedTo'+temporaryRelatedTo.count+'"></select></div>'
                     for (var j=0; j<json.character.list.length; j++) {
-                        document.querySelector('#cRelatedTo'+temporaryRelatedToCount).innerHTML += '<option value="'+j+'">'+json.character.list[j].name+'</option>'
+                        document.querySelector('#cRelatedTo'+temporaryRelatedTo.count).innerHTML += '<option value="'+j+'">'+json.character.list[j].name+'</option>'
                     }
-                    temporaryRelatedToCount += 1
+                    temporaryRelatedTo.count += 1
                 })
                 document.querySelector('#deleteRelatedTo').addEventListener("click", (e) => {
-                    if (temporaryRelatedToCount > 0) {
-                        temporaryRelatedToCount -= 1
-                        document.querySelector('#cRelatedToEditor'+temporaryRelatedToCount).remove()
+                    if (temporaryRelatedTo.count > 0) {
+                        temporaryRelatedTo.count -= 1
+                        document.querySelector('#cRelatedToEditor'+temporaryRelatedTo.count).remove()
                     }
                 })
 
@@ -1163,6 +1315,7 @@ async function parseYourJSON(json) {
                 document.querySelector('#confirm').addEventListener("click", (e) => {
 
                     var cTitle = document.querySelector('#cTitle').value.replace(/\/g, '')
+                    var cArtist = document.querySelector('#cArtist').value.replace(/\/g, '').replace(/\"/g, "'")
                     var cEmbed = document.querySelector('#cEmbed').value.replace(/\/g, '').replace(/\"/g, "'")
                     var cRelatedTo = []
                     for (var j=0; j < document.querySelectorAll('#relatedTo').length; j++) {
@@ -1174,6 +1327,7 @@ async function parseYourJSON(json) {
                     
                     var updatedJsonSongInfo = {
                         "title": cTitle,
+                        "artist": cArtist,
                         "embed": cEmbed,
                         "relatedTo": cRelatedTo,
                         "summary": cSummary,
@@ -1226,15 +1380,201 @@ async function parseYourJSON(json) {
                 document.querySelector('.songinfo').innerHTML += '<h1>'+LANG.SUMMARY+'</h1>'
                 document.querySelector('.songinfo').innerHTML += '<div >'+songInfo.summary+'<div>'
                 document.querySelector('.songinfo').innerHTML += '<h1>'+LANG.DESCRIPTION+'</h1>'
-                document.querySelector('.songinfo').innerHTML += '<div>'+parseMd(songInfo.description)+'<div>'
+                document.querySelector('.songinfo').innerHTML += '<div>'+marked.parse(songInfo.description)+'<div>'
                 document.querySelector('.songinfo').innerHTML += '<h1>'+LANG.LYRICS+'</h1>'
-                document.querySelector('.songinfo').innerHTML += '<div>'+parseMd(songInfo.lyrics)+'<div>'
+                document.querySelector('.songinfo').innerHTML += '<div>'+marked.parse(songInfo.lyrics)+'<div>'
                 
                 document.querySelector('.songinfo').innerHTML += '<h1>연관 캐릭터</h1>'
     
                 var relatedCategorylist = songInfo.relatedTo
                 for (var j = 0; j < relatedCategorylist.length; j++) {
                     document.querySelector('.relatedcharacterlist').innerHTML += '<a href="./?page='+relatedCategorylist[j]+'"><div class="characteritem" onmouseover="hoverCharacter('+relatedCategorylist[j]+')"><div><img src="'+cList[relatedCategorylist[j]].avatar+'" class="cavatar"></div><div class="cname">'+cList[relatedCategorylist[j]].name+'</div><div class="csummary">'+cList[relatedCategorylist[j]].summary+'</div></div></a>'
+                }
+            }
+        } else if (page.includes('book')) {
+            var bookNo = parseInt(page.split('book')[1])
+            var bookInfo = json.reference[bookNo]
+            if (!bookInfo && isLogin) {
+                if (!mode) {
+                    location.href = location.href + '&mode=edit'
+                } else {
+                    bookInfo = {
+                        "image": "",
+                        "title": "",
+                        "author": "",
+                        "hashtag": "",
+                        "summary": "",
+                        "description": ""
+                    }
+                }
+            }
+
+            if (mode == 'edit' && isLogin) {
+                
+                var isSaved = false
+                window.onbeforeunload = function(){
+                    if (!isSaved) {
+                        return ' '
+                    }
+                }
+
+                //제목, 틀 생성
+                document.querySelector('#popup-content').innerHTML = '<div class="edit"><form class="editform" method="get"><div class="editordiv"><h1>'+LANG.REFERENCEEDIT.before+bookNo+LANG.REFERENCEEDIT.after+'</h1></div></form></div>'
+
+                //제목
+                document.querySelector('.editform').innerHTML += '<div class="editordiv"><label for="cTitle"><span class="bold">'+LANG.TITLE+'</span></label> <input type="text" id="cTitle" name="cTitle" value="'+bookInfo.title+'"></div>'
+
+                //작가
+                document.querySelector('.editform').innerHTML += '<div class="editordiv"><label for="cArtist"><span class="bold">'+LANG.AUTHOR+'</span></label> <input type="text" id="cArtist" name="cArtist" value="'+bookInfo.author+'"></div>'
+
+                //이미지
+                document.querySelector('.editform').innerHTML += '<div class="editordiv"><div class="cprofileavatar"><img src="'+bookInfo.image+'"></div><div class="editordiv"><label for="cAvatar"><span class="bold">이미지</span></label> <input type="text" id="cAvatar" name="cAvatar" value="'+bookInfo.image+'"></div>'
+
+                //해시태그
+                document.querySelector('.editform').innerHTML += '<div class="editordiv"><label for="cHashtag"><span class="bold">'+LANG.HASHTAG+'</span></label> <input type="text" id="cHashtag" name="cHashtag" value="'+bookInfo.hashtag+'"></div>'
+
+                //요약
+                document.querySelector('.editform').innerHTML += '<div class="editordiv"><h1>'+LANG.SUMMARY+'</h1><textarea class="summary" id="cSummary" name="cSummary">'+bookInfo.summary+'</textarea>'
+
+                //상세 정보
+                document.querySelector('.editform').innerHTML += '<div class="editordiv"><h1>'+LANG.DESCRIPTION+'</h1><textarea id="cDescription" name="cDescription">'+bookInfo.description+'</textarea>'
+
+                //확인 버튼
+                document.querySelector('.editform').innerHTML += '<div class="editordiv"><span class="bold" id="confirm">'+LANG.CONFIRM+'</span> <span class="bold" id="cancel">취소</span>'
+
+                //이벤트 리스너들
+                document.querySelector('#cAvatar').addEventListener("input", (e) => {
+                    document.querySelector('.cprofileavatar').innerHTML = '<img src="'+document.querySelector('#cAvatar').value.replace(/\/g, '')+'">'
+                })
+
+                //확인 버튼 이벤트리스너
+                document.querySelector('#confirm').addEventListener("click", (e) => {
+
+                    var cTitle = document.querySelector('#cTitle').value.replace(/\/g, '')
+                    var cArtist = document.querySelector('#cArtist').value.replace(/\/g, '').replace(/\"/g, "'")
+                    var cSummary = document.querySelector('#cSummary').value.replace(/\/g, '')
+                    var cDescription = document.querySelector('#cDescription').value.replace(/\/g, '')
+                    var cHashtag = document.querySelector('#cHashtag').value.replace(/\/g, '')
+                    
+                    var updatedJsonBookInfo = {
+                        "image": cAvatar,
+                        "title": cTitle,
+                        "author": cArtist,
+                        "summary": cSummary,
+                        "description": cDescription,
+                        "hashtag": cHashtag
+                    }
+                    json.reference[bookNo] = updatedJsonBookInfo
+
+                    localStorage.setItem('json', JSON.stringify(json))
+                    var updatePageUrl = 'https://'+MISSKEYHOST+'/api/pages/update'
+                    var updatePageParam = {
+                        method: 'POST',
+                        headers: {
+                            'content-type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            i: token,
+                            pageId: jsonPageId,
+                            title: 'CabinetKey.json',
+                            name: 'CabinetKey.json',
+                            summary: 'CabinetKey.json',
+                            variables: [],
+                            script: '',
+                            content: [{
+                                text: '```\n'+JSON.stringify(json)+'\n```',
+                                type: 'text'
+                            }]
+                        })
+                    }
+                    fetch(updatePageUrl, updatePageParam)
+                    .then(() => {
+                        isSaved = true
+                        location.href = './?page='+page
+                    })
+                })
+
+                document.querySelector('#cancel').addEventListener("click", (e) => {
+                    location.href = './?page='+page
+                })
+
+            } else {
+
+                document.querySelector('#popup-content').innerHTML = '<div class="bookinfo"></div>'
+                document.querySelector('#popup-content').innerHTML += '<div class="relatedcharacterlist"></div>'
+                
+                document.querySelector('.bookinfo').innerHTML = '<h1>'+bookInfo.title+'</h1>'
+                document.querySelector('.bookinfo').innerHTML += '<div>'+bookInfo.author+'<div>'
+    
+                document.querySelector('.bookinfo').innerHTML += '<div class="wlocationimage"><img src="'+bookInfo.image+'"><div>'
+                document.querySelector('.bookinfo').innerHTML += '<h1>'+LANG.SUMMARY+'</h1>'
+                document.querySelector('.bookinfo').innerHTML += '<div >'+bookInfo.summary+'<div>'
+                document.querySelector('.bookinfo').innerHTML += '<h1>'+LANG.DESCRIPTION+'</h1>'
+                document.querySelector('.bookinfo').innerHTML += '<div>'+marked.parse(bookInfo.description)+'<div>'
+
+                document.querySelector('#popup-content').innerHTML += '<div id="collectiontitle"><h1>'+LANG.CONTENTS+'</h1></div>'
+                document.querySelector('#popup-content').innerHTML += '<div class="collectionworklist"></div><div class="collectionworkqid"></div>'
+
+                if (bookInfo.hashtag) {
+                    var findArtsUrl = 'https://'+MISSKEYHOST+'/api/notes/search'
+                    var findArtsParam
+                    if (isLogin) {
+                        findArtsParam = {
+                            method: 'POST',
+                            headers: {
+                                'content-type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                i: token,
+                                query: '#'+bookInfo.hashtag,
+                                userId: MISSKEYID,
+                                limit: 100
+                            })
+                        }
+                    } else {
+                        findArtsParam = {
+                            method: 'POST',
+                            headers: {
+                                'content-type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                query: '#'+bookInfo.hashtag,
+                                userId: MISSKEYID,
+                                limit: 100
+                            })
+                        }
+                    }
+                    fetch(findArtsUrl, findArtsParam)
+                    .then((notesData) => {return notesData.json()})
+                    .then((notesRes) => {
+                        if (notesRes.length == 100) {
+                            untilId.l = notesRes[99].id
+                            document.querySelector('.collectionworkqid').innerHTML = '<span class="bold" onclick="findNoteAgain(`'+json.info.mainHashtag+' #'+LANG.FINISHEDWORK+'`,`'+untilId.l+'`,document.querySelector(`.collectionworklist`),document.querySelector(`.collectionworkqid`),`'+MISSKEYID+'`);">더 불러오기</span>'
+                        } else {
+                            document.querySelector('.collectionworkqid').innerHTML = '<span class="bold">마지막입니다</span>'
+                        }
+
+                        notesRes.sort(function (a, b) {
+                            if (a.cw > b.cw) {
+                              return 1;
+                            }
+                            if (a.cw < b.cw) {
+                              return -1;
+                            }
+                            return 0;
+                        })
+            
+                        for (var i = 0; i<notesRes.length; i++){
+            
+                            if (notesRes[i].files.length == 0) {
+                                document.querySelector('.collectionworklist').innerHTML += '<div class="collectionel"><a href="./?note='+notesRes[i].id+'"><div class="overflowhidden" id="collection'+i+'"></div><div>'+notesRes[i].text.split('\n')[notesRes[i].text.split('\n').length - 1].split('@')[0]+'</div></a></div>'
+                                if (notesRes[i].cw) document.querySelector('#collection'+i).innerHTML = '<h1>'+notesRes[i].cw+'</h1>'
+                                document.querySelector('#collection'+i).innerHTML += marked.parse(notesRes[i].text)
+                            } else {
+                                document.querySelector('.collectionworklist').innerHTML += '<div class="collectionel"><a href="./?note='+notesRes[i].id+'"><img src="'+notesRes[i].files[0].url+'"><div>'+notesRes[i].text.split('\n')[notesRes[i].text.split('\n').length - 1].split('@')[0]+'</div></a></div>'
+                            }
+                        }
+                    })
                 }
             }
         } else if (page.includes(',')) {
@@ -1291,8 +1631,11 @@ async function parseYourJSON(json) {
                 //사건 (input 지옥)
                 var event = Object.keys(worldPage.data.eventChronology)
                 var temporaryEventCount = event.length
+                var temporaryEventKeyArray = event
+                var temporaryEventValueArray = []
                 for (var i=0; i<event.length; i++) {
-                    document.querySelector('#event').innerHTML += '<div class="multiLineInput" id="cEventEditor'+i+'"><input class="key event" id="cEventLabel'+i+'" name="cEventLabel'+i+'" value="'+event[i]+'"> <input type="text" id="cEvent'+i+'" name="cEvent'+i+'" value="'+worldPage.data.eventChronology[event[i]]+'"></div>'
+                    temporaryEventValueArray[i] = worldPage.data.eventChronology[temporaryEventKeyArray[i]]
+                    document.querySelector('#event').innerHTML += '<div class="multiLineEventInput" id="cEventEditor'+i+'"><input class="key event" id="cEventLabel'+i+'" name="cEventLabel'+i+'" value="'+temporaryEventKeyArray[i]+'"> <input type="text" id="cEvent'+i+'" name="cEvent'+i+'" value="'+temporaryEventValueArray[i]+'"></div>'
                 }
 
                 //요약
@@ -1305,17 +1648,17 @@ async function parseYourJSON(json) {
                 document.querySelector('.editform').innerHTML += '<div class="editordiv"><h1>'+LANG.SECRET+'</h1><textarea id="cSecret" name="cSecret">'+worldPage.data.secret+'</textarea>'
 
                 //관계 (1차 틀 생성)
-                document.querySelector('.editform').innerHTML += '<div class="editordiv"><h1>'+LANG.RELATEDTO+'</h1><div><span id="addRelatedTo">'+LANG.ADDCATEGORY+'</span> · <span id="deleteRelatedTo">'+LANG.DELCATEGORY+'</span></div><br><div id="cRelatedTo"></div>'
+                document.querySelector('.editform').innerHTML += '<div class="editordiv"><h1>'+LANG.RELATEDCHARACTER+'</h1><div><span id="addRelatedTo">'+LANG.ADDCATEGORY+'</span> · <span id="deleteRelatedTo">'+LANG.DELCATEGORY+'</span></div><br><div id="cRelatedTo"></div>'
 
                 //관계 (2차 틀 생성 및 드롭다운)
                 var relatedToKey = Object.keys(worldPage.data.relatedTo)
-                var temporaryRelatedToCount = relatedToKey.length
-                for (var i=0; i<temporaryRelatedToCount; i++) {
+                temporaryRelatedTo.count = relatedToKey.length
+                for (var i=0; i<temporaryRelatedTo.count; i++) {
                     document.querySelector('#cRelatedTo').innerHTML += '<div class="editordiv" id="cRelatedToEditor'+i+'"><input class="key relatedTo" id="cRelatedToKey'+i+'" value="'+relatedToKey[i]+'"> <span id="addRelatedTo'+i+'" onclick="addRelatedTo('+i+')">'+LANG.ADDLINE+'</span> · <span id="deleteRelatedTo'+i+'" onclick="deleteRelatedTo('+i+')">'+LANG.DELLINE+'</span><div id="relatedTo'+i+'" class="editordiv"></div></div>'
 
-                    temporaryRelatedToCharacterCount.push(worldPage.data.relatedTo[relatedToKey[i]].length)
+                    temporaryRelatedTo.characterCount.push(worldPage.data.relatedTo[relatedToKey[i]].length)
                     for (var l=0; l<worldPage.data.relatedTo[relatedToKey[i]].length; l++) {
-                        document.querySelector('#relatedTo'+i).innerHTML += '<div class="multiLineInput" id="cRelatedToEditor'+i+'-'+l+'"><label id="cRelatedToLabel'+i+'-'+l+'" for="cRelatedTo'+i+'-'+l+'">'+(l+1)+' :</label> <select name="cRelatedTo'+i+'-'+l+'" id="cRelatedTo'+i+'-'+l+'"></select></div>'
+                        document.querySelector('#relatedTo'+i).innerHTML += '<div class="multiLineRelatedToInput" id="cRelatedToEditor'+i+'-'+l+'"><label id="cRelatedToLabel'+i+'-'+l+'" for="cRelatedTo'+i+'-'+l+'">'+(l+1)+' :</label> <select name="cRelatedTo'+i+'-'+l+'" id="cRelatedTo'+i+'-'+l+'"></select></div>'
                         for (var j=0; j<json.character.list.length; j++) {
                             if (worldPage.data.relatedTo[relatedToKey[l]] == j) {
                                 document.querySelector('#cRelatedTo'+i+'-'+l).innerHTML += '<option value="'+j+'" selected>'+json.character.list[j].name+'</option>'
@@ -1335,14 +1678,28 @@ async function parseYourJSON(json) {
                 })
 
                 //사건 이벤트리스너
+                for (var i=0; i<document.querySelectorAll('.multiLineEventInput').length; i++) {
+                    addTemporaryValues('#cEventLabel',i, temporaryEventKeyArray)
+                    addTemporaryValues('#cEvent',i, temporaryEventValueArray)
+                }
                 document.querySelector('#addEvent').addEventListener("click", (e) => {
-                    document.querySelector('#event').innerHTML += '<div class="multiLineInput" id="cEventsEditor'+temporaryEventCount+'"><input class="key event" name="cEventsLabel'+temporaryEventCount+'" id="cEventsLabel'+temporaryEventCount+'" value="0"> <input name="cEvents'+temporaryEventCount+'" id="cEvents'+temporaryEventCount+'"></div>'
+                    document.querySelector('#event').innerHTML += '<div class="multiLineEventInput" id="cEventEditor'+temporaryEventCount+'"><input class="key event" name="cEventLabel'+temporaryEventCount+'" id="cEventLabel'+temporaryEventCount+'" value="0"> <input name="cEvent'+temporaryEventCount+'" id="cEvent'+temporaryEventCount+'"></div>'
                     temporaryEventCount += 1
+
+                    for (var i=0; i<document.querySelectorAll('.multiLineEventInput').length; i++) {
+                        addTemporaryValues('#cEventLabel',i, temporaryEventKeyArray)
+                        addTemporaryValues('#cEvent',i, temporaryEventValueArray)
+                    }
                 })
                 document.querySelector('#deleteEvent').addEventListener("click", (e) => {
                     if (temporaryEventCount > 0) {
                         temporaryEventCount -= 1
-                        document.querySelector('#cEventsEditor'+temporaryEventCount).remove()    
+                        document.querySelector('#cEventEditor'+temporaryEventCount).remove()
+                    }
+
+                    for (var i=0; i<document.querySelectorAll('.multiLineEventInput').length; i++) {
+                        addTemporaryValues('#cEventLabel',i, temporaryEventKeyArray)
+                        addTemporaryValues('#cEvent',i, temporaryEventValueArray)
                     }
                 })
 
@@ -1350,15 +1707,15 @@ async function parseYourJSON(json) {
 
                 //인간관계 (분류) 이벤트리스너
                 document.querySelector('#addRelatedTo').addEventListener("click", (e) => {
-                    document.querySelector('#cRelatedTo').innerHTML += '<div class="editordiv" id="cRelatedToEditor'+temporaryRelatedToCount+'"><input class="key relatedTo" value="" id="cRelatedToKey'+temporaryRelatedToCount+'"> <span id="addRelatedTo'+temporaryRelatedToCount+'" onclick="addRelatedTo('+temporaryRelatedToCount+')">'+LANG.ADDLINE+'</span> · <span id="deleteRelatedTo'+temporaryRelatedToCount+'" onclick="deleteRelatedTo('+temporaryRelatedToCount+')">'+LANG.DELLINE+'</span><div id="relatedTo'+temporaryRelatedToCount+'" class="editordiv"></div></div>'
-                    temporaryRelatedToCharacterCount.push(0)
-                    temporaryRelatedToCount += 1
+                    document.querySelector('#cRelatedTo').innerHTML += '<div class="editordiv" id="cRelatedToEditor'+temporaryRelatedTo.count+'"><input class="key relatedTo" value="" id="cRelatedToKey'+temporaryRelatedTo.count+'"> <span id="addRelatedTo'+temporaryRelatedTo.count+'" onclick="addRelatedTo('+temporaryRelatedTo.count+')">'+LANG.ADDLINE+'</span> · <span id="deleteRelatedTo'+temporaryRelatedTo.count+'" onclick="deleteRelatedTo('+temporaryRelatedTo.count+')">'+LANG.DELLINE+'</span><div id="relatedTo'+temporaryRelatedTo.count+'" class="editordiv"></div></div>'
+                    temporaryRelatedTo.characterCount.push(0)
+                    temporaryRelatedTo.count += 1
                 })
                 document.querySelector('#deleteRelatedTo').addEventListener("click", (e) => {
-                    if (temporaryRelatedToCount > 0) {
-                        temporaryRelatedToCount -= 1
-                        temporaryRelatedToCharacterCount.pop()
-                        document.querySelector('#cRelatedToEditor'+temporaryRelatedToCount).remove()
+                    if (temporaryRelatedTo.count > 0) {
+                        temporaryRelatedTo.count -= 1
+                        temporaryRelatedTo.characterCount.pop()
+                        document.querySelector('#cRelatedToEditor'+temporaryRelatedTo.count).remove()
                     }
                 })
 
@@ -1453,11 +1810,11 @@ async function parseYourJSON(json) {
                 document.querySelector('.worldlocation').innerHTML += '<h1>'+LANG.SUMMARY+'</h1>'
                 document.querySelector('.worldlocation').innerHTML += '<div class="cprofilesummary">'+worldPage.data.summary+'<div>'
                 document.querySelector('.worldlocation').innerHTML += '<h1>'+LANG.DESCRIPTION+'</h1>'
-                document.querySelector('.worldlocation').innerHTML += '<div class="cprofiledescription">'+parseMd(worldPage.data.description)+'<div>'
+                document.querySelector('.worldlocation').innerHTML += '<div class="cprofiledescription">'+marked.parse(worldPage.data.description)+'<div>'
                 var hideandsecret = true
                 document.querySelector('.worldlocation').innerHTML += '<h1>'+LANG.SECRET+'</h1>'
                 document.querySelector('.worldlocation').innerHTML += '<div><span id="hideSecret">'+LANG.FOLD+'</span>'
-                document.querySelector('.worldlocation').innerHTML += '<div class="cprofilesecret">'+parseMd(worldPage.data.secret)+'<div>'
+                document.querySelector('.worldlocation').innerHTML += '<div class="cprofilesecret">'+marked.parse(worldPage.data.secret)+'<div>'
     
                 document.querySelector('.worldlocation').innerHTML += '<h1>연관 정보</h1>'
     
@@ -1468,6 +1825,13 @@ async function parseYourJSON(json) {
                     var relatedCategorylist = worldPage.data.relatedTo[relatedCategory[i]]
                     for (var j = 0; j < relatedCategorylist.length; j++) {
                         document.querySelector('#relatedlist'+i).innerHTML += '<a href="./?page='+relatedCategorylist[j]+'"><div class="characteritem" onmouseover="hoverCharacter('+relatedCategorylist[j]+')"><div><img src="'+cList[relatedCategorylist[j]].avatar+'" class="cavatar"></div><div class="cname">'+cList[relatedCategorylist[j]].name+'</div><div class="csummary">'+cList[relatedCategorylist[j]].summary+'</div></div></a>'
+                    }
+                    
+                    var count = document.querySelectorAll('#relatedlist'+i+' .characteritem').length
+                    if (count % 3 == 1) {
+                        document.querySelector('#relatedlist'+i).innerHTML += '<a href="'+location.href+'"><div class="characteritem" style="aspect-ratio: 1 / 1;"></div></a><a href="'+location.href+'"><div class="characteritem" style="aspect-ratio: 1 / 1;"></div></a>'
+                    } else if (count % 3 == 2) {
+                        document.querySelector('#relatedlist'+i).innerHTML += '<a href="'+location.href+'"><div class="characteritem" style="aspect-ratio: 1 / 1;"></div></a>'
                     }
                 }
 
@@ -1556,8 +1920,11 @@ async function parseYourJSON(json) {
                 //다른 이름들 (input 지옥)
                 var nicknames = Object.keys(cList[page].nickname)
                 var temporaryNicknameCount = nicknames.length
+                var temporaryNicknameKeyArray = nicknames
+                var temporaryNicknameValueArray = []
                 for (var i=0; i<nicknames.length; i++) {
-                    document.querySelector('#nicknames').innerHTML += '<div class="multiLineInput" id="cNicknamesEditor'+i+'"><input class="key nicknames" id="cNicknamesLabel'+i+'" name="cNicknamesLabel'+i+'" value="'+nicknames[i]+'"> <input type="text" class="val nicknames" id="cNicknames'+i+'" name="cNicknames'+i+'" value="'+cList[page].nickname[nicknames[i]]+'"></div>'
+                    temporaryNicknameValueArray[i] = cList[page].nickname[nicknames[i]]
+                    document.querySelector('#nicknames').innerHTML += '<div class="multiLineNicknameInput" id="cNicknamesEditor'+i+'"><input class="key nicknames" id="cNicknamesLabel'+i+'" name="cNicknamesLabel'+i+'" value="'+temporaryNicknameKeyArray[i]+'"> <input type="text" class="val nicknames" id="cNicknames'+i+'" name="cNicknames'+i+'" value="'+temporaryNicknameValueArray[i]+'"></div>'
                 }
 
                 //분류
@@ -1585,10 +1952,13 @@ async function parseYourJSON(json) {
                 //사명 (틀 생성)
                 document.querySelector('.editform').innerHTML += '<div class="editordiv"><span class="bold">'+LANG.GOAL+'</span> <span id="addGoal">'+LANG.ADDLINE+'</span> · <span id="deleteGoal">'+LANG.DELLINE+'</span></div><div id="goal" class="editordiv"></div>'
 
-                //사명 (드롭다운)
+                //사명 (txtinput)
                 var temporaryGoalCount = cList[page].goal.length
-                for (var i=0; i<cList[page].goal.length; i++) {
-                    document.querySelector('#goal').innerHTML += '<div class="multiLineInput goal" id="cGoalEditor'+i+'"><label id="cGoalLabel'+i+'" for="cGoal'+i+'">'+(i+1)+' :</label> <input name="cGoal'+i+'" id="cGoal'+i+'"></div>'
+                var temporaryGoalKeyArray = cList[page].goal
+                var temporaryGoalValueArray = []
+                for (var i=0; i<temporaryGoalCount; i++) {
+                    temporaryGoalValueArray[i] = temporaryGoalKeyArray[i]
+                    document.querySelector('#goal').innerHTML += '<div class="multiLineGoalInput goal" id="cGoalEditor'+i+'"><label id="cGoalLabel'+i+'" for="cGoal'+i+'">'+(i+1)+' :</label> <input name="cGoal'+i+'" id="cGoal'+i+'" value="'+temporaryGoalValueArray[i]+'" ></div>'
                 }
 
                 //포지션 (틀 생성)
@@ -1597,8 +1967,11 @@ async function parseYourJSON(json) {
                 //포지션 (input 지옥)
                 var position = Object.keys(cList[page].positionChronology)
                 var temporaryPositionCount = position.length
+                var temporaryPositionKeyArray = position
+                var temporaryPositionValueArray = []
                 for (var i=0; i<position.length; i++) {
-                    document.querySelector('#position').innerHTML += '<div class="multiLineInput" id="cPositionEditor'+i+'"><input class="key position" id="cPositionLabel'+i+'" name="cPositionLabel'+i+'" value="'+position[i]+'"> <input type="text" id="cPosition'+i+'" name="cPosition'+i+'" value="'+cList[page].positionChronology[position[i]]+'"></div>'
+                    temporaryPositionValueArray[i] = cList[page].positionChronology[temporaryPositionKeyArray[i]]
+                    document.querySelector('#position').innerHTML += '<div class="multiLinePositionInput" id="cPositionEditor'+i+'"><input class="key position" id="cPositionLabel'+i+'" name="cPositionLabel'+i+'" value="'+temporaryPositionKeyArray[i]+'"> <input type="text" id="cPosition'+i+'" name="cPosition'+i+'" value="'+temporaryPositionValueArray[i]+'"></div>'
                 }
 
                 //사건 (틀 생성)
@@ -1607,8 +1980,11 @@ async function parseYourJSON(json) {
                 //사건 (input 지옥)
                 var event = Object.keys(cList[page].eventChronology)
                 var temporaryEventCount = event.length
+                var temporaryEventKeyArray = event
+                var temporaryEventValueArray = []
                 for (var i=0; i<event.length; i++) {
-                    document.querySelector('#event').innerHTML += '<div class="multiLineInput" id="cEventEditor'+i+'"><input class="key event" id="cEventLabel'+i+'" name="cEventLabel'+i+'" value="'+event[i]+'"> <input type="text" id="cEvent'+i+'" name="cEvent'+i+'" value="'+cList[page].eventChronology[event[i]]+'"></div>'
+                    temporaryEventValueArray[i] = cList[page].eventChronology[temporaryEventKeyArray[i]]
+                    document.querySelector('#event').innerHTML += '<div class="multiLineEventInput" id="cEventEditor'+i+'"><input class="key event" id="cEventLabel'+i+'" name="cEventLabel'+i+'" value="'+temporaryEventKeyArray[i]+'"> <input type="text" id="cEvent'+i+'" name="cEvent'+i+'" value="'+temporaryEventValueArray[i]+'"></div>'
                 }
 
                 //요약
@@ -1621,17 +1997,17 @@ async function parseYourJSON(json) {
                 document.querySelector('.editform').innerHTML += '<div class="editordiv"><h1>'+LANG.SECRET+'</h1><textarea id="cSecret" name="cSecret">'+cList[page].secret+'</textarea>'
 
                 //인간관계 (1차 틀 생성)
-                document.querySelector('.editform').innerHTML += '<div class="editordiv"><h1>'+LANG.RELATEDTO+'</h1><div><span id="addRelatedTo">'+LANG.ADDCATEGORY+'</span> · <span id="deleteRelatedTo">'+LANG.DELCATEGORY+'</span></div><br><div id="cRelatedTo"></div>'
+                document.querySelector('.editform').innerHTML += '<div class="editordiv"><h1>'+LANG.RELATEDCHARACTER+'</h1><div><span id="addRelatedTo">'+LANG.ADDCATEGORY+'</span> · <span id="deleteRelatedTo">'+LANG.DELCATEGORY+'</span></div><br><div id="cRelatedTo"></div>'
 
                 //인간관계 (2차 틀 생성 및 드롭다운)
                 var relatedToKey = Object.keys(cList[page].relatedTo)
-                var temporaryRelatedToCount = relatedToKey.length
-                for (var i=0; i<temporaryRelatedToCount; i++) {
+                temporaryRelatedTo.count = relatedToKey.length
+                for (var i=0; i<temporaryRelatedTo.count; i++) {
                     document.querySelector('#cRelatedTo').innerHTML += '<div class="editordiv" id="cRelatedToEditor'+i+'"><input class="key relatedTo" id="cRelatedToKey'+i+'" value="'+relatedToKey[i]+'"> <span id="addRelatedTo'+i+'" onclick="addRelatedTo('+i+')">'+LANG.ADDLINE+'</span> · <span id="deleteRelatedTo'+i+'" onclick="deleteRelatedTo('+i+')">'+LANG.DELLINE+'</span><div id="relatedTo'+i+'" class="editordiv"></div></div>'
 
-                    temporaryRelatedToCharacterCount.push(cList[page].relatedTo[relatedToKey[i]].length)
+                    temporaryRelatedTo.characterCount.push(cList[page].relatedTo[relatedToKey[i]].length)
                     for (var l=0; l<cList[page].relatedTo[relatedToKey[i]].length; l++) {
-                        document.querySelector('#relatedTo'+i).innerHTML += '<div class="multiLineInput" id="cRelatedToEditor'+i+'-'+l+'"><label id="cRelatedToLabel'+i+'-'+l+'" for="cRelatedTo'+i+'-'+l+'">'+(l+1)+' :</label> <select name="cRelatedTo'+i+'-'+l+'" id="cRelatedTo'+i+'-'+l+'"></select></div>'
+                        document.querySelector('#relatedTo'+i).innerHTML += '<div class="multiLineRelatedToInput" id="cRelatedToEditor'+i+'-'+l+'"><label id="cRelatedToLabel'+i+'-'+l+'" for="cRelatedTo'+i+'-'+l+'">'+(l+1)+' :</label> <select name="cRelatedTo'+i+'-'+l+'" id="cRelatedTo'+i+'-'+l+'"></select></div>'
                         for (var j=0; j<json.character.list.length; j++) {
                             if (cList[page].relatedTo[relatedToKey[l]] == j) {
                                 document.querySelector('#cRelatedTo'+i+'-'+l).innerHTML += '<option value="'+j+'" selected>'+json.character.list[j].name+'</option>'
@@ -1652,7 +2028,7 @@ async function parseYourJSON(json) {
 
                 //테마송 이벤트리스너
                 document.querySelector('#addThemeSong').addEventListener("click", (e) => {
-                    document.querySelector('#themeSong').innerHTML += '<div class="multiLineInput" id="cThemesongEditor'+temporaryThemeSongCount+'"><label id="cThemesongLabel'+temporaryThemeSongCount+'" for="cThemesong'+temporaryThemeSongCount+'">'+(temporaryThemeSongCount+1)+' :</label> <select name="cThemesong'+temporaryThemeSongCount+'" id="cThemesong'+temporaryThemeSongCount+'"></select></div>'
+                    document.querySelector('#themeSong').innerHTML += '<div class="multiLineThemeSongInput" id="cThemesongEditor'+temporaryThemeSongCount+'"><label id="cThemesongLabel'+temporaryThemeSongCount+'" for="cThemesong'+temporaryThemeSongCount+'">'+(temporaryThemeSongCount+1)+' :</label> <select name="cThemesong'+temporaryThemeSongCount+'" id="cThemesong'+temporaryThemeSongCount+'"></select></div>'
                     for (var j=0; j<json.themeSong.length; j++) {
                         document.querySelector('#cThemesong'+temporaryThemeSongCount).innerHTML += '<option value="'+j+'">'+json.themeSong[j].title+'</option>'
                     }
@@ -1666,21 +2042,43 @@ async function parseYourJSON(json) {
                 })
 
                 //다른 이름들 이벤트리스너
+                for (var i=0; i<document.querySelectorAll('.multiLineNicknameInput').length; i++) {
+                    addTemporaryValues('#cNicknamesLabel',i, temporaryNicknameKeyArray)
+                    addTemporaryValues('#cNicknames',i, temporaryNicknameValueArray)
+                }
                 document.querySelector('#addNickname').addEventListener("click", (e) => {
-                    document.querySelector('#nicknames').innerHTML += '<div class="multiLineInput" id="cNicknamesEditor'+temporaryNicknameCount+'"><input class="key nicknames" name="cNicknamesLabel'+temporaryNicknameCount+'" id="cNicknamesLabel'+temporaryNicknameCount+'" value="'+(temporaryNicknameCount+1)+'"> <input name="cNicknames'+temporaryNicknameCount+'" id="cNicknames'+temporaryNicknameCount+'"></div>'
+                    document.querySelector('#nicknames').innerHTML += '<div class="multiLineNicknameInput" id="cNicknamesEditor'+temporaryNicknameCount+'"><input class="key nicknames" name="cNicknamesLabel'+temporaryNicknameCount+'" id="cNicknamesLabel'+temporaryNicknameCount+'" value="'+(temporaryNicknameCount+1)+'"> <input name="cNicknames'+temporaryNicknameCount+'" id="cNicknames'+temporaryNicknameCount+'"></div>'
                     temporaryNicknameCount += 1
+
+                    for (var i=0; i<document.querySelectorAll('.multiLineNicknameInput').length; i++) {
+                        addTemporaryValues('#cNicknamesLabel',i, temporaryNicknameKeyArray)
+                        addTemporaryValues('#cNicknames',i, temporaryNicknameValueArray)
+                    }
                 })
+
                 document.querySelector('#deleteNickname').addEventListener("click", (e) => {
                     if (temporaryNicknameCount > 0) {
                         temporaryNicknameCount -= 1
                         document.querySelector('#cNicknamesEditor'+temporaryNicknameCount).remove()    
                     }
+
+                    for (var i=0; i<document.querySelectorAll('.multiLineNicknameInput').length; i++) {
+                        addTemporaryValues('#cNicknamesLabel',i, temporaryNicknameKeyArray)
+                        addTemporaryValues('#cNicknames',i, temporaryNicknameValueArray)
+                    }
                 })
 
                 //사명 이벤트리스너
+                for (var i=0; i<document.querySelectorAll('.multiLineGoalInput').length; i++) {
+                    addTemporaryValues('#cGoal',i, temporaryGoalValueArray)
+                }
                 document.querySelector('#addGoal').addEventListener("click", (e) => {
-                    document.querySelector('#goal').innerHTML += '<div class="multiLineInput" id="cGoalEditor'+temporaryGoalCount+'"><label id="cGoalLabel'+temporaryGoalCount+'" for="cGoal'+temporaryGoalCount+'">'+(temporaryGoalCount+1)+' :</label>  <input name="cGoal'+temporaryGoalCount+'" id="cGoal'+temporaryGoalCount+'"></div>'
+                    document.querySelector('#goal').innerHTML += '<div class="multiLineGoalInput" id="cGoalEditor'+temporaryGoalCount+'"><label id="cGoalLabel'+temporaryGoalCount+'" for="cGoal'+temporaryGoalCount+'">'+(temporaryGoalCount+1)+' :</label>  <input name="cGoal'+temporaryGoalCount+'" id="cGoal'+temporaryGoalCount+'"></div>'
                     temporaryGoalCount += 1
+
+                    for (var i=0; i<document.querySelectorAll('.multiLineGoalInput').length; i++) {
+                        addTemporaryValues('#cGoal',i, temporaryGoalValueArray)
+                    }
                 })
 
                 document.querySelector('#deleteGoal').addEventListener("click", (e) => {
@@ -1688,29 +2086,56 @@ async function parseYourJSON(json) {
                         temporaryGoalCount -= 1
                         document.querySelector('#cGoalEditor'+temporaryGoalCount).remove()    
                     }
+
+                    for (var i=0; i<document.querySelectorAll('.multiLineGoalInput').length; i++) {
+                        addTemporaryValues('#cGoal',i, temporaryGoalValueArray)
+                    }
                 })
 
                 //포지션 이벤트리스너
+                for (var i=0; i<document.querySelectorAll('.multiLinePositionInput').length; i++) {
+                    addTemporaryValues('#cPositionLabel',i, temporaryPositionKeyArray)
+                    addTemporaryValues('#cPosition',i, temporaryPositionValueArray)
+                }
                 document.querySelector('#addPosition').addEventListener("click", (e) => {
-                    document.querySelector('#position').innerHTML += '<div class="multiLineInput" id="cPositionsEditor'+temporaryPositionCount+'"><input class="key position" name="cPositionsLabel'+temporaryPositionCount+'" id="cPositionsLabel'+temporaryPositionCount+'" value="0.0"> <input name="cPositions'+temporaryPositionCount+'" id="cPositions'+temporaryPositionCount+'"></div>'
+                    document.querySelector('#position').innerHTML += '<div class="multiLinePositionInput" id="cPositionEditor'+temporaryPositionCount+'"><input class="key position" name="cPositionLabel'+temporaryPositionCount+'" id="cPositionLabel'+temporaryPositionCount+'" value="0.0"> <input name="cPosition'+temporaryPositionCount+'" id="cPosition'+temporaryPositionCount+'"></div>'
                     temporaryPositionCount += 1
+
+                    for (var i=0; i<document.querySelectorAll('.multiLinePositionInput').length; i++) {
+                        addTemporaryValues('#cPositionLabel',i, temporaryPositionKeyArray)
+                        addTemporaryValues('#cPosition',i, temporaryPositionValueArray)
+                    }
                 })
                 document.querySelector('#deletePosition').addEventListener("click", (e) => {
                     if (temporaryPositionCount > 0) {
                         temporaryPositionCount -= 1
-                        document.querySelector('#cPositionsEditor'+temporaryPositionCount).remove()    
+                        document.querySelector('#cPositionEditor'+temporaryPositionCount).remove()    
                     }
                 })
 
                 //사건 이벤트리스너
+                for (var i=0; i<document.querySelectorAll('.multiLineEventInput').length; i++) {
+                    addTemporaryValues('#cEventLabel',i, temporaryEventKeyArray)
+                    addTemporaryValues('#cEvent',i, temporaryEventValueArray)
+                }
                 document.querySelector('#addEvent').addEventListener("click", (e) => {
-                    document.querySelector('#event').innerHTML += '<div class="multiLineInput" id="cEventsEditor'+temporaryEventCount+'"><input class="key event" name="cEventsLabel'+temporaryEventCount+'" id="cEventsLabel'+temporaryEventCount+'" value="0.0"> <input name="cEvents'+temporaryEventCount+'" id="cEvents'+temporaryEventCount+'"></div>'
+                    document.querySelector('#event').innerHTML += '<div class="multiLineEventInput" id="cEventEditor'+temporaryEventCount+'"><input class="key event" name="cEventLabel'+temporaryEventCount+'" id="cEventLabel'+temporaryEventCount+'" value="0.0"> <input name="cEvent'+temporaryEventCount+'" id="cEvent'+temporaryEventCount+'"></div>'
                     temporaryEventCount += 1
+
+                    for (var i=0; i<document.querySelectorAll('.multiLineEventInput').length; i++) {
+                        addTemporaryValues('#cEventLabel',i, temporaryEventKeyArray)
+                        addTemporaryValues('#cEvent',i, temporaryEventValueArray)
+                    }
                 })
                 document.querySelector('#deleteEvent').addEventListener("click", (e) => {
                     if (temporaryEventCount > 0) {
                         temporaryEventCount -= 1
-                        document.querySelector('#cEventsEditor'+temporaryEventCount).remove()    
+                        document.querySelector('#cEventEditor'+temporaryEventCount).remove()    
+                    }
+
+                    for (var i=0; i<document.querySelectorAll('.multiLineEventInput').length; i++) {
+                        addTemporaryValues('#cEventLabel',i, temporaryEventKeyArray)
+                        addTemporaryValues('#cEvent',i, temporaryEventValueArray)
                     }
                 })
 
@@ -1718,15 +2143,15 @@ async function parseYourJSON(json) {
 
                 //인간관계 (분류) 이벤트리스너
                 document.querySelector('#addRelatedTo').addEventListener("click", (e) => {
-                    document.querySelector('#cRelatedTo').innerHTML += '<div class="editordiv" id="cRelatedToEditor'+temporaryRelatedToCount+'"><input class="key relatedTo" value="" id="cRelatedToKey'+temporaryRelatedToCount+'"> <span id="addRelatedTo'+temporaryRelatedToCount+'" onclick="addRelatedTo('+temporaryRelatedToCount+')">'+LANG.ADDLINE+'</span> · <span id="deleteRelatedTo'+temporaryRelatedToCount+'" onclick="deleteRelatedTo('+temporaryRelatedToCount+')">'+LANG.DELLINE+'</span><div id="relatedTo'+temporaryRelatedToCount+'" class="editordiv"></div></div>'
-                    temporaryRelatedToCharacterCount.push(0)
-                    temporaryRelatedToCount += 1
+                    document.querySelector('#cRelatedTo').innerHTML += '<div class="editordiv" id="cRelatedToEditor'+temporaryRelatedTo.count+'"><input class="key relatedTo" value="" id="cRelatedToKey'+temporaryRelatedTo.count+'"> <span id="addRelatedTo'+temporaryRelatedTo.count+'" onclick="addRelatedTo('+temporaryRelatedTo.count+')">'+LANG.ADDLINE+'</span> · <span id="deleteRelatedTo'+temporaryRelatedTo.count+'" onclick="deleteRelatedTo('+temporaryRelatedTo.count+')">'+LANG.DELLINE+'</span><div id="relatedTo'+temporaryRelatedTo.count+'" class="editordiv"></div></div>'
+                    temporaryRelatedTo.characterCount.push(0)
+                    temporaryRelatedTo.count += 1
                 })
                 document.querySelector('#deleteRelatedTo').addEventListener("click", (e) => {
-                    if (temporaryRelatedToCount > 0) {
-                        temporaryRelatedToCount -= 1
-                        temporaryRelatedToCharacterCount.pop()
-                        document.querySelector('#cRelatedToEditor'+temporaryRelatedToCount).remove()
+                    if (temporaryRelatedTo.count > 0) {
+                        temporaryRelatedTo.count -= 1
+                        temporaryRelatedTo.characterCount.pop()
+                        document.querySelector('#cRelatedToEditor'+temporaryRelatedTo.count).remove()
                     }
                 })
 
@@ -1835,7 +2260,7 @@ async function parseYourJSON(json) {
                 document.querySelector('#popup-content').innerHTML = '<div class="characterprofile"></div>'
                 document.querySelector('#popup-content').innerHTML += '<div class="relatedcharacterlist"></div>'
                 document.querySelector('#popup-content').innerHTML += '<div id="collectiontitle"></div>'
-                document.querySelector('#popup-content').innerHTML += '<div id="collectionlist"><div id="worktitle"></div><div id="worklist" class="collectionlist"></div><div id="workqid" class="collectionqid"></div><div id="drafttitle"></div><div id="draftlist" class="collectionlist"></div><div id="draftqid" class="collectionqid"></div></div>'
+                document.querySelector('#popup-content').innerHTML += '<div class="collectionworklist"></div><div class="collectionworkqid"></div>'
     
                 document.querySelector('.characterprofile').innerHTML = '<h1 class="cprofilename">'+cList[page].name+'</h1>'
                 document.querySelector('.characterprofile').innerHTML += '<div class="cprofileavatar"><img src="'+cList[page].avatar+'"><div>'
@@ -1881,13 +2306,13 @@ async function parseYourJSON(json) {
                 document.querySelector('.characterprofile').innerHTML += '<h1>'+LANG.SUMMARY+'</h1>'
                 document.querySelector('.characterprofile').innerHTML += '<div class="cprofilesummary">'+cList[page].summary+'<div>'
                 document.querySelector('.characterprofile').innerHTML += '<h1>'+LANG.DESCRIPTION+'</h1>'
-                document.querySelector('.characterprofile').innerHTML += '<div class="cprofiledescription">'+parseMd(cList[page].description)+'<div>'
+                document.querySelector('.characterprofile').innerHTML += '<div class="cprofiledescription">'+marked.parse(cList[page].description)+'<div>'
                 var hideandsecret = true
                 document.querySelector('.characterprofile').innerHTML += '<h1>'+LANG.SECRET+'</h1>'
                 document.querySelector('.characterprofile').innerHTML += '<div><span id="hideSecret">'+LANG.FOLD+'</span>'
-                document.querySelector('.characterprofile').innerHTML += '<div class="cprofilesecret">'+parseMd(cList[page].secret)+'<div>'
+                document.querySelector('.characterprofile').innerHTML += '<div class="cprofilesecret">'+marked.parse(cList[page].secret)+'<div>'
     
-                document.querySelector('.characterprofile').innerHTML += '<h1>'+LANG.RELATEDTO+'</h1>'
+                document.querySelector('.characterprofile').innerHTML += '<h1>'+LANG.RELATEDCHARACTER+'</h1>'
     
                 var relatedCategory = Object.keys(json.character.list[page].relatedTo)
                 for (var i = 0; i < relatedCategory.length; i++) {
@@ -1897,29 +2322,33 @@ async function parseYourJSON(json) {
                     for (var j = 0; j < relatedCategorylist.length; j++) {
                         document.querySelector('#relatedlist'+i).innerHTML += '<a href="./?page='+relatedCategorylist[j]+'"><div class="characteritem" onmouseover="hoverCharacter('+relatedCategorylist[j]+')"><div><img src="'+cList[relatedCategorylist[j]].avatar+'" class="cavatar"></div><div class="cname">'+cList[relatedCategorylist[j]].name+'</div><div class="csummary">'+cList[relatedCategorylist[j]].summary+'</div></div></a>'
                     }
+                    
+                    var count = document.querySelectorAll('#relatedlist'+i+' .characteritem').length
+                    if (count % 3 == 1) {
+                        document.querySelector('#relatedlist'+i).innerHTML += '<a href="'+location.href+'"><div class="characteritem" style="aspect-ratio: 1 / 1;"></div></a><a href="'+location.href+'"><div class="characteritem" style="aspect-ratio: 1 / 1;"></div></a>'
+                    } else if (count % 3 == 2) {
+                        document.querySelector('#relatedlist'+i).innerHTML += '<a href="'+location.href+'"><div class="characteritem" style="aspect-ratio: 1 / 1;"></div></a>'
+                    }
                 }
     
-                var hashTagQuery = cList[page].hashtag
-                if (hashTagQuery != '') {
-                    document.querySelector('#collectiontitle').innerHTML = '<h1>관련 작품 모음</h1>'
-                    document.querySelector('#worktitle').innerHTML = '<h2>'+LANG.FINISHEDWORK+'</h2>'
-                    document.querySelector('#drafttitle').innerHTML = '<h2>'+LANG.DRAFT+'</h2>'
+                if (cList[page].hashtag) {
+                    document.querySelector('#collectiontitle').innerHTML = '<h1>'+LANG.RELATEDTO+'</h1>'
     
                     var findArtsUrl = 'https://'+MISSKEYHOST+'/api/notes/search'
                     var findArtsParam
-                    if (!workqid || workqid == 0 ) {
+                    if (isLogin) {
                         findArtsParam = {
                             method: 'POST',
                             headers: {
                                 'content-type': 'application/json',
                             },
                             body: JSON.stringify({
-                                query: hashTagQuery+' #'+json.info.mainHashtag+' #'+LANG.FINISHEDWORK,
+                                i: token,
+                                query: cList[page].hashtag,
                                 userId: MISSKEYID,
-                                limit: 5
+                                limit: 100
                             })
                         }
-                        document.querySelector('#workqid').innerHTML = '0 · <a href="./?page='+page+'&qid='+1+','+draftqid+'">'+LANG.NEXT+'</a>'
                     } else {
                         findArtsParam = {
                             method: 'POST',
@@ -1927,71 +2356,34 @@ async function parseYourJSON(json) {
                                 'content-type': 'application/json',
                             },
                             body: JSON.stringify({
-                                query: hashTagQuery+' #'+json.info.mainHashtag+' #'+LANG.FINISHEDWORK,
+                                query: cList[page].hashtag,
                                 userId: MISSKEYID,
-                                limit: 5,
-                                untilId: await fetchAgain(workqid, hashTagQuery, MISSKEYID)
+                                limit: 100
                             })
                         }
-                        document.querySelector('#workqid').innerHTML = '<a href="./?page='+page+'&qid='+(workqid-1)+','+draftqid+'">'+LANG.PREV+'</a> · '+workqid+' · <a href="./?page='+page+'&qid='+(workqid+1)+','+draftqid+'">'+LANG.NEXT+'</a>'
                     }
                     fetch(findArtsUrl, findArtsParam)
-                    .then((artsData) => {return artsData.json()})
-                    .then((artsRes) => {
-                        for (var i = 0; i<artsRes.length; i++){
-                            if (artsRes[i].files.length == 0) {
-                                document.querySelector('#worklist').innerHTML += '<div class="collectionel"><a href="./?note='+artsRes[i].id+'"><div class="overflowhidden" id="work'+i+'"></div></a></div>'
-                                if (artsRes[i].cw) document.querySelector('#work'+i).innerHTML = '</h1>'+artsRes[i].cw+'</h1>'
-                                document.querySelector('#work'+i).innerHTML += parseMd(artsRes[i].text)
+                    .then((notesData) => {return notesData.json()})
+                    .then((notesRes) => {
+                        if (notesRes.length == 100) {
+                            untilId.l = notesRes[99].id
+                            document.querySelector('.collectionworkqid').innerHTML = '<span class="bold" onclick="findNoteAgain(`'+json.info.mainHashtag+' #'+LANG.FINISHEDWORK+'`,`'+untilId.l+'`,document.querySelector(`.collectionworklist`),document.querySelector(`.collectionworkqid`),`'+MISSKEYID+'`);">더 불러오기</span>'
+                        } else {
+                            document.querySelector('.collectionworkqid').innerHTML = '<span class="bold">마지막입니다</span>'
+                        }
+            
+                        for (var i = 0; i<notesRes.length; i++){
+            
+                            if (notesRes[i].files.length == 0) {
+                                document.querySelector('.collectionworklist').innerHTML += '<div class="collectionel"><a href="./?note='+notesRes[i].id+'"><div class="overflowhidden" id="collection'+i+'"></div><div>'+notesRes[i].text.split('\n')[notesRes[i].text.split('\n').length - 1].split('@')[0]+'</div></a></div>'
+                                if (notesRes[i].cw) document.querySelector('#collection'+i).innerHTML = '<h1>'+notesRes[i].cw+'</h1>'
+                                document.querySelector('#collection'+i).innerHTML += marked.parse(notesRes[i].text)
                             } else {
-                                document.querySelector('#worklist').innerHTML += '<div class="collectionel"><a href="./?note='+artsRes[i].id+'"><img src="'+artsRes[i].files[0].url+'"></a></div>'
+                                document.querySelector('.collectionworklist').innerHTML += '<div class="collectionel"><a href="./?note='+notesRes[i].id+'"><img src="'+notesRes[i].files[0].url+'"><div>'+notesRes[i].text.split('\n')[notesRes[i].text.split('\n').length - 1].split('@')[0]+'</div></a></div>'
                             }
                         }
                     })
     
-                    var findDraftsUrl = 'https://'+MISSKEYHOST+'/api/notes/search'
-                    var findDraftsParam
-                    if (!draftqid || draftqid == 0 ) {
-                        findDraftsParam = {
-                            method: 'POST',
-                            headers: {
-                                'content-type': 'application/json',
-                            },
-                            body: JSON.stringify({
-                                query: hashTagQuery+' #'+json.info.mainHashtag+' #'+LANG.DRAFT,
-                                userId: MISSKEYID,
-                                limit: 5
-                            })
-                        }
-                        document.querySelector('#draftqid').innerHTML = '0 · <a href="./?page='+page+'&qid='+(workqid)+','+(draftqid+1)+'">'+LANG.NEXT+'</a>'
-                    } else {
-                        findDraftsParam = {
-                            method: 'POST',
-                            headers: {
-                                'content-type': 'application/json',
-                            },
-                            body: JSON.stringify({
-                                query: hashTagQuery+' #'+json.info.mainHashtag+' #'+LANG.DRAFT,
-                                userId: MISSKEYID,
-                                limit: 5,
-                                untilId: await fetchAgain(draftqid, hashTagQuery, MISSKEYID)
-                            })
-                        }
-                        document.querySelector('#draftqid').innerHTML = '<a href="./?page='+page+'&qid='+(workqid)+','+(draftqid-1)+'">'+LANG.PREV+'</a> · '+draftqid+' · <a href="./?page='+page+'&qid='+(workqid)+','+(draftqid+1)+'">'+LANG.NEXT+'</a>'
-                    }
-                    fetch(findDraftsUrl, findDraftsParam)
-                    .then((draftsData) => {return draftsData.json()})
-                    .then((draftsRes) => {
-                        for (var i = 0; i<draftsRes.length; i++){
-                            if (draftsRes[i].files.length == 0) {
-                                document.querySelector('#draftlist').innerHTML += '<div class="collectionel"><a href="./?note='+draftsRes[i].id+'"><div class="overflowhidden" id="draft'+i+'"></div></a></div>'
-                                if (draftsRes[i].cw) document.querySelector('#draft'+i).innerHTML = '</h1>'+draftsRes[i].cw+'</h1>'
-                                document.querySelector('#draft'+i).innerHTML += parseMd(draftsRes[i].text)
-                            } else {
-                                document.querySelector('#draftlist').innerHTML += '<div class="collectionel"><a href="./?note='+draftsRes[i].id+'"><img src="'+draftsRes[i].files[0].url+'"></a></div>'
-                            }
-                        }
-                    })
                 }
     
                 document.querySelector('#hideChronology').addEventListener("click", (e) => {
@@ -2064,6 +2456,87 @@ async function parseYourJSON(json) {
         .then((notesData) => {return notesData.json()})
         .then((notesRes) => {
 
+            if (notesRes.tags.includes(LANG.REFERENCE) && mode != 'edit') {
+
+                var tagQuery = notesRes.tags[0]
+
+                var refIndex
+                for (var i=0; i<json.reference.length; i++){
+                    if ( tagQuery == json.reference[i].hashtag) {
+                        refIndex = i
+                    }
+                }
+
+                document.querySelector('#popup-content').innerHTML += '<div id="bookInfo"></div>'
+                document.querySelector('#bookInfo').innerHTML = '<h1>'+LANG.INFO+'</h1>'
+                document.querySelector('#bookInfo').innerHTML += '<a href="./?page=book'+refIndex+'" class="referenceItem"><span class="bold">'+json.reference[refIndex].title+' - '+json.reference[refIndex].author+'</span></a>'
+
+                document.querySelector('#popup-content').innerHTML += '<div id="collectiontitle"></div>'
+                document.querySelector('#popup-content').innerHTML += '<div class="collectionworklist"></div><div class="collectionworkqid"></div>'
+
+                document.querySelector('#collectiontitle').innerHTML = '<h1>'+LANG.RELATEDTO+'</h1>'
+
+                var findArtsUrl = 'https://'+MISSKEYHOST+'/api/notes/search'
+                var findArtsParam
+                if (isLogin) {
+                    findArtsParam = {
+                        method: 'POST',
+                        headers: {
+                            'content-type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            i: token,
+                            query: '#'+tagQuery,
+                            userId: MISSKEYID,
+                            limit: 100
+                        })
+                    }
+                } else {
+                    findArtsParam = {
+                        method: 'POST',
+                        headers: {
+                            'content-type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            query: '#'+tagQuery,
+                            userId: MISSKEYID,
+                            limit: 100
+                        })
+                    }
+                }
+                fetch(findArtsUrl, findArtsParam)
+                .then((notesData) => {return notesData.json()})
+                .then((notesRes) => {
+                    if (notesRes.length == 100) {
+                        untilId.l = notesRes[99].id
+                        document.querySelector('.collectionworkqid').innerHTML = '<span class="bold" onclick="findNoteAgain(`'+json.info.mainHashtag+' #'+LANG.FINISHEDWORK+'`,`'+untilId.l+'`,document.querySelector(`.collectionworklist`),document.querySelector(`.collectionworkqid`),`'+MISSKEYID+'`);">더 불러오기</span>'
+                    } else {
+                        document.querySelector('.collectionworkqid').innerHTML = '<span class="bold">마지막입니다</span>'
+                    }
+
+                    notesRes.sort(function (a, b) {
+                        if (a.cw > b.cw) {
+                          return 1;
+                        }
+                        if (a.cw < b.cw) {
+                          return -1;
+                        }
+                        return 0;
+                    })
+        
+                    for (var i = 0; i<notesRes.length; i++){
+        
+                        if (notesRes[i].files.length == 0) {
+                            document.querySelector('.collectionworklist').innerHTML += '<div class="collectionel"><a href="./?note='+notesRes[i].id+'"><div class="overflowhidden" id="collection'+i+'"></div><div>'+notesRes[i].text.split('\n')[notesRes[i].text.split('\n').length - 1].split('@')[0]+'</div></a></div>'
+                            if (notesRes[i].cw) document.querySelector('#collection'+i).innerHTML = '<h1>'+notesRes[i].cw+'</h1>'
+                            document.querySelector('#collection'+i).innerHTML += marked.parse(notesRes[i].text)
+                        } else {
+                            document.querySelector('.collectionworklist').innerHTML += '<div class="collectionel"><a href="./?note='+notesRes[i].id+'"><img src="'+notesRes[i].files[0].url+'"><div>'+notesRes[i].text.split('\n')[notesRes[i].text.split('\n').length - 1].split('@')[0]+'</div></a></div>'
+                        }
+                    }
+                })
+            }
+
             if (mode == 'edit' && isLogin) {
 
                 var isSaved = false
@@ -2079,32 +2552,58 @@ async function parseYourJSON(json) {
                 //제목
                 document.querySelector('.editform').innerHTML += '<div class="editordiv"><label for="cTitle"><span class="bold">'+LANG.TITLE+'</span></label> <input type="text" id="cTitle" name="cTitle" value="'+notesRes.cw+'"></div>'
     
+                for (var i=0; i<json.character.list.length; i++) {
+                    if (notesRes.tags.includes(json.character.list[i].hashtag)) {
+                        relatedItem.c.push(i)
+                    }
+                }
+                for (var i=0; i<json.reference.length; i++) {
+                    if (notesRes.tags.includes(json.reference[i].hashtag)) {
+                        relatedItem.b.push(i)
+                    }
+                }
+
                 //완성작 및 초안 선택
                 if (notesRes.tags.includes(LANG.FINISHEDWORK)) {
-                    document.querySelector('.editform').innerHTML += '<div class="editordiv"><span class="bold">'+LANG.WORKTYPE+'</span> <select name="cType" id="cType"><option value=" #'+LANG.FINISHEDWORK+'" selected>'+LANG.FINISHEDWORK+'</option><option value=" #'+LANG.DRAFT+'">'+LANG.DRAFT+'</option></select></div>'
+                    document.querySelector('.editform').innerHTML += '<div class="editordiv"><span class="bold">'+LANG.WORKTYPE+'</span> <select name="cType" id="cType" onchange="changeRelatedToSelection(`relatedTo`)"><option value=" #'+LANG.FINISHEDWORK+'" selected>'+LANG.FINISHEDWORK+'</option><option value=" #'+LANG.REFERENCE+'">'+LANG.REFERENCE+'</option><option value=" #'+LANG.DRAFT+'">'+LANG.DRAFT+'</option></select></div>'
+
+                    temporaryRelatedTo.count = relatedItem.c.length
+                } else if (notesRes.tags.includes(LANG.REFERENCE)) {
+                    document.querySelector('.editform').innerHTML += '<div class="editordiv"><span class="bold">'+LANG.WORKTYPE+'</span> <select name="cType" id="cType"><option value=" #'+LANG.FINISHEDWORK+'">'+LANG.FINISHEDWORK+'</option><option value=" #'+LANG.REFERENCE+'" selected>'+LANG.REFERENCE+'</option><option value=" #'+LANG.DRAFT+'">'+LANG.DRAFT+'</option></select></div>'
+                    
+                    temporaryRelatedTo.count = relatedItem.b.length
                 } else if (notesRes.tags.includes(LANG.DRAFT)) {
-                    document.querySelector('.editform').innerHTML += '<div class="editordiv"><span class="bold">'+LANG.WORKTYPE+'</span> <select name="cType" id="cType"><option value=" #'+LANG.FINISHEDWORK+'">'+LANG.FINISHEDWORK+'</option><option value=" #'+LANG.DRAFT+'" selected>'+LANG.DRAFT+'</option></select></div>'
+                    document.querySelector('.editform').innerHTML += '<div class="editordiv"><span class="bold">'+LANG.WORKTYPE+'</span> <select name="cType" id="cType"><option value=" #'+LANG.FINISHEDWORK+'">'+LANG.FINISHEDWORK+'</option><option value=" #'+LANG.REFERENCE+'">'+LANG.REFERENCE+'</option><option value=" #'+LANG.DRAFT+'" selected>'+LANG.DRAFT+'</option></select></div>'
+
+                    temporaryRelatedTo.count = relatedItem.c.length
                 }
 
                 //연관 캐릭터 (틀 생성)
                 document.querySelector('.editform').innerHTML += '<div class="editordiv"><span class="bold">'+LANG.RELATEDTO+'</span> <span id="addRelatedTo">'+LANG.ADDLINE+'</span> · <span id="deleteRelatedTo">'+LANG.DELLINE+'</span></div><div id="relatedTo" class="editordiv"></div>'
 
-                var relatedCharacter = []
-                for (var i=0; i<json.character.list.length; i++) {
-                    if (notesRes.tags.includes(json.character.list[i].hashtag)) {
-                        relatedCharacter.push(i)
-                    }
-                }
-
                 //연관 캐릭터 (드롭다운)
-                var temporaryRelatedToCount = relatedCharacter.length
-                for (var i=0; i<relatedCharacter.length; i++) {
-                    document.querySelector('#relatedTo').innerHTML += '<div class="multiLineInput relatedTo" id="cRelatedToEditor'+i+'"><label id="cRelatedToLabel'+i+'" for="cRelatedTo'+i+'">'+(i+1)+' :</label> <select name="cRelatedTo'+i+'" id="cRelatedTo'+i+'"></select></div>'
-                    for (var j=0; j<json.character.list.length; j++) {
-                        if (relatedCharacter[i] == j) {
-                            document.querySelector('#cRelatedTo'+i).innerHTML += '<option value="'+j+'" selected>'+json.character.list[j].name+'</option>'
-                        } else {
-                            document.querySelector('#cRelatedTo'+i).innerHTML += '<option value="'+j+'">'+json.character.list[j].name+'</option>'
+                if (document.querySelector('#cType').value == ' #'+LANG.FINISHEDWORK || document.querySelector('#cType').value  == ' #'+LANG.DRAFT) {
+                    document.querySelector('#'+'relatedTo').innerHTML = ''
+                    for (var i=0; i<relatedItem.c.length; i++) {
+                        document.querySelector('#'+'relatedTo').innerHTML += '<div class="multiLineInput relatedTo" id="cRelatedToEditor'+i+'"><label id="cRelatedToLabel'+i+'" for="'+'relatedTo'+i+'">'+(i+1)+' :</label> <select name="cRelatedTo'+i+'" id="'+'relatedTo'+i+'"></select></div>'
+                        for (var j=0; j<json.character.list.length; j++) {
+                            if (relatedItem.c[i] == j) {
+                                document.querySelector('#'+'relatedTo'+i).innerHTML += '<option value="'+j+'" selected>'+json.character.list[j].name+'</option>'
+                            } else {
+                                document.querySelector('#'+'relatedTo'+i).innerHTML += '<option value="'+j+'">'+json.character.list[j].name+'</option>'
+                            }
+                        }
+                    }
+                } else if (document.querySelector('#cType').value == ' #'+LANG.REFERENCE) {
+                    document.querySelector('#'+'relatedTo').innerHTML = ''
+                    for (var i=0; i<relatedItem.b.length; i++) {
+                        document.querySelector('#'+'relatedTo').innerHTML += '<div class="multiLineInput relatedTo" id="cRelatedToEditor'+i+'"><label id="cRelatedToLabel'+i+'" for="'+'relatedTo'+i+'">'+(i+1)+' :</label> <select name="cRelatedTo'+i+'" id="'+'relatedTo'+i+'"></select></div>'
+                        for (var j=0; j<json.reference.length; j++) {
+                            if (relatedItem.b[i] == j) {
+                                document.querySelector('#'+'relatedTo'+i).innerHTML += '<option value="'+j+'" selected>'+json.reference[j].title+'</option>'
+                            } else {
+                                document.querySelector('#'+'relatedTo'+i).innerHTML += '<option value="'+j+'">'+json.reference[j].title+'</option>'
+                            }
                         }
                     }
                 }
@@ -2139,16 +2638,22 @@ async function parseYourJSON(json) {
     
                 //연관 캐릭터 이벤트 리스너
                 document.querySelector('#addRelatedTo').addEventListener("click", (e) => {
-                    document.querySelector('#relatedTo').innerHTML += '<div class="multiLineInput" id="cRelatedToEditor'+temporaryRelatedToCount+'"><label id="cRelatedToLabel'+temporaryRelatedToCount+'" for="cRelatedTo'+temporaryRelatedToCount+'">'+(temporaryRelatedToCount+1)+' :</label> <select name="cRelatedTo'+temporaryRelatedToCount+'" id="cRelatedTo'+temporaryRelatedToCount+'"></select></div>'
-                    for (var j=0; j<json.character.list.length; j++) {
-                        document.querySelector('#cRelatedTo'+temporaryRelatedToCount).innerHTML += '<option value="'+j+'">'+json.character.list[j].name+'</option>'
+                    document.querySelector('#relatedTo').innerHTML += '<div class="multiLineInput" id="cRelatedToEditor'+temporaryRelatedTo.count+'"><label id="cRelatedToLabel'+temporaryRelatedTo.count+'" for="relatedTo'+temporaryRelatedTo.count+'">'+(temporaryRelatedTo.count+1)+' :</label> <select name="cRelatedTo'+temporaryRelatedTo.count+'" id="relatedTo'+temporaryRelatedTo.count+'" class="relatedTo" ></select></div>'
+                    if (document.querySelector('#cType').value == ' #'+LANG.REFERENCE) {
+                        for (var j=0; j<json.reference.length; j++) {
+                            document.querySelector('#relatedTo'+temporaryRelatedTo.count).innerHTML += '<option value="'+j+'">'+json.reference[j].title+'</option>'
+                        }
+                    } else {
+                        for (var j=0; j<json.character.list.length; j++) {
+                            document.querySelector('#relatedTo'+temporaryRelatedTo.count).innerHTML += '<option value="'+j+'">'+json.character.list[j].name+'</option>'
+                        }
                     }
-                    temporaryRelatedToCount += 1
+                    temporaryRelatedTo.count += 1
                 })
                 document.querySelector('#deleteRelatedTo').addEventListener("click", (e) => {
-                    if (temporaryRelatedToCount > 0) {
-                        temporaryRelatedToCount -= 1
-                        document.querySelector('#cRelatedToEditor'+temporaryRelatedToCount).remove()
+                    if (temporaryRelatedTo.count > 0) {
+                        temporaryRelatedTo.count -= 1
+                        document.querySelector('#cRelatedToEditor'+temporaryRelatedTo.count).remove()
                     }
                 })
     
@@ -2183,6 +2688,8 @@ async function parseYourJSON(json) {
                             fileCount.l += 1
 
                             document.querySelector('#imgUploader').innerHTML += '<div id="imgUploadFrame'+fileCount.l+'" onclick="deleteFile(this);"><span class="bold">'+LANG.ADDFILE+'</span> <span id="imgUpload">'+LANG.CLICK+'</span></div>'
+
+                            document.querySelector('#imgUpload').addEventListener('click', () => imgRealUpload.click())
                         })
                         .catch(err => {throw err});
                         
@@ -2190,15 +2697,35 @@ async function parseYourJSON(json) {
                     reader.readAsDataURL(this.files[0])
                 })
     
+                document.querySelector('#cContent').addEventListener("click", (e) => {
+                    
+                    // Open the iframe
+                    stackedit.openFile({
+                        name: 'Filename', // with an optional filename
+                        content: {
+                        text: document.querySelector('#cContent').value.replace(/\n{3,}/gm, '\n\n') // and the Markdown content.
+                        }
+                    })
+      
+                    stackedit.on('fileChange', (file) => {
+                        document.querySelector('#cContent').value = file.content.text.replace(/\n\n/gm, '\n').replace(/\n([^\-\*\#0-9\>\|\=\s]+)/gm, '\n\n$1')
+                    })
+    
+                })
+
                 //확인버튼 이벤트리스너
                 document.querySelector('#confirm').addEventListener("click", (e) => {
     
                     var cTitle = document.querySelector('#cTitle').value.replace(/\/g, '')
                     var cType = document.querySelector('#cType').value.replace(/\/g, '')
                     var cRelatedTo = []
-                    for (var j=0; j < document.querySelectorAll('#relatedTo').length; j++) {
-                        var cIndex = parseInt(document.querySelector('#cRelatedTo'+j).value.replace(/\/g, ''))
-                        cRelatedTo[j] = json.character.list[cIndex].hashtag
+                    for (var j=0; j < document.querySelectorAll('.relatedTo').length; j++) {
+                        var cIndex = parseInt(document.querySelector('#relatedTo'+j).value.replace(/\/g, ''))
+                        if (cType == ' #'+LANG.REFERENCE) {
+                            cRelatedTo[j] = json.reference[cIndex].hashtag
+                        } else {
+                            cRelatedTo[j] = json.character.list[cIndex].hashtag
+                        }
                     }
                     var cRelatedText = cRelatedTo.join(' #')
                     var cVisibility = document.querySelector('#cVisibility').value.replace(/\/g, '')
@@ -2284,7 +2811,7 @@ async function parseYourJSON(json) {
                         document.querySelector('.collectionnote').innerHTML += '<div><img src="'+notesRes.files[i].url+'"></div>'
                     }
                 }
-                document.querySelector('.collectionnote').innerHTML += '<div class="noteContent">'+parseMd(notesRes.text)+'</div><hr>'
+                document.querySelector('.collectionnote').innerHTML += '<div class="noteContent">'+marked.parse(notesRes.text)+'</div><hr>'
                 document.querySelector('.collectionnote').innerHTML += '<div class="reactionList"></div>'
                 for (var i = 0; i<Object.keys(notesRes.reactions).length; i++) {
                     var emojiName = Object.keys(notesRes.reactions)[i]
